@@ -1,6 +1,6 @@
 # Projeto de Predição de Diabetes com Redes Neurais e Modelos Clássicos
 
-Trabalho de Conclusão de Curso (TCC) apresentado ao curso de Ciência da Computação da Universidade Católica de Petrópolis (UCP).
+Trabalho de Conclusão de Curso (TCC) apresentado ao curso de Engenharia de Computação da Universidade Católica de Petrópolis (UCP).
 
 Este projeto tem como objetivo desenvolver, treinar e comparar modelos de machine learning para predição de diabetes, utilizando tanto redes neurais (MLP, CNN, híbrido) quanto algoritmos clássicos.
 
