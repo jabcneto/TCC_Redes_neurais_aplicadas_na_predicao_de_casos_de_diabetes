@@ -4,3 +4,6 @@
 2025-05-01 15:10:39,930 - __main__ - ERROR - Erro ao calcular SHAP values: [Errno 2] No such file or directory: 'resultados_diabetes/graficos/shap/mlp_shap_summary.png'
 2025-05-01 15:15:22,946 - __main__ - ERROR - Erro ao calcular SHAP values: [Errno 2] No such file or directory: 'resultados_diabetes/graficos/shap/cnn_shap_summary.png'
 2025-05-01 15:15:23,504 - __main__ - ERROR - Erro ao gerar explicações LIME: index 1 is out of bounds for axis 1 with size 1
+2025-07-01 15:02:48,875 - __main__ - ERROR - Erro ao calcular SHAP values: [Errno 2] No such file or directory: 'resultados_diabetes/graficos/shap/mlp_shap_summary.png'
+2025-07-01 15:10:23,756 - __main__ - ERROR - Erro ao calcular SHAP values: [Errno 2] No such file or directory: 'resultados_diabetes/graficos/shap/cnn_shap_summary.png'
+2025-07-01 15:10:26,962 - __main__ - ERROR - Erro ao gerar explicações LIME: index 1 is out of bounds for axis 1 with size 1
