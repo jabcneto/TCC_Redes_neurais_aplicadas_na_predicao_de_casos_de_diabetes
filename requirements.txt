@@ -1,0 +1,13 @@
+# Requisitos para o projeto de predição de diabetes
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+jupyter
+notebook
+tensorflow
+keras
+scipy
+xgboost
+
