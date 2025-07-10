@@ -1,3 +1,6 @@
 2025-07-01 19:45:03,810 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
 2025-07-01 19:45:21,720 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
 2025-07-01 19:45:34,749 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
+2025-07-03 16:27:49,022 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
+2025-07-03 16:28:11,360 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
+2025-07-03 16:28:28,077 - __main__ - ERROR - Erro ao calcular SHAP values: 'PermutationExplainer' object has no attribute 'expected_value'
