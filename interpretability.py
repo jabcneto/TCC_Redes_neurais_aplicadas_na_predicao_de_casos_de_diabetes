@@ -10,9 +10,9 @@ from config import LOGGER
 from utils import RESULTS_DIR
 
 
-def analisar_shap_values(model, x_test, feature_names, nome_modelo):
-    """Calcula e plota os SHAP values para um modelo."""
-    LOGGER.info(f"Calculando SHAP values para {nome_modelo}.")
+def analisar_valores_shap(model, x_test, feature_names, nome_modelo):
+    """Calcula e plota os valores SHAP para um modelo."""
+    LOGGER.info(f"Calculando valores SHAP para {nome_modelo}.")
     save_dir = os.path.join(RESULTS_DIR, "graficos", "shap")
 
     # SHAP precisa de um subconjunto de dados para o explainer
@@ -25,7 +25,7 @@ def analisar_shap_values(model, x_test, feature_names, nome_modelo):
     plt.close()
 
 
-def analisar_lime(model, x_train, x_test, feature_names, nome_modelo, num_amostras=3):
+def analisar_lime_pt(model, x_train, x_test, feature_names, nome_modelo, num_amostras=3):
     """Gera explicações LIME para algumas amostras."""
     LOGGER.info(f"Gerando LIME para {nome_modelo}.")
     save_dir = os.path.join(RESULTS_DIR, "graficos", "lime")

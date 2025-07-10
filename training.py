@@ -9,7 +9,7 @@ from utils import RESULTS_DIR
 from config import LOGGER
 
 
-def criar_callbacks(nome_modelo, paciencia=15, monitor='val_auc'):
+def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
     """Cria callbacks para o treinamento de modelos Keras."""
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
@@ -50,13 +50,13 @@ def criar_callbacks(nome_modelo, paciencia=15, monitor='val_auc'):
     ]
 
 
-def treinar_modelo_keras(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=100, batch_size=128):
+def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=100, batch_size=128):
     """
     Treina um modelo Keras.
     A barra de progresso já é fornecida pelo Keras (verbose=1).
     """
     LOGGER.info(f"Iniciando treinamento do modelo: {nome_modelo}")
-    callbacks = criar_callbacks(nome_modelo, monitor='val_auc')
+    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_auc')
 
     if "cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower():
         if len(x_train.shape) == 2:
@@ -75,7 +75,7 @@ def treinar_modelo_keras(model, x_train, y_train, x_val, y_val, nome_modelo, epo
     return model, history
 
 
-def treinar_modelos_classicos(models, x_train, y_train):
+def treinar_modelos_classicos_pt(models, x_train, y_train):
     """Treina uma lista de modelos clássicos com uma barra de progresso."""
     trained_models = {}
 

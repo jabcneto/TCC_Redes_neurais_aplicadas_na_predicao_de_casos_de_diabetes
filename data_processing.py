@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 from config import LOGGER, MAPEAMENTO_COLUNAS_PT, RANDOM_STATE
-from evaluation import visualizar_analise_exploratoria
+from evaluation import visualizar_analise_exploratoria_dados
 
 
 def renomear_colunas_para_portugues(df):
@@ -27,7 +27,7 @@ def analisar_dados(df):
     LOGGER.info("Realizando análise exploratória dos dados.")
     if 'gênero' in df.columns and 'Other' in df['gênero'].unique():
         df = df[df['gênero'] != 'Other'].copy()
-    visualizar_analise_exploratoria(df)
+    visualizar_analise_exploratoria_dados(df)
     return df
 
 

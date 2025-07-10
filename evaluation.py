@@ -12,7 +12,7 @@ from utils import RESULTS_DIR
 from config import LOGGER
 
 
-def visualizar_analise_exploratoria(df):
+def visualizar_analise_exploratoria_dados(df):
     """Cria visualizações para a análise exploratória dos dados."""
     LOGGER.info("Gerando visualizações para análise exploratória.")
     save_dir = os.path.join(RESULTS_DIR, "graficos", "distribuicao")

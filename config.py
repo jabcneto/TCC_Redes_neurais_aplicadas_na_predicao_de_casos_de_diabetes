@@ -37,7 +37,7 @@ class ColoredFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def setup_logging():
+def configurar_logging():
     """Configura o sistema de logging para o projeto."""
     log_file_path = os.path.join(RESULTS_DIR, "logs")
     os.makedirs(log_file_path, exist_ok=True)
@@ -51,17 +51,15 @@ def setup_logging():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    # 2. Criamos um handler para os ficheiros de log (sem cor)
+    # Handler para arquivos de log (sem cor)
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
-    # 3. Criamos um handler para o terminal (com cor)
+    # Handler para terminal (com cor)
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(ColoredFormatter())  # Usamos o nosso formatador colorido
+    console_handler.setFormatter(ColoredFormatter())
 
-    # Adicionamos os handlers ao logger principal
-    # (Removendo a configuração básica para evitar duplicação)
-    logger.propagate = False  # Impede que os logs subam para o logger raiz
+    logger.propagate = False
     if not logger.handlers:
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
@@ -69,11 +67,10 @@ def setup_logging():
     return logger
 
 
-def create_project_directories():
+def criar_diretorios_projeto():
     """Cria os diretórios necessários para salvar os resultados do projeto."""
     os.makedirs(RESULTS_DIR, exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "modelos"), exist_ok=True)
-    # ... (restante da função permanece igual)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "confusao"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "roc"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "importancia"), exist_ok=True)

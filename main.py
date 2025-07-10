@@ -6,7 +6,7 @@ import numpy as np
 import argparse  # Importa o módulo para argumentos
 
 # Importações dos nossos módulos
-from utils import create_project_directories, RESULTS_DIR
+from utils import criar_diretorios_projeto, RESULTS_DIR
 from config import LOGGER, RANDOM_STATE, DATASET_PATH
 import data_processing
 import modeling
@@ -24,7 +24,7 @@ def run_pipeline(retrain_models):
                                Se False, pula o treino e usa os modelos já salvos.
     """
 
-    create_project_directories()
+    criar_diretorios_projeto()
     LOGGER.info("--- INICIANDO PIPELINE DE PREDIÇÃO DE DIABETES ---")
 
     # 1. Carga e Análise dos Dados
@@ -43,20 +43,20 @@ def run_pipeline(retrain_models):
         LOGGER.info("--- FASE DE TREINAMENTO (Flag --retrain ativada) ---")
 
         # a) Modelos Clássicos
-        classic_models = modeling.get_classic_models(RANDOM_STATE)
-        training.treinar_modelos_classicos(classic_models, x_train, y_train)
+        classic_models = modeling.obter_modelos_classicos(RANDOM_STATE)
+        training.treinar_modelos_classicos_pt(classic_models, x_train, y_train)
 
         # b) Modelo MLP
-        modelo_mlp = modeling.criar_modelo_mlp(input_shape=(x_train.shape[1],))
-        training.treinar_modelo_keras(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
+        modelo_mlp = modeling.criar_modelo_mlp_pt(input_shape=(x_train.shape[1],))
+        training.treinar_modelo_keras_pt(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
 
         # c) Modelo CNN
-        modelo_cnn = modeling.criar_modelo_cnn(input_shape=(x_train.shape[1], 1))
-        training.treinar_modelo_keras(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
+        modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
+        training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
 
         # d) Modelo Híbrido
-        modelo_hibrido = modeling.criar_modelo_hibrido(input_shape=(x_train.shape[1], 1))
-        training.treinar_modelo_keras(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
+        modelo_hibrido = modeling.criar_modelo_hibrido_pt(input_shape=(x_train.shape[1], 1))
+        training.treinar_modelo_keras_pt(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
     else:
         LOGGER.info("--- FASE DE TREINAMENTO PULADA (Usando modelos pré-treinados) ---")
 
@@ -65,7 +65,7 @@ def run_pipeline(retrain_models):
     all_metrics = []
 
     # a) Avaliar modelos clássicos
-    trained_classic_models = modeling.get_classic_models(RANDOM_STATE)  # Apenas para ter a lista de nomes
+    trained_classic_models = modeling.obter_modelos_classicos(RANDOM_STATE)  # Apenas para ter a lista de nomes
     for name in trained_classic_models.keys():
         model_path = os.path.join(RESULTS_DIR, "modelos", f"{name.replace(' ', '_').lower()}.pkl")
         if os.path.exists(model_path):
@@ -124,8 +124,8 @@ def run_pipeline(retrain_models):
                     x_test_para_analise = np.expand_dims(x_test_para_analise, axis=-1)
 
             # Executa as análises de interpretabilidade
-            interpretability.analisar_shap_values(best_model, x_test_para_analise, feature_names, nome_modelo)
-            interpretability.analisar_lime(best_model, x_train, x_test_para_analise, feature_names, nome_modelo)
+            interpretability.analisar_valores_shap(best_model, x_test_para_analise, feature_names, nome_modelo)
+            interpretability.analisar_lime_pt(best_model, x_train, x_test_para_analise, feature_names, nome_modelo)
         else:
             LOGGER.warning(f"Modelo {nome_modelo} não encontrado em {model_path}. Pulando análise.")
 

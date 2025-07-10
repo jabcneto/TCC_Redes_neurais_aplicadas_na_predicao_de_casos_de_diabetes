@@ -2,7 +2,7 @@
 import os
 import numpy as np
 import tensorflow as tf
-from utils import setup_logging
+from config import configurar_logging, criar_diretorios_projeto
 
 # --- CONSTANTES GLOBAIS ---
 DATASET_PATH = "diabetes_prediction_dataset.csv"
@@ -27,4 +27,4 @@ MAPEAMENTO_COLUNAS_PT = {
 }
 
 # --- LOGGER ---
-LOGGER = setup_logging()
+LOGGER = configurar_logging()
