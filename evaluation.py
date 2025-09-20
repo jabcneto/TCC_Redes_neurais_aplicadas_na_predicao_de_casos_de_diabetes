@@ -1,15 +1,13 @@
-# evaluation.py
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from sklearn.metrics import (accuracy_score, balanced_accuracy_score, confusion_matrix,
-                             f1_score, precision_score, recall_score, roc_auc_score,
-                             classification_report, roc_curve, auc, precision_recall_curve,
-                             average_precision_score)
-from utils import RESULTS_DIR
-from config import LOGGER
+from sklearn.metrics import (accuracy_score, confusion_matrix,
+                             f1_score, precision_score, recall_score,
+                             roc_auc_score, roc_curve, auc)
+
+from config import RESULTS_DIR, LOGGER
 
 
 def visualizar_analise_exploratoria_dados(df):

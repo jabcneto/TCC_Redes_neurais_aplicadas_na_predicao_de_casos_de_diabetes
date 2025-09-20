@@ -1,12 +1,10 @@
-# training.py
 import pickle
 import time
 import os
 import numpy as np
 from tqdm import tqdm
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
-from utils import RESULTS_DIR
-from config import LOGGER
+from config import RESULTS_DIR, LOGGER
 
 
 def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
@@ -14,7 +12,6 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
 
-    # Determina o modo (max ou min) com base no nome da métrica monitorada
     if 'acc' in monitor or 'auc' in monitor:
         mode = 'max'
     else:
@@ -27,14 +24,14 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
             monitor=monitor,
             patience=paciencia,
             verbose=1,
-            mode=mode,  # <-- CORREÇÃO APLICADA AQUI
+            mode=mode,
             restore_best_weights=True
         ),
         ModelCheckpoint(
             filepath=best_model_path,
             save_best_only=True,
             monitor=monitor,
-            mode=mode,  # <-- CORREÇÃO APLICADA AQUI
+            mode=mode,
             verbose=1
         ),
         ReduceLROnPlateau(
@@ -42,7 +39,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
             factor=0.5,
             patience=paciencia // 2,
             min_lr=1e-6,
-            mode=mode,  # <-- CORREÇÃO APLICADA AQUI
+            mode=mode,
             verbose=1
         ),
         CSVLogger(filename=os.path.join(RESULTS_DIR, "history", f"{nome_modelo}_history.csv")),

@@ -4,26 +4,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import mannwhitneyu
 import os
-import logging
 
-# Métricas de avaliação
 from sklearn.metrics import (
-    accuracy_score, balanced_accuracy_score, confusion_matrix,
-    f1_score, precision_score, recall_score, roc_auc_score, roc_curve, auc,
-    precision_recall_curve, average_precision_score, classification_report
+    confusion_matrix, roc_curve, auc,
+    precision_recall_curve, average_precision_score
 )
 
-
-RESULTS_DIR = 'resultados_diabetes'
-
-# Verificar se os diretórios existem
-os.makedirs(f"{RESULTS_DIR}/graficos", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/confusao", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/roc", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/importancia", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/distribuicao", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/shap", exist_ok=True)
-os.makedirs(f"{RESULTS_DIR}/graficos/lime", exist_ok=True)
+from config import RESULTS_DIR, criar_diretorios_projeto, LOGGER
 
 # Funções originais do arquivo gerar_graficos.py
 def criar_grafico_evolucao_modelos(resultados_df):
@@ -56,7 +43,7 @@ def criar_grafico_evolucao_modelos(resultados_df):
     cores = ['#2E86C1', '#28B463', '#F39C12', '#E74C3C']
 
     for i, (metrica, titulo, cor) in enumerate(zip(metricas, titulos, cores)):
-        ax = axes[i//2, i%2]
+        ax = axes[i // 2, i % 2]
 
         # Plotar linha de evolução
         x_vals = range(len(df_ordenado))
@@ -86,7 +73,7 @@ def criar_grafico_evolucao_modelos(resultados_df):
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/evolucao_modelos_complexidade.png", dpi=300, bbox_inches='tight')
     plt.close()
-    print("✅ Gráfico de evolução criado")
+    LOGGER.info("Gráfico de evolução criado")
 
 
 def criar_heatmap_metricas_modelos(resultados_df):
@@ -101,7 +88,7 @@ def criar_heatmap_metricas_modelos(resultados_df):
     metricas_disponiveis = [col for col in metricas_cols if col in resultados_df.columns]
 
     if not metricas_disponiveis:
-        print("❌ Nenhuma métrica encontrada para criar heatmap")
+        LOGGER.error("Nenhuma métrica encontrada para criar heatmap")
         return
 
     # Preparar dados para heatmap
@@ -136,7 +123,7 @@ def criar_heatmap_metricas_modelos(resultados_df):
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/heatmap_metricas_modelos.png", dpi=300, bbox_inches='tight')
     plt.close()
-    print("✅ Heatmap de métricas criado")
+    LOGGER.info("Heatmap de métricas criado")
 
 
 def criar_distribuicao_features_importantes(df):
@@ -150,7 +137,7 @@ def criar_distribuicao_features_importantes(df):
     features_disponiveis = [f for f in features_importantes if f in df.columns]
 
     if len(features_disponiveis) < 2:
-        print("❌ Poucas features importantes encontradas no dataset")
+        LOGGER.error("Poucas features importantes encontradas no dataset")
         return
 
     # Ajustar layout baseado no número de features
@@ -159,7 +146,7 @@ def criar_distribuicao_features_importantes(df):
         fig, axes = plt.subplots(2, 2, figsize=(20, 16))
         axes = axes.flatten()
     else:
-        fig, axes = plt.subplots(1, n_features, figsize=(5*n_features, 8))
+        fig, axes = plt.subplots(1, n_features, figsize=(5 * n_features, 8))
         if n_features == 1:
             axes = [axes]
 
@@ -180,15 +167,15 @@ def criar_distribuicao_features_importantes(df):
 
         # Adicionar linhas de média
         ax.axvline(diabetes_nao.mean(), color='#2980B9', linestyle='--', linewidth=2,
-                  label=f'Média Não Diabetes: {diabetes_nao.mean():.2f}')
+                   label=f'Média Não Diabetes: {diabetes_nao.mean():.2f}')
         ax.axvline(diabetes_sim.mean(), color='#C0392B', linestyle='--', linewidth=2,
-                  label=f'Média Diabetes: {diabetes_sim.mean():.2f}')
+                   label=f'Média Diabetes: {diabetes_sim.mean():.2f}')
 
         # Teste estatístico
         try:
             statistic, p_value = mannwhitneyu(diabetes_sim, diabetes_nao, alternative='two-sided')
             ax.set_title(f'{feature}\np-value (Mann-Whitney): {p_value:.2e}',
-                        fontsize=14, fontweight='bold')
+                         fontsize=14, fontweight='bold')
         except:
             ax.set_title(f'{feature}', fontsize=14, fontweight='bold')
 
@@ -200,7 +187,7 @@ def criar_distribuicao_features_importantes(df):
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/distribuicao_features_importantes.png", dpi=300, bbox_inches='tight')
     plt.close()
-    print("✅ Gráfico de distribuição de features criado")
+    LOGGER.info("Gráfico de distribuição de features criado")
 
 
 def criar_grafico_tempo_treinamento(resultados_df):
@@ -227,14 +214,14 @@ def criar_grafico_tempo_treinamento(resultados_df):
     modelos_existentes = [m for m in tempos_estimados.keys() if m in resultados_df['modelo'].values]
 
     if not modelos_existentes:
-        print("❌ Nenhum modelo encontrado para análise de tempo")
+        LOGGER.error("Nenhum modelo encontrado para análise de tempo")
         return
 
     # Preparar dados
     df_tempo = pd.DataFrame({
         'modelo': modelos_existentes,
         'tempo_segundos': [tempos_estimados[m] for m in modelos_existentes],
-        'tempo_minutos': [tempos_estimados[m]/60 for m in modelos_existentes]
+        'tempo_minutos': [tempos_estimados[m] / 60 for m in modelos_existentes]
     })
 
     # Adicionar métricas de performance
@@ -251,7 +238,8 @@ def criar_grafico_tempo_treinamento(resultados_df):
     # 1. Tempo de treinamento por modelo
     ax1 = axes[0]
     bars = ax1.bar(range(len(df_tempo)), df_tempo['tempo_minutos'],
-                   color=['#3498DB' if t < 5 else '#F39C12' if t < 60 else '#E74C3C' for t in df_tempo['tempo_minutos']])
+                   color=['#3498DB' if t < 5 else '#F39C12' if t < 60 else '#E74C3C' for t in
+                          df_tempo['tempo_minutos']])
     ax1.set_title('Tempo de Treinamento por Modelo', fontsize=16, fontweight='bold')
     ax1.set_xlabel('Modelo', fontsize=12)
     ax1.set_ylabel('Tempo (minutos)', fontsize=12)
@@ -262,21 +250,21 @@ def criar_grafico_tempo_treinamento(resultados_df):
     # Adicionar valores nas barras
     for i, bar in enumerate(bars):
         height = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width()/2., height + max(df_tempo['tempo_minutos'])*0.01,
-                f'{height:.1f}min', ha='center', va='bottom', fontsize=10)
+        ax1.text(bar.get_x() + bar.get_width() / 2., height + max(df_tempo['tempo_minutos']) * 0.01,
+                 f'{height:.1f}min', ha='center', va='bottom', fontsize=10)
 
     # 2. Scatter: Tempo vs Performance
     ax2 = axes[1]
     if metrica in df_tempo.columns:
         scatter = ax2.scatter(df_tempo['tempo_minutos'], df_tempo[metrica],
-                             s=150, alpha=0.7, edgecolors='black')
+                              s=150, alpha=0.7, edgecolors='black')
 
         # Adicionar nomes dos modelos
         for i, row in df_tempo.iterrows():
             ax2.annotate(row['modelo'], (row['tempo_minutos'], row[metrica]),
-                        xytext=(5, 5), textcoords='offset points',
-                        fontsize=9, ha='left', va='bottom',
-                        bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
+                         xytext=(5, 5), textcoords='offset points',
+                         fontsize=9, ha='left', va='bottom',
+                         bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
 
         ax2.set_title(f'Relação Tempo vs Performance ({metrica.upper()})', fontsize=16, fontweight='bold')
         ax2.set_xlabel('Tempo de Treinamento (minutos)', fontsize=12)
@@ -286,7 +274,8 @@ def criar_grafico_tempo_treinamento(resultados_df):
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/analise_tempo_treinamento.png", dpi=300, bbox_inches='tight')
     plt.close()
-    print("✅ Gráfico de tempo de treinamento criado")
+    LOGGER.info("Gráfico de tempo de treinamento criado")
+
 
 # Funções movidas do main.ipynb
 def visualizar_analise_exploratoria(df):
@@ -302,7 +291,7 @@ def visualizar_analise_exploratoria(df):
 
     # Dicionário de mapeamento para português
     mapeamento_colunas = {
-        'age': 'idade', 
+        'age': 'idade',
         'bmi': 'IMC',
         'HbA1c_level': 'nível de HbA1c',
         'blood_glucose_level': 'nível de glicose no sangue'
@@ -428,8 +417,8 @@ def visualizar_analise_exploratoria(df):
     if 'nível de HbA1c' in df_pt.columns and 'nível de glicose no sangue' in df_pt.columns:
         plt.figure(figsize=(12, 10))
         scatter = sns.scatterplot(data=df_pt, x='nível de HbA1c', y='nível de glicose no sangue',
-                                hue='diabetes', palette=['#3498db', '#e74c3c'],
-                                s=80, alpha=0.7)
+                                  hue='diabetes', palette=['#3498db', '#e74c3c'],
+                                  s=80, alpha=0.7)
         plt.axvline(x=6.5, color='red', linestyle='--', label='Limiar HbA1c (6.5%)')
         plt.axhline(y=126, color='green', linestyle='--', label='Limiar Glicose (126 mg/dL)')
 
@@ -446,6 +435,7 @@ def visualizar_analise_exploratoria(df):
         plt.tight_layout()
         plt.savefig(f"{RESULTS_DIR}/graficos/relacao_hba1c_glicose.png", dpi=300)
         plt.close()
+
 
 def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     """
@@ -539,6 +529,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_distribuicao_probabilidades.png", dpi=300)
     plt.close()
+
 
 def visualizar_historico_treinamento(historico, nome_modelo):
     """
@@ -661,6 +652,7 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_aprendizado.png", dpi=300)
     plt.close()
 
+
 def visualizar_comparacao_modelos(resultados_df):
     """
     Visualiza comparação entre diferentes modelos.
@@ -725,6 +717,7 @@ def visualizar_comparacao_modelos(resultados_df):
     plt.savefig(f"{RESULTS_DIR}/graficos/radar_top_modelos.png", dpi=300)
     plt.close()
 
+
 def visualizar_matrizes_confusao_modelos_classicos(y_test, y_preds, nomes_modelos):
     """
     Cria matrizes de confusão para modelos clássicos.
@@ -745,6 +738,7 @@ def visualizar_matrizes_confusao_modelos_classicos(y_test, y_preds, nomes_modelo
         plt.tight_layout()
         plt.savefig(f"{RESULTS_DIR}/graficos/confusao/matriz_confusao_{nome.replace(' ', '_').lower()}.png", dpi=300)
         plt.close()
+
 
 def visualizar_curvas_roc_modelos_classicos(y_test, y_probs, nomes_modelos):
     """
@@ -773,6 +767,7 @@ def visualizar_curvas_roc_modelos_classicos(y_test, y_probs, nomes_modelos):
         plt.savefig(f"{RESULTS_DIR}/graficos/roc/curva_roc_{nome.replace(' ', '_').lower()}.png", dpi=300)
         plt.close()
 
+
 def visualizar_importancia_features(modelo, feature_names, nome_modelo):
     """
     Visualiza a importância das features para modelos que suportam.
@@ -791,8 +786,11 @@ def visualizar_importancia_features(modelo, feature_names, nome_modelo):
         plt.xticks(range(len(indices[:15])), [feature_names[i] for i in indices[:15]], rotation=90)
         plt.title(f'Importância das Features - {nome_modelo}', fontsize=15)
         plt.tight_layout()
-        plt.savefig(f"{RESULTS_DIR}/graficos/importancia/importancia_features_{nome_modelo.replace(' ', '_').lower()}.png", dpi=300)
+        plt.savefig(
+            f"{RESULTS_DIR}/graficos/importancia/importancia_features_{nome_modelo.replace(' ', '_').lower()}.png",
+            dpi=300)
         plt.close()
+
 
 # Função para executar várias visualizações de uma vez
 def gerar_todos_graficos(df=None, resultados_df=None):
@@ -806,66 +804,59 @@ def gerar_todos_graficos(df=None, resultados_df=None):
     if df is not None:
         visualizar_analise_exploratoria(df)
         criar_distribuicao_features_importantes(df)
-        print("✅ Gráficos de análise exploratória criados")
+        LOGGER.info("Gráficos de análise exploratória criados")
 
     if resultados_df is not None:
         criar_grafico_evolucao_modelos(resultados_df)
         criar_heatmap_metricas_modelos(resultados_df)
         criar_grafico_tempo_treinamento(resultados_df)
         visualizar_comparacao_modelos(resultados_df)
-        print("✅ Gráficos de comparação de modelos criados")
+        LOGGER.info("Gráficos de comparação de modelos criados")
 
-    print(f"📁 Todos os gráficos foram salvos em: {RESULTS_DIR}/graficos/")
+    LOGGER.info(f"Todos os gráficos foram salvos em: {RESULTS_DIR}/graficos/")
+
 
 # Executar as funções
 if __name__ == "__main__":
     try:
-        print("🚀 Iniciando criação dos gráficos...")
-
-        # Carregar dados dos resultados CORRIGIDOS
+        criar_diretorios_projeto()
+        LOGGER.info("Iniciando criação dos gráficos...")
         if os.path.exists(f"{RESULTS_DIR}/resultados_todos_modelos_corrigido.csv"):
             resultados_todos_modelos_final = pd.read_csv(f"{RESULTS_DIR}/resultados_todos_modelos_corrigido.csv")
-            print(f"📊 Carregados {len(resultados_todos_modelos_final)} modelos (arquivo corrigido)")
+            LOGGER.info(f"Carregados {len(resultados_todos_modelos_final)} modelos (arquivo corrigido)")
         elif os.path.exists(f"{RESULTS_DIR}/resultados_todos_modelos.csv"):
             resultados_todos_modelos_final = pd.read_csv(f"{RESULTS_DIR}/resultados_todos_modelos.csv")
-            # Filtrar apenas linhas com dados válidos (sem epoch)
             resultados_todos_modelos_final = resultados_todos_modelos_final[
                 resultados_todos_modelos_final['modelo'].notna() &
                 ~resultados_todos_modelos_final['modelo'].str.contains('epoch', na=False)
-            ].copy()
-            print(f"📊 Carregados {len(resultados_todos_modelos_final)} modelos (filtrados)")
+                ].copy()
+            LOGGER.info(f"Carregados {len(resultados_todos_modelos_final)} modelos (filtrados)")
         else:
-            print("❌ Arquivo de resultados não encontrado")
-            exit()
+            LOGGER.error("Arquivo de resultados não encontrado")
+            raise SystemExit(1)
 
-        # Verificar e limpar dados NaN
-        print(f"🔍 Verificando dados...")
-        print(f"   Antes da limpeza: {len(resultados_todos_modelos_final)} linhas")
-
-        # Remover linhas com NaN nas métricas principais
+        LOGGER.info("Verificando dados...")
+        LOGGER.info(f"Antes da limpeza: {len(resultados_todos_modelos_final)} linhas")
         metricas_essenciais = ['accuracy', 'f1', 'roc_auc']
         dados_validos = resultados_todos_modelos_final.dropna(subset=metricas_essenciais)
-
         if len(dados_validos) != len(resultados_todos_modelos_final):
-            print(f"   ⚠️ Removidas {len(resultados_todos_modelos_final) - len(dados_validos)} linhas com NaN")
+            LOGGER.warning(f"Removidas {len(resultados_todos_modelos_final) - len(dados_validos)} linhas com NaN")
             resultados_todos_modelos_final = dados_validos
-
-        print(f"   Após limpeza: {len(resultados_todos_modelos_final)} modelos válidos")
+        LOGGER.info(f"Após limpeza: {len(resultados_todos_modelos_final)} modelos válidos")
 
         if os.path.exists("diabetes_prediction_dataset.csv"):
             df = pd.read_csv("diabetes_prediction_dataset.csv")
-            print(f"📊 Dataset carregado com {len(df)} amostras")
+            LOGGER.info(f"Dataset carregado com {len(df)} amostras")
         else:
-            print("❌ Dataset não encontrado")
+            LOGGER.error("Dataset não encontrado")
             df = None
 
-        # Criar os gráficos
-        print("\n📈 Criando gráficos...")
+        LOGGER.info("Criando gráficos...")
         gerar_todos_graficos(df, resultados_todos_modelos_final)
-
-        print(f"\n✅ Todos os gráficos criados com sucesso!")
+        LOGGER.info("Todos os gráficos foram criados com sucesso.")
 
     except Exception as e:
-        print(f"❌ Erro ao criar gráficos: {e}")
+        LOGGER.error(f"Erro ao criar gráficos: {e}")
         import traceback
+
         traceback.print_exc()

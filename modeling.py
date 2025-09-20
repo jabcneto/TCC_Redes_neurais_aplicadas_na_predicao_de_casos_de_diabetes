@@ -1,7 +1,6 @@
-# modeling.py
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import (
-    Dense, Dropout, BatchNormalization, Input, Activation, PReLU, LeakyReLU,
+    Dense, Dropout, BatchNormalization, Input,
     Conv1D, MaxPooling1D, Flatten, Bidirectional, LSTM, GlobalAveragePooling1D
 )
 from tensorflow.keras.regularizers import l2

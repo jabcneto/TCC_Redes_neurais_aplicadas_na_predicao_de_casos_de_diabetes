@@ -1,10 +1,10 @@
-# data_processing.py
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
-from config import LOGGER, MAPEAMENTO_COLUNAS_PT, RANDOM_STATE
 from evaluation import visualizar_analise_exploratoria_dados
+from utils import MAPEAMENTO_COLUNAS_PT, RANDOM_STATE
+from config import LOGGER
 
 
 def renomear_colunas_para_portugues(df):
@@ -53,7 +53,10 @@ def pre_processar_dados(dataframe, test_size=0.2, val_size=0.1):
 
     x = tratar_outliers_iqr(x, colunas_numericas)
 
-    encoder = OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore')
+    try:
+        encoder = OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore')
+    except TypeError:
+        encoder = OneHotEncoder(drop='first', sparse=False, handle_unknown='ignore')
     encoded_cats = encoder.fit_transform(x[colunas_categoricas])
     encoded_cols = encoder.get_feature_names_out(colunas_categoricas)
     x_encoded = pd.DataFrame(encoded_cats, columns=encoded_cols, index=x.index)

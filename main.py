@@ -1,15 +1,14 @@
-# main.py
 import pickle
 
 import pandas as pd
 from tensorflow.keras.models import load_model
 import os
 import numpy as np
-import argparse  # Importa o módulo para argumentos
+import argparse
 
-from config import RESULTS_DIR
-# Importações dos nossos módulos
-from utils import criar_diretorios_projeto, LOGGER, RANDOM_STATE, DATASET_PATH
+from config import RESULTS_DIR, LOGGER, criar_diretorios_projeto
+from utils import RANDOM_STATE, DATASET_PATH
+
 import data_processing
 import modeling
 import training

@@ -1,4 +1,3 @@
-# utils.py
 import logging
 import os
 from datetime import datetime
@@ -48,23 +47,15 @@ def configurar_logging():
         logging.root.removeHandler(handler)
 
     # Configuração base
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    # Handler para arquivos de log (sem cor)
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-
-    # Handler para terminal (com cor)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(ColoredFormatter())
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logging.basicConfig(level=logging.INFO, handlers=[console_handler, file_handler])
 
-    logger.propagate = False
-    if not logger.handlers:
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
 
-    return logger
+configurar_logging()
+LOGGER = logging.getLogger("diabetes")
 
 
 def criar_diretorios_projeto():
