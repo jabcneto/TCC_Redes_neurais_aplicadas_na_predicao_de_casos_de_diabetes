@@ -146,6 +146,8 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     pd.DataFrame([metrics]).to_csv(os.path.join(RESULTS_DIR, f"{nome_modelo.replace(' ', '_').lower()}_metricas.csv"),
                                    index=False)
     visualizar_resultados(y_test, y_pred, y_prob, nome_modelo)
+    from gerar_graficos import export_all_metrics
+    export_all_metrics(y_test, y_pred, nome_modelo.replace(' ', '_').lower(), metrics)
 
     return metrics
 

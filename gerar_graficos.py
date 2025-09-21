@@ -817,3 +817,34 @@ def gerar_todos_graficos(df=None, resultados_df=None):
         LOGGER.info("Gráficos de comparação de modelos criados")
 
     LOGGER.info(f"Todos os gráficos foram salvos em: {RESULTS_DIR}/graficos/")
+
+
+def export_metric_bar(metric_value, metric_name, model_name):
+    plt.figure(figsize=(6, 6))
+    plt.bar([metric_name], [metric_value], color='#2E86C1')
+    plt.ylim(0, 1)
+    plt.title(f'{metric_name} - {model_name}')
+    plt.ylabel(metric_name)
+    plt.tight_layout()
+    plt.savefig(f"{RESULTS_DIR}/graficos/{metric_name.lower()}_{model_name}.png", dpi=300)
+    plt.close()
+
+
+def export_confusion_matrix(y_true, y_pred, model_name):
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(6, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title(f'Confusion Matrix - {model_name}')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.tight_layout()
+    plt.savefig(f"{RESULTS_DIR}/graficos/confusion_matrix_{model_name}.png", dpi=300)
+    plt.close()
+
+
+def export_all_metrics(y_true, y_pred, model_name, metrics_dict):
+    export_metric_bar(metrics_dict['accuracy'], 'Accuracy', model_name)
+    export_metric_bar(metrics_dict['precision'], 'Precision', model_name)
+    export_metric_bar(metrics_dict['recall'], 'Recall', model_name)
+    export_metric_bar(metrics_dict['f1'], 'F1-Score', model_name)
+    export_confusion_matrix(y_true, y_pred, model_name)
