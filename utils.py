@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import tensorflow as tf
 
 # --- CONSTANTES GLOBAIS ---
 DATASET_PATH = "diabetes_prediction_dataset.csv"
@@ -8,7 +7,6 @@ RANDOM_STATE = 42
 
 # --- CONFIGURAÇÕES DE REPRODUTIBILIDADE ---
 np.random.seed(RANDOM_STATE)
-tf.random.set_seed(RANDOM_STATE)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # --- MAPEAMENTO DE COLUNAS ---

@@ -3,12 +3,11 @@ import time
 import os
 import numpy as np
 from tqdm import tqdm
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
 from config import RESULTS_DIR, LOGGER
 
 
 def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
-    """Cria callbacks para o treinamento de modelos Keras."""
+    from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
 

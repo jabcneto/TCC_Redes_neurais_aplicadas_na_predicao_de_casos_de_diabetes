@@ -1,10 +1,3 @@
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import (
-    Dense, Dropout, BatchNormalization, Input,
-    Conv1D, MaxPooling1D, Flatten, Bidirectional, LSTM, GlobalAveragePooling1D
-)
-from tensorflow.keras.regularizers import l2
-from tensorflow.keras.optimizers import Adam
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from xgboost import XGBClassifier
@@ -14,6 +7,11 @@ from config import LOGGER
 def criar_modelo_mlp_pt(input_shape, learning_rate=0.001, regularization=0.001):
     """Cria um modelo MLP (Perceptron Multicamadas) para classificação binária."""
     LOGGER.info("Criando modelo MLP.")
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
+    from tensorflow.keras.regularizers import l2
+    from tensorflow.keras.optimizers import Adam
+
     model = Sequential([
         Input(shape=input_shape),
         Dense(128, kernel_regularizer=l2(regularization), activation='relu'),
@@ -37,6 +35,14 @@ def criar_modelo_mlp_pt(input_shape, learning_rate=0.001, regularization=0.001):
 def criar_modelo_cnn_pt(input_shape, learning_rate=0.001, regularization=0.001):
     """Cria um modelo CNN 1D para classificação binária de dados tabulares."""
     LOGGER.info("Criando modelo CNN.")
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import (
+        Dense, Dropout, BatchNormalization, Input,
+        Conv1D, MaxPooling1D, Flatten
+    )
+    from tensorflow.keras.regularizers import l2
+    from tensorflow.keras.optimizers import Adam
+
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
     else:
@@ -68,6 +74,14 @@ def criar_modelo_cnn_pt(input_shape, learning_rate=0.001, regularization=0.001):
 def criar_modelo_hibrido_pt(input_shape, learning_rate=0.001, regularization=0.001):
     """Cria um modelo híbrido CNN-LSTM para classificação binária."""
     LOGGER.info("Criando modelo híbrido CNN-LSTM.")
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import (
+        Dense, Dropout, BatchNormalization, Input,
+        Conv1D, MaxPooling1D, Bidirectional, LSTM, GlobalAveragePooling1D
+    )
+    from tensorflow.keras.regularizers import l2
+    from tensorflow.keras.optimizers import Adam
+
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
     else:

@@ -3,14 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import mannwhitneyu
-import os
 
 from sklearn.metrics import (
     confusion_matrix, roc_curve, auc,
     precision_recall_curve, average_precision_score
 )
 
-from config import RESULTS_DIR, criar_diretorios_projeto, LOGGER
+from config import RESULTS_DIR, LOGGER
 
 # Funções originais do arquivo gerar_graficos.py
 def criar_grafico_evolucao_modelos(resultados_df):
@@ -226,9 +225,11 @@ def criar_grafico_tempo_treinamento(resultados_df):
 
     # Adicionar métricas de performance
     metricas_disponiveis = ['f1', 'roc_auc', 'accuracy']
+    selected_metric = None
     for metrica in metricas_disponiveis:
         if metrica in resultados_df.columns:
             df_tempo = df_tempo.merge(resultados_df[['modelo', metrica]], on='modelo')
+            selected_metric = metrica
             break
 
     # Criar figura
@@ -255,20 +256,20 @@ def criar_grafico_tempo_treinamento(resultados_df):
 
     # 2. Scatter: Tempo vs Performance
     ax2 = axes[1]
-    if metrica in df_tempo.columns:
-        scatter = ax2.scatter(df_tempo['tempo_minutos'], df_tempo[metrica],
-                              s=150, alpha=0.7, edgecolors='black')
+    if selected_metric and selected_metric in df_tempo.columns:
+        scatter = ax2.scatter(df_tempo['tempo_minutos'], df_tempo[selected_metric],
+                             s=150, alpha=0.7, edgecolors='black')
 
         # Adicionar nomes dos modelos
         for i, row in df_tempo.iterrows():
-            ax2.annotate(row['modelo'], (row['tempo_minutos'], row[metrica]),
-                         xytext=(5, 5), textcoords='offset points',
-                         fontsize=9, ha='left', va='bottom',
-                         bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
+            ax2.annotate(row['modelo'], (row['tempo_minutos'], row[selected_metric]),
+                        xytext=(5, 5), textcoords='offset points',
+                        fontsize=9, ha='left', va='bottom',
+                        bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
 
-        ax2.set_title(f'Relação Tempo vs Performance ({metrica.upper()})', fontsize=16, fontweight='bold')
+        ax2.set_title(f'Relação Tempo vs Performance ({selected_metric.upper()})', fontsize=16, fontweight='bold')
         ax2.set_xlabel('Tempo de Treinamento (minutos)', fontsize=12)
-        ax2.set_ylabel(metrica.upper(), fontsize=12)
+        ax2.set_ylabel(selected_metric.upper(), fontsize=12)
         ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -283,7 +284,7 @@ def visualizar_analise_exploratoria(df):
     Cria visualizações para análise exploratória dos dados.
 
     Args:
-        dataframe (pd.DataFrame): DataFrame com os dados
+        df (pd.DataFrame): DataFrame com os dados
     """
     # Configuração para visualizações
     plt.style.use('seaborn-v0_8-whitegrid')
@@ -326,14 +327,16 @@ def visualizar_analise_exploratoria(df):
     plt.xlabel('Diabetes', fontsize=12)
     plt.ylabel('Contagem', fontsize=12)
 
-    print("Continuando com outras visualizações...")
-    # Adicionar percentagens
     total = len(df_pt)
     for p in ax.patches:
-        height = p.get_height()
-        ax.text(p.get_x() + p.get_width() / 2., height + 5,
-                f'{height} ({height / total:.1%})',
-                ha="center", fontsize=12)
+        height = getattr(p, 'get_height', lambda: 0)()
+        x = getattr(p, 'get_x', lambda: 0)()
+        width = getattr(p, 'get_width', lambda: 0)()
+        try:
+            val = int(height)
+        except Exception:
+            val = height
+        ax.text(x + width / 2.0, height + 5, f"{val} ({(0 if total == 0 else height / total):.1%})", ha="center", fontsize=12)
 
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/distribuicao/distribuicao_target.png", dpi=300)
@@ -698,7 +701,7 @@ def visualizar_comparacao_modelos(resultados_df):
 
     # Adicionar linhas de grade
     plt.xticks(angles[:-1], categories, size=12)
-    ax.set_rlabel_position(0)
+    getattr(ax, 'set_rlabel_position', lambda *a, **k: None)(0)
     plt.yticks([0.2, 0.4, 0.6, 0.8, 1.0], ["0.2", "0.4", "0.6", "0.8", "1.0"], size=10)
     plt.ylim(0, 1)
 
@@ -814,49 +817,3 @@ def gerar_todos_graficos(df=None, resultados_df=None):
         LOGGER.info("Gráficos de comparação de modelos criados")
 
     LOGGER.info(f"Todos os gráficos foram salvos em: {RESULTS_DIR}/graficos/")
-
-
-# Executar as funções
-if __name__ == "__main__":
-    try:
-        criar_diretorios_projeto()
-        LOGGER.info("Iniciando criação dos gráficos...")
-        if os.path.exists(f"{RESULTS_DIR}/resultados_todos_modelos_corrigido.csv"):
-            resultados_todos_modelos_final = pd.read_csv(f"{RESULTS_DIR}/resultados_todos_modelos_corrigido.csv")
-            LOGGER.info(f"Carregados {len(resultados_todos_modelos_final)} modelos (arquivo corrigido)")
-        elif os.path.exists(f"{RESULTS_DIR}/resultados_todos_modelos.csv"):
-            resultados_todos_modelos_final = pd.read_csv(f"{RESULTS_DIR}/resultados_todos_modelos.csv")
-            resultados_todos_modelos_final = resultados_todos_modelos_final[
-                resultados_todos_modelos_final['modelo'].notna() &
-                ~resultados_todos_modelos_final['modelo'].str.contains('epoch', na=False)
-                ].copy()
-            LOGGER.info(f"Carregados {len(resultados_todos_modelos_final)} modelos (filtrados)")
-        else:
-            LOGGER.error("Arquivo de resultados não encontrado")
-            raise SystemExit(1)
-
-        LOGGER.info("Verificando dados...")
-        LOGGER.info(f"Antes da limpeza: {len(resultados_todos_modelos_final)} linhas")
-        metricas_essenciais = ['accuracy', 'f1', 'roc_auc']
-        dados_validos = resultados_todos_modelos_final.dropna(subset=metricas_essenciais)
-        if len(dados_validos) != len(resultados_todos_modelos_final):
-            LOGGER.warning(f"Removidas {len(resultados_todos_modelos_final) - len(dados_validos)} linhas com NaN")
-            resultados_todos_modelos_final = dados_validos
-        LOGGER.info(f"Após limpeza: {len(resultados_todos_modelos_final)} modelos válidos")
-
-        if os.path.exists("diabetes_prediction_dataset.csv"):
-            df = pd.read_csv("diabetes_prediction_dataset.csv")
-            LOGGER.info(f"Dataset carregado com {len(df)} amostras")
-        else:
-            LOGGER.error("Dataset não encontrado")
-            df = None
-
-        LOGGER.info("Criando gráficos...")
-        gerar_todos_graficos(df, resultados_todos_modelos_final)
-        LOGGER.info("Todos os gráficos foram criados com sucesso.")
-
-    except Exception as e:
-        LOGGER.error(f"Erro ao criar gráficos: {e}")
-        import traceback
-
-        traceback.print_exc()
