@@ -6,15 +6,13 @@ from tqdm import tqdm
 from config import RESULTS_DIR, LOGGER
 
 
-def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
+def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_AUC'):
     from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
 
-    if 'acc' in monitor or 'auc' in monitor:
-        mode = 'max'
-    else:
-        mode = 'min'
+    monitor_lower = (monitor or '').lower()
+    mode = 'max' if ('acc' in monitor_lower or 'auc' in monitor_lower or 'f1' in monitor_lower or 'precision' in monitor_lower or 'recall' in monitor_lower) else 'min'
 
     LOGGER.info(f"Callback monitorando '{monitor}' no modo '{mode}'.")
 
@@ -47,12 +45,8 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_auc'):
 
 
 def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=100, batch_size=128):
-    """
-    Treina um modelo Keras.
-    A barra de progresso já é fornecida pelo Keras (verbose=1).
-    """
     LOGGER.info(f"Iniciando treinamento do modelo: {nome_modelo}")
-    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_auc')
+    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_AUC')
 
     if "cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower():
         if len(x_train.shape) == 2:
@@ -72,7 +66,6 @@ def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, 
 
 
 def treinar_modelos_classicos_pt(models, x_train, y_train):
-    """Treina uma lista de modelos clássicos com uma barra de progresso."""
     trained_models = {}
 
     LOGGER.info("Iniciando treinamento dos modelos clássicos...")

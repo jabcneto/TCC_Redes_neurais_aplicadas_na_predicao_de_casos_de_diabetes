@@ -20,6 +20,8 @@ from sklearn.metrics import (
     average_precision_score,
 )
 from sklearn.calibration import calibration_curve
+from sklearn.metrics import fbeta_score
+from sklearn.linear_model import LogisticRegression
 
 from config import RESULTS_DIR, LOGGER
 
@@ -123,6 +125,44 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     gmean = np.sqrt(recall_score(y_test, y_pred) * specificity)
     brier = brier_score_loss(y_test, y_prob)
     ll = log_loss(y_test, y_prob, labels=[0, 1])
+    precision_val = precision_score(y_test, y_pred)
+    fdr = 1 - precision_val
+    _for = 1 - npv
+    f2 = fbeta_score(y_test, y_pred, beta=2)
+    f0_5 = fbeta_score(y_test, y_pred, beta=0.5)
+    fpr_arr, tpr_arr, _ = roc_curve(y_test, y_prob)
+    ks = float(np.max(tpr_arr - fpr_arr)) if len(fpr_arr) > 0 else 0.0
+
+    def ece_mce_calibracao(y_true, y_scores, n_bins=10):
+        y_scores = np.asarray(y_scores)
+        y_true = np.asarray(y_true)
+        bins = np.linspace(0.0, 1.0, n_bins + 1)
+        idx = np.digitize(y_scores, bins) - 1
+        n = len(y_true)
+        ece = 0.0
+        mce = 0.0
+        for b in range(n_bins):
+            mask = idx == b
+            if np.any(mask):
+                conf = float(np.mean(y_scores[mask]))
+                acc = float(np.mean(y_true[mask]))
+                gap = abs(acc - conf)
+                ece += (np.sum(mask) / n) * gap
+                mce = max(mce, gap)
+        eps = 1e-6
+        p = np.clip(y_scores, eps, 1 - eps)
+        z = np.log(p / (1 - p)).reshape(-1, 1)
+        try:
+            lr = LogisticRegression(solver='lbfgs', max_iter=1000, C=1e6)
+            lr.fit(z, y_true)
+            calib_intercept = float(lr.intercept_[0])
+            calib_slope = float(lr.coef_[0][0])
+        except Exception:
+            calib_intercept, calib_slope = np.nan, np.nan
+        return ece, mce, calib_intercept, calib_slope
+
+    ece, mce, calib_intercept, calib_slope = ece_mce_calibracao(y_test, y_prob, n_bins=10)
+
     metrics = {
         'modelo': nome_modelo,
         'accuracy': accuracy_score(y_test, y_pred),
@@ -130,7 +170,7 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
         'roc_auc': roc_auc_score(y_test, y_prob),
         'pr_auc': ap,
         'f1': f1_score(y_test, y_pred),
-        'precision': precision_score(y_test, y_pred),
+        'precision': precision_val,
         'recall': recall_score(y_test, y_pred),
         'specificity': specificity,
         'fpr': fpr_val,
@@ -140,14 +180,24 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
         'gmean': gmean,
         'brier': brier,
         'log_loss': ll,
+        'f2': f2,
+        'f0_5': f0_5,
+        'ks': ks,
+        'ece': ece,
+        'mce': mce,
+        'calib_intercept': calib_intercept,
+        'calib_slope': calib_slope,
+        'fdr': fdr,
+        'for': _for,
     }
 
     # Salvar e visualizar resultados
     pd.DataFrame([metrics]).to_csv(os.path.join(RESULTS_DIR, f"{nome_modelo.replace(' ', '_').lower()}_metricas.csv"),
                                    index=False)
     visualizar_resultados(y_test, y_pred, y_prob, nome_modelo)
-    from gerar_graficos import export_all_metrics
-    export_all_metrics(y_test, y_pred, nome_modelo.replace(' ', '_').lower(), metrics)
+    import gerar_graficos as gg
+    gg.exportar_metricas_principais(y_test, y_pred, nome_modelo.replace(' ', '_').lower(), metrics)
+    gg.exportar_metricas_adicionais(y_test, y_pred, nome_modelo.replace(' ', '_').lower(), metrics)
 
     return metrics
 

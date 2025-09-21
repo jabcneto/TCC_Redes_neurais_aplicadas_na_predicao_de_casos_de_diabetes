@@ -278,7 +278,6 @@ def criar_grafico_tempo_treinamento(resultados_df):
     LOGGER.info("Gráfico de tempo de treinamento criado")
 
 
-# Funções movidas do main.ipynb
 def visualizar_analise_exploratoria(df):
     """
     Cria visualizações para análise exploratória dos dados.
@@ -570,33 +569,36 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     plt.close()
 
     # 3. Curvas de métricas adicionais
-    if 'precision' in historico.columns and 'recall' in historico.columns and 'auc' in historico.columns:
+    if 'precision' in historico.columns and 'recall' in historico.columns and ('auc' in historico.columns or 'AUC' in historico.columns):
         plt.figure(figsize=(18, 6))
 
         plt.subplot(1, 3, 1)
         plt.plot(historico['precision'], label='Treino', color='blue')
-        plt.plot(historico['val_precision'], label='Validação', color='orange')
-        plt.title('Precisão', fontsize=13)
-        plt.xlabel('Época', fontsize=11)
-        plt.ylabel('Precisão', fontsize=11)
+        plt.plot(historico.get('val_precision', []), label='Validação', color='orange')
+        plt.title('Precisão')
+        plt.xlabel('Época')
+        plt.ylabel('Precisão')
         plt.legend()
         plt.grid(True, alpha=0.3)
 
         plt.subplot(1, 3, 2)
         plt.plot(historico['recall'], label='Treino', color='blue')
-        plt.plot(historico['val_recall'], label='Validação', color='orange')
-        plt.title('Recall', fontsize=13)
-        plt.xlabel('Época', fontsize=11)
-        plt.ylabel('Recall', fontsize=11)
+        plt.plot(historico.get('val_recall', []), label='Validação', color='orange')
+        plt.title('Recall')
+        plt.xlabel('Época')
+        plt.ylabel('Recall')
         plt.legend()
         plt.grid(True, alpha=0.3)
 
+        key_auc = 'AUC' if 'AUC' in historico.columns else 'auc'
+        key_val_auc = 'val_AUC' if 'val_AUC' in historico.columns else 'val_auc'
         plt.subplot(1, 3, 3)
-        plt.plot(historico['auc'], label='Treino', color='blue')
-        plt.plot(historico['val_auc'], label='Validação', color='orange')
-        plt.title('AUC', fontsize=13)
-        plt.xlabel('Época', fontsize=11)
-        plt.ylabel('AUC', fontsize=11)
+        plt.plot(historico[key_auc], label='Treino', color='blue')
+        if key_val_auc in historico.columns:
+            plt.plot(historico[key_val_auc], label='Validação', color='orange')
+        plt.title('AUC')
+        plt.xlabel('Época')
+        plt.ylabel('AUC')
         plt.legend()
         plt.grid(True, alpha=0.3)
 
@@ -640,11 +642,14 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.grid(True, alpha=0.3)
 
     # Subplot para AUC (se disponível)
-    if 'auc' in historico.columns:
+    if 'auc' in historico.columns or 'AUC' in historico.columns:
+        key_auc = 'AUC' if 'AUC' in historico.columns else 'auc'
+        key_val_auc = 'val_AUC' if 'val_AUC' in historico.columns else 'val_auc'
         plt.subplot(2, 2, 4)
-        plt.plot(historico['auc'], label='Treino', color='blue')
-        plt.plot(historico['val_auc'], label='Validação', color='orange')
-        plt.title('AUC', fontsize=13)
+        plt.plot(historico[key_auc], label='Treino', color='blue')
+        if key_val_auc in historico.columns:
+            plt.plot(historico[key_val_auc], label='Validação', color='orange')
+        plt.title('AUC')
         plt.xlabel('Época', fontsize=11)
         plt.ylabel('AUC', fontsize=11)
         plt.legend()
@@ -819,32 +824,68 @@ def gerar_todos_graficos(df=None, resultados_df=None):
     LOGGER.info(f"Todos os gráficos foram salvos em: {RESULTS_DIR}/graficos/")
 
 
-def export_metric_bar(metric_value, metric_name, model_name):
+def exportar_grafico_metrica_barras(valor, nome_metrica_pt, nome_modelo):
     plt.figure(figsize=(6, 6))
-    plt.bar([metric_name], [metric_value], color='#2E86C1')
-    plt.ylim(0, 1)
-    plt.title(f'{metric_name} - {model_name}')
-    plt.ylabel(metric_name)
+    plt.bar([nome_metrica_pt], [valor], color='#2E86C1')
+    y_max = 1.0
+    if nome_metrica_pt in {'Log Loss', 'Brier Score'} or (isinstance(valor, (int, float)) and valor > 1.0):
+        y_max = max(1.0, float(valor) * 1.2)
+    plt.ylim(0, y_max)
+    plt.title(f'{nome_metrica_pt} - {nome_modelo}')
+    plt.ylabel(nome_metrica_pt)
     plt.tight_layout()
-    plt.savefig(f"{RESULTS_DIR}/graficos/{metric_name.lower()}_{model_name}.png", dpi=300)
+    nome_arquivo = {
+        'Acurácia': 'acuracia',
+        'Precisão': 'precisao',
+        'Recall': 'recall',
+        'F1-Score': 'f1_score',
+        'MCC': 'mcc',
+        'AUC ROC': 'auc_roc',
+        'Brier Score': 'brier_score',
+        'Especificidade': 'especificidade',
+        'Acurácia Balanceada': 'acuracia_balanceada',
+        'Log Loss': 'log_loss',
+        'ECE': 'ece',
+        'MCE': 'mce',
+    }.get(nome_metrica_pt, nome_metrica_pt.lower().replace(' ', '_'))
+    plt.savefig(f"{RESULTS_DIR}/graficos/metricas/{nome_arquivo}_{nome_modelo}.png", dpi=300)
     plt.close()
 
 
-def export_confusion_matrix(y_true, y_pred, model_name):
+def exportar_matriz_confusao(y_true, y_pred, nome_modelo):
     cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(6, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-    plt.title(f'Confusion Matrix - {model_name}')
-    plt.xlabel('Predicted')
-    plt.ylabel('Actual')
+    plt.title(f'Matriz de Confusão - {nome_modelo}')
+    plt.xlabel('Predito')
+    plt.ylabel('Real')
     plt.tight_layout()
-    plt.savefig(f"{RESULTS_DIR}/graficos/confusion_matrix_{model_name}.png", dpi=300)
+    plt.savefig(f"{RESULTS_DIR}/graficos/confusao/matriz_confusao_{nome_modelo}.png", dpi=300)
     plt.close()
 
 
-def export_all_metrics(y_true, y_pred, model_name, metrics_dict):
-    export_metric_bar(metrics_dict['accuracy'], 'Accuracy', model_name)
-    export_metric_bar(metrics_dict['precision'], 'Precision', model_name)
-    export_metric_bar(metrics_dict['recall'], 'Recall', model_name)
-    export_metric_bar(metrics_dict['f1'], 'F1-Score', model_name)
-    export_confusion_matrix(y_true, y_pred, model_name)
+def exportar_metricas_principais(y_true, y_pred, nome_modelo, metricas):
+    exportar_grafico_metrica_barras(metricas['accuracy'], 'Acurácia', nome_modelo)
+    exportar_grafico_metrica_barras(metricas['precision'], 'Precisão', nome_modelo)
+    exportar_grafico_metrica_barras(metricas['recall'], 'Recall', nome_modelo)
+    exportar_grafico_metrica_barras(metricas['f1'], 'F1-Score', nome_modelo)
+    exportar_matriz_confusao(y_true, y_pred, nome_modelo)
+
+
+def exportar_metricas_adicionais(y_true, y_pred, nome_modelo, metricas):
+    if 'mcc' in metricas:
+        exportar_grafico_metrica_barras(metricas['mcc'], 'MCC', nome_modelo)
+    if 'roc_auc' in metricas:
+        exportar_grafico_metrica_barras(metricas['roc_auc'], 'AUC ROC', nome_modelo)
+    if 'brier' in metricas:
+        exportar_grafico_metrica_barras(metricas['brier'], 'Brier Score', nome_modelo)
+    if 'specificity' in metricas:
+        exportar_grafico_metrica_barras(metricas['specificity'], 'Especificidade', nome_modelo)
+    if 'balanced_accuracy' in metricas:
+        exportar_grafico_metrica_barras(metricas['balanced_accuracy'], 'Acurácia Balanceada', nome_modelo)
+    if 'log_loss' in metricas:
+        exportar_grafico_metrica_barras(metricas['log_loss'], 'Log Loss', nome_modelo)
+    if 'ece' in metricas:
+        exportar_grafico_metrica_barras(metricas['ece'], 'ECE', nome_modelo)
+    if 'mce' in metricas:
+        exportar_grafico_metrica_barras(metricas['mce'], 'MCE', nome_modelo)

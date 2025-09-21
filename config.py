@@ -2,6 +2,8 @@ import logging
 import os
 from datetime import datetime
 
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+
 RESULTS_DIR = "resultados_diabetes"
 
 class ColoredFormatter(logging.Formatter):
@@ -72,3 +74,4 @@ def criar_diretorios_projeto():
     os.makedirs(os.path.join(RESULTS_DIR, "history"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "pr"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "calibracao"), exist_ok=True)
+    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "metricas"), exist_ok=True)
