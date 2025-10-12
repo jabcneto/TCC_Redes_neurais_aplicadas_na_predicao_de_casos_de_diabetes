@@ -23,7 +23,7 @@ def run_pipeline(retrain_models):
     training = None
     load_model = None
     try:
-        import tensorflow as _tf  # noqa: F401
+        import tensorflow as _tf
         from tensorflow.keras.models import load_model as _load_model
         import modeling as _modeling
         import training as _training
@@ -40,10 +40,10 @@ def run_pipeline(retrain_models):
         training.treinar_modelos_classicos_pt(classic_models, x_train, y_train)
         modelo_mlp = modeling.criar_modelo_mlp_pt(input_shape=(x_train.shape[1],))
         training.treinar_modelo_keras_pt(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
-        modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
-        training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
-        modelo_hibrido = modeling.criar_modelo_hibrido_pt(input_shape=(x_train.shape[1], 1))
-        training.treinar_modelo_keras_pt(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
+        # modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
+        # training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
+        # modelo_hibrido = modeling.criar_modelo_hibrido_pt(input_shape=(x_train.shape[1], 1))
+        # training.treinar_modelo_keras_pt(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
     elif retrain_models and not tf_available:
         LOGGER.info("--- FASE DE TREINAMENTO (apenas modelos clássicos; TensorFlow ausente) ---")
         from modeling import obter_modelos_classicos

@@ -108,11 +108,10 @@ def criar_modelo_hibrido_pt(input_shape, learning_rate=0.001, regularization=0.0
 
 
 def obter_modelos_classicos(random_state):
-    """Retorna um dicionário de modelos clássicos de ML."""
     models = {
-        'Regressão Logística': LogisticRegression(random_state=random_state, max_iter=1000, class_weight='balanced'),
-        'Random Forest': RandomForestClassifier(random_state=random_state, class_weight='balanced'),
+        'Regressão Logística': LogisticRegression(random_state=random_state),
+        'Random Forest': RandomForestClassifier(random_state=random_state),
         'Gradient Boosting': GradientBoostingClassifier(random_state=random_state),
-        'XGBoost': XGBClassifier(random_state=random_state, use_label_encoder=False, eval_metric='logloss')
+        'XGBoost': XGBClassifier(random_state=random_state)
     }
     return models
