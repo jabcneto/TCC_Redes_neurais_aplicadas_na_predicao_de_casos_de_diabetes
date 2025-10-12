@@ -181,6 +181,63 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     return metrics
 
 
+def plot_metric_comparison(df_metrics, metric, title=None, xlabel=None, filename=None):
+    """
+    Generate and save a barplot comparing models for a given metric.
+
+    Parameters
+    ----------
+    df_metrics : pd.DataFrame
+        DataFrame containing model metrics (one row per model).
+    metric : str
+        Name of the metric column to plot.
+    title : Optional[str]
+        Title for the plot. If None, uses metric name.
+    xlabel : Optional[str]
+        X-axis label. If None, uses metric name.
+    filename : Optional[str]
+        Output filename (PNG). If None, uses metric name.
+    """
+    df_sorted = df_metrics.sort_values(metric, ascending=False)
+    plt.figure(figsize=(12, 8))
+    sns.barplot(x=metric, y='modelo', data=df_sorted, palette='viridis', hue='modelo', dodge=False)
+    plt.title(title or f'Model Comparison - {metric}', fontsize=16)
+    plt.xlabel(xlabel or metric, fontsize=12)
+    plt.ylabel('Model', fontsize=12)
+    plt.legend([], [], frameon=False)
+    plt.tight_layout()
+    fname = filename or f"comparacao_modelos_{metric}.png"
+    plt.savefig(os.path.join(RESULTS_DIR, fname), dpi=300)
+    plt.close()
+
+
+def comparar_metricas_multiplas(df_metrics, metricas=None):
+    """
+    Generate and save comparison barplots for multiple metrics across models.
+
+    Parameters
+    ----------
+    df_metrics : pd.DataFrame
+        DataFrame with one row per model and columns for each metric.
+    metricas : Optional[List[str]]
+        List of metric names to plot. If None, uses a default set.
+    """
+    if metricas is None:
+        metricas = [
+            'accuracy', 'balanced_accuracy', 'roc_auc', 'pr_auc', 'f1', 'precision', 'recall',
+            'specificity', 'mcc', 'gmean', 'brier', 'log_loss', 'f2', 'f0_5', 'ece', 'mce'
+        ]
+    for metrica in metricas:
+        if metrica in df_metrics.columns:
+            plot_metric_comparison(
+                df_metrics,
+                metric=metrica,
+                title=f'Model Comparison - {metrica.replace("_", " ").upper()}',
+                xlabel=metrica.replace('_', ' ').title(),
+                filename=f"graficos/metricas/comparacao_modelos_{metrica}.png"
+            )
+
+
 def comparar_todos_modelos(df_metrics):
     LOGGER.info("Generating model comparison plot.")
     df_metrics = df_metrics.sort_values('roc_auc', ascending=False)
@@ -193,3 +250,5 @@ def comparar_todos_modelos(df_metrics):
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "comparacao_modelos_roc_auc.png"), dpi=300)
     plt.close()
+    # Gera gráficos para outras métricas
+    comparar_metricas_multiplas(df_metrics)
