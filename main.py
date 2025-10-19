@@ -6,7 +6,7 @@ import data_processing
 import evaluation
 
 
-def run_pipeline(retrain_models):
+def run_pipeline(retrain_models, compare_train_test=False):
     criar_diretorios_projeto()
     LOGGER.info("--- INICIANDO PIPELINE DE PREDIÇÃO DE DIABETES ---")
 
@@ -87,6 +87,7 @@ def run_pipeline(retrain_models):
             with open(model_path, 'rb') as f:
                 loaded_classic_models[name] = pickle.load(f)
 
+    # Avaliação em TESTE (sempre)
     for name, model in loaded_classic_models.items():
         metrics = evaluation.avaliar_modelo(model, x_test, y_test, name, is_keras_model=False)
         all_metrics.append(metrics)
@@ -116,11 +117,64 @@ def run_pipeline(retrain_models):
     else:
         LOGGER.error("Nenhuma métrica foi gerada. Execute com a flag --retrain primeiro.")
 
+    # Comparação Treino vs Teste (opcional via flag)
+    if compare_train_test:
+        import pandas as pd
+        import gerar_graficos as gg
+        train_metrics_rows = []
+        test_metrics_rows = []
+
+        # Clássicos: medir em train e test com nomes distintos para salvar gráficos sem sobrescrever
+        for name, model in loaded_classic_models.items():
+            try:
+                m_train = evaluation.avaliar_modelo(model, x_train, y_train, f"{name}_train", is_keras_model=False)
+                m_test = evaluation.avaliar_modelo(model, x_test, y_test, f"{name}_test", is_keras_model=False)
+                # Ajustar 'modelo' base para alinhamento entre DataFrames
+                m_train['modelo'] = name
+                m_test['modelo'] = name
+                train_metrics_rows.append(m_train)
+                test_metrics_rows.append(m_test)
+            except Exception as e:
+                LOGGER.error(f"Falha ao comparar treino/teste para {name}: {e}")
+
+        # Keras (se disponível): medir em train e test
+        if tf_available and load_model is not None:
+            keras_models_to_evaluate = {
+                "MLP": "MLP_best.keras",
+                "CNN": "CNN_best.keras",
+                "Hibrido_CNN_LSTM": "Hibrido_CNN_LSTM_best.keras"
+            }
+            for name, path in keras_models_to_evaluate.items():
+                model_path = os.path.join(RESULTS_DIR, "modelos", path)
+                if not os.path.exists(model_path):
+                    continue
+                try:
+                    best_model = load_model(model_path)
+                    m_train = evaluation.avaliar_modelo(best_model, x_train, y_train, f"{name}_train", is_keras_model=True)
+                    m_test = evaluation.avaliar_modelo(best_model, x_test, y_test, f"{name}_test", is_keras_model=True)
+                    m_train['modelo'] = name
+                    m_test['modelo'] = name
+                    train_metrics_rows.append(m_train)
+                    test_metrics_rows.append(m_test)
+                except Exception as e:
+                    LOGGER.error(f"Falha ao comparar treino/teste para {name} (Keras): {e}")
+        else:
+            LOGGER.info("Comparação treino/teste para modelos Keras ignorada (TensorFlow indisponível).")
+
+        if train_metrics_rows and test_metrics_rows:
+            df_train = pd.DataFrame(train_metrics_rows)
+            df_test = pd.DataFrame(test_metrics_rows)
+            gg.visualizar_comparacao_treino_teste(df_train, df_test)
+            LOGGER.info("Comparação Treino vs Teste gerada com sucesso.")
+        else:
+            LOGGER.warning("Não foi possível gerar comparação Treino vs Teste (sem métricas).")
+
     LOGGER.info("--- PIPELINE CONCLUÍDO ---")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pipeline de Treinamento e Avaliação para Predição de Diabetes.")
     parser.add_argument('--retrain', action='store_true', help="Força retreinamento de todos os modelos.")
+    # parser.add_argument('--comparacao-treino-teste', action='store_true', help="Gera gráficos comparando métricas no treino vs teste.")
     args = parser.parse_args()
-    run_pipeline(retrain_models=args.retrain)
+    run_pipeline(retrain_models=args.retrain, compare_train_test=args.retrain)

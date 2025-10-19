@@ -12,18 +12,12 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
     auc,
-    matthews_corrcoef,
     balanced_accuracy_score,
-    brier_score_loss,
-    log_loss,
     precision_recall_curve,
     average_precision_score,
 )
 from sklearn.calibration import calibration_curve
-from sklearn.metrics import fbeta_score
-from sklearn.linear_model import LogisticRegression
 from imblearn.metrics import geometric_mean_score, specificity_score
-from scipy.stats import ks_2samp
 from config import RESULTS_DIR, LOGGER
 
 
@@ -97,54 +91,11 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     tn, fp, fn, tp = confusion_matrix_values.ravel()
     specificity = specificity_score(y_test, y_pred) if (tn + fp) > 0 else 0.0
     recall_pos = recall_score(y_test, y_pred)
-    fpr_val = 1 - specificity
-    fnr_val = 1 - recall_pos
     npv = tn / (tn + fn) if (tn + fn) > 0 else 0.0
     ap = average_precision_score(y_test, y_prob)
-    mcc = matthews_corrcoef(y_test, y_pred)
     gmean = geometric_mean_score(y_test, y_pred) if (tp + fn) > 0 and (tn + fp) > 0 else 0.0
-    brier = brier_score_loss(y_test, y_prob)
-    ll = log_loss(y_test, y_prob, labels=[0, 1])
     precision_val = precision_score(y_test, y_pred)
-    fdr = 1 - precision_val
     _for = 1 - npv
-    f2 = fbeta_score(y_test, y_pred, beta=2)
-    f0_5 = fbeta_score(y_test, y_pred, beta=0.5)
-    positives = y_prob[y_test == 1]
-    negatives = y_prob[y_test == 0]
-    ks_stat = 0.0
-    if len(positives) > 0 and len(negatives) > 0:
-        ks_stat = float(ks_2samp(positives, negatives, alternative='two-sided', mode='auto').statistic)
-
-    def ece_mce_calibracao(y_true, y_scores, n_bins=10):
-        y_scores = np.asarray(y_scores)
-        y_true = np.asarray(y_true)
-        bins = np.linspace(0.0, 1.0, n_bins + 1)
-        idx = np.digitize(y_scores, bins) - 1
-        n = len(y_true)
-        ece = 0.0
-        mce = 0.0
-        for b in range(n_bins):
-            mask = idx == b
-            if np.any(mask):
-                conf = float(np.mean(y_scores[mask]))
-                acc = float(np.mean(y_true[mask]))
-                gap = abs(acc - conf)
-                ece += (np.sum(mask) / n) * gap
-                mce = max(mce, gap)
-        eps = 1e-6
-        p = np.clip(y_scores, eps, 1 - eps)
-        z = np.log(p / (1 - p)).reshape(-1, 1)
-        try:
-            lr = LogisticRegression(solver='lbfgs', max_iter=1000, C=1e6)
-            lr.fit(z, y_true)
-            calib_intercept = float(lr.intercept_[0])
-            calib_slope = float(lr.coef_[0][0])
-        except Exception:
-            calib_intercept, calib_slope = np.nan, np.nan
-        return ece, mce, calib_intercept, calib_slope
-
-    ece, mce, calib_intercept, calib_slope = ece_mce_calibracao(y_test, y_prob, n_bins=10)
 
     metrics = {
         'modelo': nome_modelo,
@@ -156,22 +107,7 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
         'precision': precision_val,
         'recall': recall_pos,
         'specificity': specificity,
-        'fpr': fpr_val,
-        'fnr': fnr_val,
-        'npv': npv,
-        'mcc': mcc,
         'gmean': gmean,
-        'brier': brier,
-        'log_loss': ll,
-        'f2': f2,
-        'f0_5': f0_5,
-        'ks': ks_stat,
-        'ece': ece,
-        'mce': mce,
-        'calib_intercept': calib_intercept,
-        'calib_slope': calib_slope,
-        'fdr': fdr,
-        'for': _for,
     }
     pd.DataFrame([metrics]).to_csv(os.path.join(RESULTS_DIR, f"{nome_modelo.replace(' ', '_').lower()}_metricas.csv"), index=False)
     visualizar_resultados(y_test, y_pred, y_prob, nome_modelo)
