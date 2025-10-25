@@ -1,15 +1,21 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 import json
 import pandas as pd
-import numpy as np
 import keras_tuner as kt
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
-from tensorflow.keras.regularizers import l1, l2, l1_l2
-from tensorflow.keras.optimizers import Adam, RMSprop, SGD, Nadam
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.optimizers import Adam, RMSprop, Nadam
 from tensorflow.keras.metrics import Precision, Recall, AUC
-from config import RESULTS_DIR, LOGGER
+from config import RESULTS_DIR, LOGGER, DEFAULT_TUNING_EPOCHS, DEFAULT_BATCH_SIZE
 
 
 class BayesianTuner(kt.BayesianOptimization):
@@ -24,13 +30,6 @@ class BayesianTuner(kt.BayesianOptimization):
     def on_search_begin(self):
         import time
         self.start_time = time.time()
-        LOGGER.info("\n" + "=" * 80)
-        LOGGER.info("INICIANDO OTIMIZAÇÃO BAYESIANA DE HIPERPARÂMETROS")
-        LOGGER.info("=" * 80)
-        LOGGER.info(f"Total de trials: {self.total_trials}")
-        LOGGER.info(f"Algoritmo: Bayesian Optimization")
-        LOGGER.info(f"Objetivo: Maximizar val_precision")
-        LOGGER.info("=" * 80 + "\n")
 
     def run_trial(self, trial, *args, **kwargs):
         self.trial_count += 1
@@ -118,29 +117,31 @@ class BayesianTuner(kt.BayesianOptimization):
                         gap = self.best_score - best_precision
                         LOGGER.info(f"  Score global: {self.best_score:.4f} (gap: {gap:.4f})")
                 else:
-                    LOGGER.warning(f"Trial {self.trial_count}: val_precision history vazio")
+                    LOGGER.info(f"Trial {self.trial_count}: val_precision history vazio")
                     trial_data['best_val_precision'] = 0
-            except (ValueError, KeyError) as e:
-                LOGGER.warning(f"Trial {self.trial_count}: Erro ao obter val_precision - {e}")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.warning(f"Trial {self.trial_count}: Métrica val_precision não disponível no momento")
                 trial_data['best_val_precision'] = 0
-
-            for metric_name, metric_key in [
-                ('accuracy', 'val_accuracy'),
-                ('auc', 'val_auc'),
-                ('recall', 'val_recall'),
-                ('loss', 'val_loss')
-            ]:
-                try:
-                    history = trial.metrics.get_history(metric_key)
-                    if history:
-                        if metric_name == 'loss':
-                            trial_data[f'best_{metric_key}'] = min(history)
-                        else:
-                            trial_data[f'best_{metric_key}'] = max(history)
-                        trial_data[f'{metric_key}_history'] = history
-                except (ValueError, KeyError) as e:
-                    LOGGER.debug(f"Trial {self.trial_count}: Métrica {metric_key} não disponível")
-
+            except Exception as e:
+                LOGGER.warning(f"Trial {self.trial_count}: Erro inesperado ao processar val_precision - {e}")
+                trial_data['best_val_precision'] = 0
+            finally:
+                for metric_name, metric_key in [
+                    ('accuracy', 'val_accuracy'),
+                    ('auc', 'val_auc'),
+                    ('recall', 'val_recall'),
+                    ('loss', 'val_loss')
+                ]:
+                    try:
+                        history = trial.metrics.get_history(metric_key)
+                        if history:
+                            if metric_name == 'loss':
+                                trial_data[f'best_{metric_key}'] = min(history)
+                            else:
+                                trial_data[f'best_{metric_key}'] = max(history)
+                            trial_data[f'{metric_key}_history'] = history
+                    except (ValueError, KeyError, AttributeError):
+                        pass
         self.trials_data.append(trial_data)
 
         progress_pct = (self.trial_count / self.total_trials) * 100
@@ -372,10 +373,16 @@ def build_bayesian_mlp(hp):
     return model
 
 
-def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_per_trial=2):
+def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_per_trial=2, progress_callback=None, epochs=None):
+    from config import DEFAULT_TUNING_EPOCHS, DEFAULT_BATCH_SIZE
+
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("=" * 80)
     LOGGER.info("CONFIGURANDO OTIMIZAÇÃO BAYESIANA")
     LOGGER.info("=" * 80)
+    LOGGER.info(f"Épocas por trial: {epochs}")
 
     input_dim = x_train.shape[1]
 
@@ -448,23 +455,26 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
 
     epoch_progress = EpochProgressCallback()
 
-    class BatchSizeCallback(keras.callbacks.Callback):
-        def __init__(self, batch_size):
-            super().__init__()
-            self.batch_size = batch_size
-
-        def on_train_begin(self, logs=None):
-            LOGGER.info(f"    Iniciando treinamento com batch_size={self.batch_size}")
-
     LOGGER.info("🚀 Iniciando busca bayesiana...\n")
+
+    if progress_callback:
+        original_run_trial = tuner.run_trial
+
+        def wrapped_run_trial(trial, *args, **kwargs):
+            progress_callback.on_trial_begin(trial)
+            result = original_run_trial(trial, *args, **kwargs)
+            progress_callback.on_trial_end(trial)
+            return result
+
+        tuner.run_trial = wrapped_run_trial
 
     tuner.on_search_begin()
 
     tuner.search(
         x_train, y_train,
         validation_data=(x_val, y_val),
-        epochs=100,
-        batch_size=64,
+        epochs=epochs,
+        batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop, epoch_progress],
         verbose=0
     )

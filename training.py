@@ -1,6 +1,13 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 import pickle
 import time
-import os
 import numpy as np
 from tqdm import tqdm
 from config import RESULTS_DIR, LOGGER
@@ -19,7 +26,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
     return [
         EarlyStopping(
             monitor=monitor,
-            patience=paciencia,
+            paciencia=paciencia,
             verbose=1,
             mode=mode,
             restore_best_weights=True
@@ -34,7 +41,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
         ReduceLROnPlateau(
             monitor=monitor,
             factor=0.5,
-            patience=paciencia // 2,
+            paciencia=paciencia // 2,
             min_lr=1e-7,
             mode=mode,
             verbose=1

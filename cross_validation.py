@@ -1,4 +1,11 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 import json
 import numpy as np
 import pandas as pd
@@ -161,9 +168,21 @@ def cross_validate_with_tuning(model_builder_func, best_hps, x_train, y_train, n
     LOGGER.info("=" * 80)
 
     def create_model():
-        from hyperparameter_tuning import create_model_from_best_hps
         input_shape = (x_train.shape[1],)
-        return create_model_from_best_hps(best_hps, input_shape)
+
+        if hasattr(best_hps, 'values'):
+            hps_values = best_hps.values
+        else:
+            hps_values = best_hps
+
+        if 'num_conv_layers' in hps_values:
+            from cnn_tuning import create_cnn_from_best_hps
+            LOGGER.info("Detectado modelo CNN")
+            return create_cnn_from_best_hps(best_hps, input_shape)
+        else:
+            from hyperparameter_tuning import create_model_from_best_hps
+            LOGGER.info("Detectado modelo MLP")
+            return create_model_from_best_hps(best_hps, input_shape)
 
     return cross_validate_mlp(
         model_builder=create_model,
@@ -318,4 +337,3 @@ def nested_cross_validation(model_builder_func, hyperparameter_space, x_train, y
         'mean_metrics': df_outer_results[metrics_to_show].mean().to_dict(),
         'std_metrics': df_outer_results[metrics_to_show].std().to_dict()
     }
-

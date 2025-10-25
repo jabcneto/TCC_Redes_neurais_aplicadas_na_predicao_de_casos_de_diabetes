@@ -1,17 +1,21 @@
 import time
 import numpy as np
-from config import LOGGER
+from config import LOGGER, DEFAULT_TUNING_EPOCHS, DEFAULT_FINAL_TRAINING_EPOCHS, DEFAULT_BATCH_SIZE
 from mlp_utils import check_tensorflow_availability, retrain_final_model
+from progress_callback import ProgressCallback
 
 
-def run_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50):
+def run_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50, epochs=None):
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("=" * 80)
     LOGGER.info("FASE DE OTIMIZAÇÃO DE HIPERPARÂMETROS")
     LOGGER.info("=" * 80)
     LOGGER.info(f"Configuração da busca:")
     LOGGER.info(f"  - Total de trials: {max_trials}")
     LOGGER.info(f"  - Execuções por trial: 2")
-    LOGGER.info(f"  - Épocas máximas por trial: 100")
+    LOGGER.info(f"  - Épocas máximas por trial: {epochs}")
     LOGGER.info(f"  - Objetivo: Maximizar val_precision")
     LOGGER.info(f"\nDados de entrada:")
     LOGGER.info(f"  - Train shape: {x_train.shape}")
@@ -28,14 +32,18 @@ def run_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50):
     LOGGER.info("\nIniciando busca de hiperparâmetros...")
     LOGGER.info("-" * 80)
 
+    progress_tracker = ProgressCallback(max_trials, "MLP RandomSearch")
+
     best_model, best_hps, tuner = hyperparameter_tuning.tune_mlp_hyperparameters(
         x_train, y_train, x_val, y_val,
         max_trials=max_trials,
-        executions_per_trial=2
+        executions_per_trial=2,
+        progress_callback=progress_tracker,
+        epochs=epochs
     )
 
     elapsed_time = time.time() - start_time
-    LOGGER.info("-" * 80)
+    progress_tracker.print_final_summary()
     LOGGER.info(f"Busca de hiperparâmetros concluída em {elapsed_time/60:.2f} minutos")
 
     hyperparameter_tuning.analyze_tuning_results(tuner, top_n=10)
@@ -51,10 +59,17 @@ def run_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50):
     return final_model, best_hps
 
 
-def run_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
+def run_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30, epochs=None):
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("=" * 80)
     LOGGER.info("OTIMIZAÇÃO BAYESIANA DE HIPERPARÂMETROS")
     LOGGER.info("=" * 80)
+    LOGGER.info(f"Total de trials: {max_trials}")
+    LOGGER.info(f"Épocas por trial: {epochs}")
+    LOGGER.info(f"Dados - Train: {x_train.shape}, Validation: {x_val.shape}")
+    LOGGER.info("=" * 80 + "\n")
 
     start_time = time.time()
 
@@ -67,7 +82,9 @@ def run_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
     best_model, best_hps, tuner = bayesian_tuning.bayesian_tune_mlp(
         x_train, y_train, x_val, y_val,
         max_trials=max_trials,
-        executions_per_trial=2
+        executions_per_trial=2,
+        progress_callback=None,
+        epochs=epochs
     )
 
     x_train_full = np.vstack([x_train, x_val])
@@ -81,14 +98,17 @@ def run_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
     return final_model, best_hps
 
 
-def run_cnn_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50):
+def run_cnn_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50, epochs=None):
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("=" * 80)
     LOGGER.info("FASE DE OTIMIZAÇÃO DE HIPERPARÂMETROS - CNN")
     LOGGER.info("=" * 80)
     LOGGER.info(f"Configuração da busca:")
     LOGGER.info(f"  - Total de trials: {max_trials}")
     LOGGER.info(f"  - Execuções por trial: 2")
-    LOGGER.info(f"  - Épocas máximas por trial: 100")
+    LOGGER.info(f"  - Épocas máximas por trial: {epochs}")
     LOGGER.info(f"  - Objetivo: Maximizar val_precision")
     LOGGER.info(f"\nDados de entrada:")
     LOGGER.info(f"  - Train shape: {x_train.shape}")
@@ -107,14 +127,18 @@ def run_cnn_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50)
     LOGGER.info("\nIniciando busca de hiperparâmetros para CNN...")
     LOGGER.info("-" * 80)
 
+    progress_tracker = ProgressCallback(max_trials, "CNN RandomSearch")
+
     best_model, best_hps, tuner = cnn_tuning.tune_cnn_hyperparameters(
         x_train, y_train, x_val, y_val,
         max_trials=max_trials,
-        executions_per_trial=2
+        executions_per_trial=2,
+        progress_callback=progress_tracker,
+        epochs=epochs
     )
 
     elapsed_time = time.time() - start_time
-    LOGGER.info("-" * 80)
+    progress_tracker.print_final_summary()
     LOGGER.info(f"Busca de hiperparâmetros da CNN concluída em {elapsed_time/60:.2f} minutos")
 
     cnn_tuning.analyze_cnn_tuning_results(tuner, top_n=10)
@@ -131,10 +155,14 @@ def run_cnn_hyperparameter_tuning(x_train, y_train, x_val, y_val, max_trials=50)
     return final_model, best_hps
 
 
-def run_cnn_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
+def run_cnn_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30, epochs=None):
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("=" * 80)
     LOGGER.info("OTIMIZAÇÃO BAYESIANA DE HIPERPARÂMETROS - CNN")
     LOGGER.info("=" * 80)
+    LOGGER.info(f"Épocas por trial: {epochs}")
 
     start_time = time.time()
 
@@ -146,10 +174,14 @@ def run_cnn_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
 
     import cnn_tuning
 
+    progress_tracker = ProgressCallback(max_trials, "CNN Bayesian")
+
     best_model, best_hps, tuner = cnn_tuning.bayesian_tune_cnn(
         x_train, y_train, x_val, y_val,
         max_trials=max_trials,
-        executions_per_trial=2
+        executions_per_trial=2,
+        progress_callback=progress_tracker,
+        epochs=epochs
     )
 
     x_train_full = np.vstack([x_train, x_val])
@@ -159,6 +191,7 @@ def run_cnn_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=30):
     final_model = retrain_final_cnn(best_hps, x_train_full, y_train_full, "CNN_Bayesian_Final")
 
     total_time = time.time() - start_time
+    progress_tracker.print_final_summary()
     LOGGER.info(f"\nTempo total de otimização bayesiana da CNN: {total_time/60:.2f} minutos")
 
     return final_model, best_hps

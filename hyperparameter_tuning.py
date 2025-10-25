@@ -1,4 +1,11 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 import json
 import pandas as pd
 import keras_tuner as kt
@@ -36,6 +43,12 @@ class CustomTuner(kt.BayesianOptimization):
         self.best_precision_so_far = 0
         self.total_trials = kwargs.get('max_trials', 50)
         self.trials_data = []
+        self.x_val = None
+        self.y_val = None
+
+    def set_validation_data(self, x_val, y_val):
+        self.x_val = x_val
+        self.y_val = y_val
 
     def run_trial(self, trial, *args, **kwargs):
         self.trial_count += 1
@@ -95,11 +108,34 @@ class CustomTuner(kt.BayesianOptimization):
                     else:
                         LOGGER.info(f"  Melhor precisão global: {self.best_precision_so_far:.4f}")
                 else:
-                    LOGGER.warning(f"Trial {self.trial_count}: val_precision history está vazio")
+                    raise ValueError("val_precision history is empty")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.error(f"Trial {self.trial_count}: Erro ao obter val_precision - {e}")
+                if self.x_val is not None and self.y_val is not None:
+                    try:
+                        from sklearn.metrics import precision_score
+                        import numpy as np
+
+                        model = self.hypermodel.build(trial.hyperparameters)
+                        model.load_weights(trial.get_best_model_path())
+
+                        y_pred = (model.predict(self.x_val, verbose=0) > 0.5).astype(int)
+                        calculated_precision = precision_score(self.y_val, y_pred)
+                        trial_data['best_val_precision'] = calculated_precision
+
+                        LOGGER.info(f"\nTrial {self.trial_count} concluído!")
+                        LOGGER.info(f"  val_precision calculada manualmente: {calculated_precision:.4f}")
+
+                        if calculated_precision > self.best_precision_so_far:
+                            self.best_precision_so_far = calculated_precision
+                            LOGGER.info(f"  ★ NOVO RECORDE! Melhor precisão até agora: {self.best_precision_so_far:.4f}")
+                        else:
+                            LOGGER.info(f"  Melhor precisão global: {self.best_precision_so_far:.4f}")
+                    except Exception as calc_error:
+                        LOGGER.error(f"Trial {self.trial_count}: Falha ao calcular val_precision - {calc_error}")
+                        trial_data['best_val_precision'] = 0
+                else:
                     trial_data['best_val_precision'] = 0
-            except (ValueError, KeyError) as e:
-                LOGGER.warning(f"Não foi possível obter val_precision para trial {self.trial_count}: {e}")
-                trial_data['best_val_precision'] = 0
 
             try:
                 accuracy_history = trial.metrics.get_history('val_accuracy')
@@ -107,9 +143,22 @@ class CustomTuner(kt.BayesianOptimization):
                     trial_data['best_val_accuracy'] = max(accuracy_history)
                     trial_data['accuracy_history'] = accuracy_history
                 else:
-                    LOGGER.debug(f"Trial {self.trial_count}: val_accuracy history está vazio")
-            except (ValueError, KeyError) as e:
-                LOGGER.debug(f"Trial {self.trial_count}: Não foi possível obter val_accuracy - {e}")
+                    raise ValueError("val_accuracy history is empty")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.error(f"Trial {self.trial_count}: Erro ao obter val_accuracy - {e}")
+                if self.x_val is not None and self.y_val is not None:
+                    try:
+                        model = self.get_best_models(num_models=1)[0]
+                        from sklearn.metrics import accuracy_score
+                        y_pred = (model.predict(self.x_val, verbose=0) > 0.5).astype(int)
+                        calculated_accuracy = accuracy_score(self.y_val, y_pred)
+                        trial_data['best_val_accuracy'] = calculated_accuracy
+                        LOGGER.info(f"Trial {self.trial_count}: val_accuracy calculada = {calculated_accuracy:.4f}")
+                    except Exception as calc_error:
+                        LOGGER.error(f"Trial {self.trial_count}: Falha ao calcular val_accuracy - {calc_error}")
+                        trial_data['best_val_accuracy'] = 0
+                else:
+                    trial_data['best_val_accuracy'] = 0
 
             try:
                 auc_history = trial.metrics.get_history('val_AUC')
@@ -117,9 +166,45 @@ class CustomTuner(kt.BayesianOptimization):
                     trial_data['best_val_auc'] = max(auc_history)
                     trial_data['auc_history'] = auc_history
                 else:
-                    LOGGER.debug(f"Trial {self.trial_count}: val_AUC history está vazio")
-            except (ValueError, KeyError) as e:
-                LOGGER.debug(f"Trial {self.trial_count}: Não foi possível obter val_AUC - {e}")
+                    raise ValueError("val_AUC history is empty")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.error(f"Trial {self.trial_count}: Erro ao obter val_AUC - {e}")
+                if self.x_val is not None and self.y_val is not None:
+                    try:
+                        model = self.get_best_models(num_models=1)[0]
+                        from sklearn.metrics import roc_auc_score
+                        y_pred_proba = model.predict(self.x_val, verbose=0)
+                        calculated_auc = roc_auc_score(self.y_val, y_pred_proba)
+                        trial_data['best_val_auc'] = calculated_auc
+                        LOGGER.info(f"Trial {self.trial_count}: val_auc calculada = {calculated_auc:.4f}")
+                    except Exception as calc_error:
+                        LOGGER.error(f"Trial {self.trial_count}: Falha ao calcular val_auc - {calc_error}")
+                        trial_data['best_val_auc'] = 0
+                else:
+                    trial_data['best_val_auc'] = 0
+
+            try:
+                recall_history = trial.metrics.get_history('val_recall')
+                if recall_history:
+                    trial_data['best_val_recall'] = max(recall_history)
+                    trial_data['recall_history'] = recall_history
+                else:
+                    raise ValueError("val_recall history is empty")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.error(f"Trial {self.trial_count}: Erro ao obter val_recall - {e}")
+                if self.x_val is not None and self.y_val is not None:
+                    try:
+                        model = self.get_best_models(num_models=1)[0]
+                        from sklearn.metrics import recall_score
+                        y_pred = (model.predict(self.x_val, verbose=0) > 0.5).astype(int)
+                        calculated_recall = recall_score(self.y_val, y_pred)
+                        trial_data['best_val_recall'] = calculated_recall
+                        LOGGER.info(f"Trial {self.trial_count}: val_recall calculada = {calculated_recall:.4f}")
+                    except Exception as calc_error:
+                        LOGGER.error(f"Trial {self.trial_count}: Falha ao calcular val_recall - {calc_error}")
+                        trial_data['best_val_recall'] = 0
+                else:
+                    trial_data['best_val_recall'] = 0
 
             try:
                 loss_history = trial.metrics.get_history('val_loss')
@@ -127,9 +212,22 @@ class CustomTuner(kt.BayesianOptimization):
                     trial_data['best_val_loss'] = min(loss_history)
                     trial_data['loss_history'] = loss_history
                 else:
-                    LOGGER.debug(f"Trial {self.trial_count}: val_loss history está vazio")
-            except (ValueError, KeyError) as e:
-                LOGGER.debug(f"Trial {self.trial_count}: Não foi possível obter val_loss - {e}")
+                    raise ValueError("val_loss history is empty")
+            except (ValueError, KeyError, AttributeError) as e:
+                LOGGER.error(f"Trial {self.trial_count}: Erro ao obter val_loss - {e}")
+                if self.x_val is not None and self.y_val is not None:
+                    try:
+                        model = self.get_best_models(num_models=1)[0]
+                        from sklearn.metrics import log_loss
+                        y_pred_proba = model.predict(self.x_val, verbose=0)
+                        calculated_loss = log_loss(self.y_val, y_pred_proba)
+                        trial_data['best_val_loss'] = calculated_loss
+                        LOGGER.info(f"Trial {self.trial_count}: val_loss calculada = {calculated_loss:.4f}")
+                    except Exception as calc_error:
+                        LOGGER.error(f"Trial {self.trial_count}: Falha ao calcular val_loss - {calc_error}")
+                        trial_data['best_val_loss'] = 0
+                else:
+                    trial_data['best_val_loss'] = 0
 
         self.trials_data.append(trial_data)
 
@@ -239,8 +337,14 @@ def build_tunable_mlp(hp):
     return model
 
 
-def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, executions_per_trial=2):
+def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, executions_per_trial=2, progress_callback=None, epochs=None):
+    from config import DEFAULT_TUNING_EPOCHS, DEFAULT_BATCH_SIZE
+
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
+
     LOGGER.info("Iniciando busca de hiperparâmetros para MLP...")
+    LOGGER.info(f"Épocas por trial: {epochs}")
 
     input_dim = x_train.shape[1]
 
@@ -257,6 +361,8 @@ def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
         project_name='mlp_precision_optimization',
         overwrite=False
     )
+
+    tuner.set_validation_data(x_val, y_val)
 
     LOGGER.info(f"Busca configurada: {max_trials} trials, {executions_per_trial} executions per trial")
     LOGGER.info("Objetivo: Maximizar val_precision")
@@ -293,11 +399,22 @@ def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
 
     LOGGER.info("Iniciando busca (logs de progresso a cada 5 épocas)...")
 
+    if progress_callback:
+        original_run_trial = tuner.run_trial
+
+        def wrapped_run_trial(trial, *args, **kwargs):
+            progress_callback.on_trial_begin(trial)
+            result = original_run_trial(trial, *args, **kwargs)
+            progress_callback.on_trial_end(trial)
+            return result
+
+        tuner.run_trial = wrapped_run_trial
+
     tuner.search(
         x_train, y_train,
         validation_data=(x_val, y_val),
-        epochs=100,
-        batch_size=64,
+        epochs=epochs,
+        batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop, epoch_progress],
         verbose=0
     )

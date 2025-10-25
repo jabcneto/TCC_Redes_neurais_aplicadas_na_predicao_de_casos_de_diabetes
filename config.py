@@ -1,10 +1,19 @@
 import logging
-import os
 from datetime import datetime
 
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['PYCARET_CUSTOM_LOGGING_LEVEL'] = 'CRITICAL'
+
+import warnings
+warnings.filterwarnings('ignore')
 
 RESULTS_DIR = "resultados_diabetes"
+
+DEFAULT_EPOCHS = 100
+DEFAULT_TUNING_EPOCHS = 100
+DEFAULT_FINAL_TRAINING_EPOCHS = 150
+DEFAULT_BATCH_SIZE = 128
 
 class ColoredFormatter(logging.Formatter):
     """

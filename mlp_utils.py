@@ -1,6 +1,13 @@
 import os
 from config import RESULTS_DIR, LOGGER
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 
 def check_tensorflow_availability():
     try:
@@ -66,6 +73,7 @@ def create_model_from_hyperparameters(best_hps_dict, input_shape):
 
 def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tuned_Final"):
     from tensorflow.keras.callbacks import EarlyStopping, LambdaCallback
+    from config import DEFAULT_BATCH_SIZE, DEFAULT_FINAL_TRAINING_EPOCHS
     import time
 
     LOGGER.info("\n" + "=" * 80)
@@ -83,7 +91,7 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
 
     epoch_logger = LambdaCallback(
         on_epoch_end=lambda epoch, logs: LOGGER.info(
-            f"Época {epoch+1}/150 - loss: {logs['loss']:.4f} - "
+            f"Época {epoch+1}/{DEFAULT_FINAL_TRAINING_EPOCHS} - loss: {logs['loss']:.4f} - "
             f"accuracy: {logs.get('accuracy', 0):.4f} - "
             f"precision: {logs.get('precision', 0):.4f}"
         ) if (epoch + 1) % 5 == 0 else None
@@ -96,14 +104,24 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
         verbose=1
     )
 
-    batch_size = best_hps.get('batch_size') if hasattr(best_hps, 'get') else 64
+    if hasattr(best_hps, 'values') and 'batch_size' in best_hps.values:
+        batch_size = best_hps.get('batch_size')
+    elif hasattr(best_hps, 'get'):
+        try:
+            batch_size = best_hps.get('batch_size')
+        except KeyError:
+            batch_size = DEFAULT_BATCH_SIZE
+    else:
+        batch_size = best_hps.get('batch_size', DEFAULT_BATCH_SIZE) if isinstance(best_hps, dict) else DEFAULT_BATCH_SIZE
+
     LOGGER.info(f"Usando batch_size: {batch_size}")
+    LOGGER.info(f"Epochs para treinamento final: {DEFAULT_FINAL_TRAINING_EPOCHS}")
     LOGGER.info("Iniciando treinamento final...")
 
     retrain_start = time.time()
     history = final_model.fit(
         x_train_full, y_train_full,
-        epochs=150,
+        epochs=DEFAULT_FINAL_TRAINING_EPOCHS,
         batch_size=batch_size,
         callbacks=[early_stop, epoch_logger],
         verbose=0

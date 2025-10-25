@@ -1,8 +1,13 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
 import json
-import time
-import numpy as np
-from config import RESULTS_DIR, LOGGER
+from config import RESULTS_DIR, LOGGER, DEFAULT_TUNING_EPOCHS, DEFAULT_BATCH_SIZE
 
 
 def build_tunable_cnn(hp):
@@ -84,9 +89,12 @@ def build_tunable_cnn(hp):
     return model
 
 
-def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, executions_per_trial=2):
+def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, executions_per_trial=2, progress_callback=None, epochs=None):
     import keras_tuner as kt
     from tensorflow.keras.callbacks import EarlyStopping
+
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
 
     tuning_dir = os.path.join(RESULTS_DIR, 'tuning', 'cnn_results')
     os.makedirs(tuning_dir, exist_ok=True)
@@ -108,11 +116,30 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
     early_stop = EarlyStopping(monitor='val_precision', patience=15, mode='max', restore_best_weights=True)
 
     LOGGER.info("Iniciando busca de hiperparâmetros para CNN...")
+    LOGGER.info(f"Épocas por trial: {epochs}")
+
+    if progress_callback:
+        original_search = tuner.search
+
+        def wrapped_search(*args, **kwargs):
+            original_run_trial = tuner.run_trial
+
+            def wrapped_run_trial(trial, *trial_args, **trial_kwargs):
+                progress_callback.on_trial_begin(trial)
+                result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                progress_callback.on_trial_end(trial)
+                return result
+
+            tuner.run_trial = wrapped_run_trial
+            return original_search(*args, **kwargs)
+
+        tuner.search = wrapped_search
+
     tuner.search(
         x_train, y_train,
         validation_data=(x_val, y_val),
-        epochs=100,
-        batch_size=64,
+        epochs=epochs,
+        batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
         verbose=1
     )
@@ -125,9 +152,12 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
     return best_model, best_hps, tuner
 
 
-def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_per_trial=2):
+def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_per_trial=2, progress_callback=None, epochs=None):
     import keras_tuner as kt
     from tensorflow.keras.callbacks import EarlyStopping
+
+    if epochs is None:
+        epochs = DEFAULT_TUNING_EPOCHS
 
     tuning_dir = os.path.join(RESULTS_DIR, 'tuning', 'cnn_bayesian_results')
     os.makedirs(tuning_dir, exist_ok=True)
@@ -149,11 +179,30 @@ def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_
     early_stop = EarlyStopping(monitor='val_precision', patience=15, mode='max', restore_best_weights=True)
 
     LOGGER.info("Iniciando busca bayesiana de hiperparâmetros para CNN...")
+    LOGGER.info(f"Épocas por trial: {epochs}")
+
+    if progress_callback:
+        original_search = tuner.search
+
+        def wrapped_search(*args, **kwargs):
+            original_run_trial = tuner.run_trial
+
+            def wrapped_run_trial(trial, *trial_args, **trial_kwargs):
+                progress_callback.on_trial_begin(trial)
+                result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                progress_callback.on_trial_end(trial)
+                return result
+
+            tuner.run_trial = wrapped_run_trial
+            return original_search(*args, **kwargs)
+
+        tuner.search = wrapped_search
+
     tuner.search(
         x_train, y_train,
         validation_data=(x_val, y_val),
-        epochs=100,
-        batch_size=64,
+        epochs=epochs,
+        batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
         verbose=1
     )
@@ -297,4 +346,3 @@ def _save_bayesian_config(tuner, best_hps):
         json.dump(config, f, indent=4)
 
     LOGGER.info(f"\nConfiguração bayesiana salva em: {config_path}")
-
