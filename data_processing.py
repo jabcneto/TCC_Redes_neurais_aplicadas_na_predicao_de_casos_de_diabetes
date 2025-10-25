@@ -281,8 +281,21 @@ def pre_processar_dados(
     X_val_scaled = scaler.transform(X_val_final)
     X_test_scaled = scaler.transform(X_test_final)
 
-    smote = SMOTE(random_state=RANDOM_STATE)
-    X_train_res, y_train_res = smote.fit_resample(X_train_scaled, y_train)
+    class_counts = y_train.value_counts()
+    LOGGER.info(f"Distribuição original das classes no treino: {class_counts.to_dict()}")
+
+    minority_class = class_counts.min()
+    majority_class = class_counts.max()
+    ratio = minority_class / majority_class
+
+    if ratio < 0.5:
+        smote = SMOTE(random_state=RANDOM_STATE, sampling_strategy=0.7, k_neighbors=5)
+        X_train_res, y_train_res = smote.fit_resample(X_train_scaled, y_train)
+        LOGGER.info(f"SMOTE aplicado com sampling_strategy=0.7. Nova distribuição: {pd.Series(y_train_res).value_counts().to_dict()}")
+    else:
+        X_train_res = X_train_scaled
+        y_train_res = y_train
+        LOGGER.info("SMOTE não aplicado - classes já balanceadas.")
 
     LOGGER.info(
         f"Divisão dos dados: Treino={X_train_res.shape}, Validação={X_val_scaled.shape}, Teste={X_test_scaled.shape}"

@@ -4,44 +4,47 @@ from xgboost import XGBClassifier
 from config import LOGGER
 
 
-def criar_modelo_mlp_pt(input_shape, learning_rate=0.001, regularization=0.001):
+def criar_modelo_mlp_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     """Cria um modelo MLP (Perceptron Multicamadas) para classificação binária."""
     LOGGER.info("Criando modelo MLP.")
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
+    from tensorflow.keras.metrics import Precision, Recall
 
     model = Sequential([
         Input(shape=input_shape),
-        Dense(128, kernel_regularizer=l2(regularization), activation='relu'),
-        BatchNormalization(),
-        Dropout(0.3),
         Dense(64, kernel_regularizer=l2(regularization), activation='relu'),
         BatchNormalization(),
+        Dropout(0.5),
+        Dense(32, kernel_regularizer=l2(regularization), activation='relu'),
+        BatchNormalization(),
+        Dropout(0.4),
+        Dense(16, kernel_regularizer=l2(regularization), activation='relu'),
         Dropout(0.3),
-        Dense(32, activation='relu'),
         Dense(1, activation='sigmoid')
     ])
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC']
+        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
     )
     model.summary()
     return model
 
 
-def criar_modelo_cnn_pt(input_shape, learning_rate=0.001, regularization=0.001):
+def criar_modelo_cnn_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     """Cria um modelo CNN 1D para classificação binária de dados tabulares."""
     LOGGER.info("Criando modelo CNN.")
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import (
         Dense, Dropout, BatchNormalization, Input,
-        Conv1D, MaxPooling1D, Flatten
+        Conv1D, MaxPooling1D, Flatten, GlobalAveragePooling1D
     )
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
+    from tensorflow.keras.metrics import Precision, Recall
 
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
@@ -49,59 +52,58 @@ def criar_modelo_cnn_pt(input_shape, learning_rate=0.001, regularization=0.001):
         actual_input_shape = input_shape
     model = Sequential([
         Input(shape=actual_input_shape),
-        Conv1D(filters=64, kernel_size=3, padding='same', kernel_regularizer=l2(regularization), activation='relu'),
-        BatchNormalization(),
-        MaxPooling1D(pool_size=2),
-        Dropout(0.3),
         Conv1D(filters=32, kernel_size=3, padding='same', kernel_regularizer=l2(regularization), activation='relu'),
         BatchNormalization(),
-        MaxPooling1D(pool_size=2),
-        Dropout(0.3),
-        Flatten(),
-        Dense(32, activation='relu'),
-        Dropout(0.3),
+        Dropout(0.4),
+        Conv1D(filters=16, kernel_size=3, padding='same', kernel_regularizer=l2(regularization), activation='relu'),
+        BatchNormalization(),
+        GlobalAveragePooling1D(),
+        Dropout(0.5),
+        Dense(16, kernel_regularizer=l2(regularization), activation='relu'),
+        Dropout(0.4),
         Dense(1, activation='sigmoid')
     ])
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC']
+        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
     )
     model.summary()
     return model
 
 
-def criar_modelo_hibrido_pt(input_shape, learning_rate=0.001, regularization=0.001):
+def criar_modelo_hibrido_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     """Cria um modelo híbrido CNN-LSTM para classificação binária."""
     LOGGER.info("Criando modelo híbrido CNN-LSTM.")
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import (
         Dense, Dropout, BatchNormalization, Input,
-        Conv1D, MaxPooling1D, Bidirectional, LSTM, GlobalAveragePooling1D
+        Conv1D, Bidirectional, LSTM, GlobalAveragePooling1D
     )
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
+    from tensorflow.keras.metrics import Precision, Recall
 
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
     else:
         actual_input_shape = input_shape
     inputs = Input(shape=actual_input_shape)
-    x = Conv1D(filters=64, kernel_size=3, padding='same', kernel_regularizer=l2(regularization), activation='relu')(inputs)
+    x = Conv1D(filters=32, kernel_size=3, padding='same', kernel_regularizer=l2(regularization), activation='relu')(inputs)
     x = BatchNormalization()(x)
-    x = MaxPooling1D(pool_size=2)(x)
-    x = Bidirectional(LSTM(units=32, return_sequences=True))(x)
-    x = Dropout(0.3)(x)
+    x = Dropout(0.4)(x)
+    x = Bidirectional(LSTM(units=16, return_sequences=True, dropout=0.3, recurrent_dropout=0.2))(x)
     x = GlobalAveragePooling1D()(x)
-    x = Dense(64, activation='relu')(x)
-    x = Dropout(0.3)(x)
-    x = Dense(32, activation='relu')(x)
+    x = Dense(32, kernel_regularizer=l2(regularization), activation='relu')(x)
+    x = Dropout(0.5)(x)
+    x = Dense(16, kernel_regularizer=l2(regularization), activation='relu')(x)
+    x = Dropout(0.4)(x)
     outputs = Dense(1, activation='sigmoid')(x)
     model = Model(inputs=inputs, outputs=outputs)
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC']
+        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
     )
     model.summary()
     return model
@@ -109,9 +111,39 @@ def criar_modelo_hibrido_pt(input_shape, learning_rate=0.001, regularization=0.0
 
 def obter_modelos_classicos(random_state):
     models = {
-        'Regressão Logística': LogisticRegression(random_state=random_state),
-        'Random Forest': RandomForestClassifier(random_state=random_state),
-        'Gradient Boosting': GradientBoostingClassifier(random_state=random_state),
-        'XGBoost': XGBClassifier(random_state=random_state)
+        'Regressão Logística': LogisticRegression(
+            random_state=random_state,
+            C=0.1,
+            max_iter=1000,
+            penalty='l2'
+        ),
+        'Random Forest': RandomForestClassifier(
+            random_state=random_state,
+            n_estimators=100,
+            max_depth=10,
+            min_samples_split=10,
+            min_samples_leaf=5,
+            max_features='sqrt'
+        ),
+        'Gradient Boosting': GradientBoostingClassifier(
+            random_state=random_state,
+            n_estimators=100,
+            max_depth=5,
+            learning_rate=0.05,
+            subsample=0.8,
+            min_samples_split=10,
+            min_samples_leaf=5
+        ),
+        'XGBoost': XGBClassifier(
+            random_state=random_state,
+            n_estimators=100,
+            max_depth=5,
+            learning_rate=0.05,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            min_child_weight=5,
+            reg_alpha=0.1,
+            reg_lambda=1.0
+        )
     }
     return models

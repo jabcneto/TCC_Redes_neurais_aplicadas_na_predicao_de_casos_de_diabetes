@@ -21,7 +21,7 @@ def criar_grafico_evolucao_modelos(resultados_df):
     ordem_modelos = [
         'Naive Bayes', 'Regressão Logística', 'Decision Tree', 'KNN',
         'SVM', 'Random Forest', 'Gradient Boosting', 'XGBoost', 'LightGBM',
-        'MLP', 'CNN', 'Híbrido CNN-LSTM'
+        'MLP', 'MLP_Tuned', 'MLP_Bayesian', 'CNN', 'Híbrido CNN-LSTM'
     ]
 
     # Filtrar modelos existentes

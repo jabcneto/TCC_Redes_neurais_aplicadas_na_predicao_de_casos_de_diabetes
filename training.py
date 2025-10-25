@@ -6,7 +6,7 @@ from tqdm import tqdm
 from config import RESULTS_DIR, LOGGER
 
 
-def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_AUC'):
+def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
     from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
@@ -35,7 +35,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_AUC'):
             monitor=monitor,
             factor=0.5,
             patience=paciencia // 2,
-            min_lr=1e-6,
+            min_lr=1e-7,
             mode=mode,
             verbose=1
         ),
@@ -44,9 +44,9 @@ def criar_callbacks_pt(nome_modelo, paciencia=15, monitor='val_AUC'):
     ]
 
 
-def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=100, batch_size=128):
+def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=150, batch_size=64):
     LOGGER.info(f"Iniciando treinamento do modelo: {nome_modelo}")
-    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_AUC')
+    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_precision')
 
     if "cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower():
         if len(x_train.shape) == 2:
