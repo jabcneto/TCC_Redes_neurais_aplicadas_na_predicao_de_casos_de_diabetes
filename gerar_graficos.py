@@ -450,33 +450,33 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
         nome_modelo (str): Nome do modelo para salvar visualizações
     """
 
-    # 1. Matriz de confusão
     plt.figure(figsize=(10, 8))
     cm = confusion_matrix(y_true, y_pred)
-
-    # Normalizar matriz de confusão
-    cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-    # Plotar matriz de confusão
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+    labels = np.array([["vn", "fp"], ["fn", "vp"]])
+    annot_counts = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
+    ax = sns.heatmap(cm, annot=annot_counts, fmt='', cmap='Blues', cbar=False)
     plt.title(f'Matriz de Confusão - {nome_modelo}', fontsize=15)
-    plt.ylabel('Valor Real', fontsize=12)
-    plt.xlabel('Valor Predito', fontsize=12)
+    plt.ylabel('Real', fontsize=12)
+    plt.xlabel('Predito', fontsize=12)
+    ax.set_xticklabels(['Negativo', 'Positivo'])
+    ax.set_yticklabels(['Negativo', 'Positivo'], rotation=0)
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_matriz_confusao.png", dpi=300)
     plt.close()
 
-    # Matriz de confusão normalizada
     plt.figure(figsize=(10, 8))
-    sns.heatmap(cm_norm, annot=True, fmt='.2f', cmap='Blues', cbar=False)
+    cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    annot_norm = [[f"{labels[i, j]}\n{cm_norm[i, j]:.2f}" for j in range(cm_norm.shape[1])] for i in range(cm_norm.shape[0])]
+    ax = sns.heatmap(cm_norm, annot=annot_norm, fmt='', cmap='Blues', cbar=False)
     plt.title(f'Matriz de Confusão Normalizada - {nome_modelo}', fontsize=15)
-    plt.ylabel('Valor Real', fontsize=12)
-    plt.xlabel('Valor Predito', fontsize=12)
+    plt.ylabel('Real', fontsize=12)
+    plt.xlabel('Predito', fontsize=12)
+    ax.set_xticklabels(['Negativo', 'Positivo'])
+    ax.set_yticklabels(['Negativo', 'Positivo'], rotation=0)
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_matriz_confusao_norm.png", dpi=300)
     plt.close()
 
-    # 2. Curva ROC
     plt.figure(figsize=(10, 8))
     fpr, tpr, thresholds = roc_curve(y_true, y_prob)
     roc_auc = auc(fpr, tpr)
@@ -494,7 +494,6 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curva_roc.png", dpi=300)
     plt.close()
 
-    # 3. Curva Precision-Recall
     plt.figure(figsize=(10, 8))
     precision, recall, _ = precision_recall_curve(y_true, y_prob)
     avg_precision = average_precision_score(y_true, y_prob)
@@ -512,10 +511,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curva_precision_recall.png", dpi=300)
     plt.close()
 
-    # 4. Histograma de probabilidades
     plt.figure(figsize=(12, 8))
-
-    # Separar probabilidades por classe
     prob_pos = y_prob[y_true == 1]
     prob_neg = y_prob[y_true == 0]
 
@@ -538,14 +534,39 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     Visualiza o histórico de treinamento do modelo.
 
     Args:
-        historico (pd.DataFrame): Histórico de treinamento
+        historico (pd.DataFrame | dict | keras.callbacks.History): Histórico de treinamento
         nome_modelo (str): Nome do modelo para salvar visualizações
     """
+    try:
+        if hasattr(historico, 'history'):
+            try:
+                df = pd.DataFrame({k: list(v) for k, v in historico.history.items()})
+            except Exception:
+                df = pd.DataFrame(dict(historico.history))
+        elif isinstance(historico, dict):
+            df = pd.DataFrame(historico)
+        elif isinstance(historico, pd.DataFrame):
+            df = historico
+        else:
+            df = pd.DataFrame(historico)
+    except Exception as e:
+        LOGGER.error(f"Não foi possível interpretar o histórico fornecido: {e}")
+        return
 
-    # 1. Curvas de perda (loss)
+    if 'accuracy' not in df.columns and 'acc' in df.columns:
+        df['accuracy'] = df['acc']
+    if 'val_accuracy' not in df.columns and 'val_acc' in df.columns:
+        df['val_accuracy'] = df['val_acc']
+    if 'AUC' not in df.columns and 'auc' in df.columns:
+        df['AUC'] = df['auc']
+    if 'val_AUC' not in df.columns and 'val_auc' in df.columns:
+        df['val_AUC'] = df['val_auc']
+
     plt.figure(figsize=(12, 8))
-    plt.plot(historico['loss'], label='Treino', color='blue')
-    plt.plot(historico['val_loss'], label='Validação', color='orange')
+    if 'loss' in df.columns:
+        plt.plot(df['loss'], label='Treino', color='blue')
+    if 'val_loss' in df.columns:
+        plt.plot(df['val_loss'], label='Validação', color='orange')
     plt.title(f'Curvas de Perda - {nome_modelo}', fontsize=15)
     plt.xlabel('Época', fontsize=12)
     plt.ylabel('Perda (Binary Crossentropy)', fontsize=12)
@@ -555,10 +576,11 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_perda.png", dpi=300)
     plt.close()
 
-    # 2. Curvas de acurácia
     plt.figure(figsize=(12, 8))
-    plt.plot(historico['accuracy'], label='Treino', color='blue')
-    plt.plot(historico['val_accuracy'], label='Validação', color='orange')
+    if 'accuracy' in df.columns:
+        plt.plot(df['accuracy'], label='Treino', color='blue')
+    if 'val_accuracy' in df.columns:
+        plt.plot(df['val_accuracy'], label='Validação', color='orange')
     plt.title(f'Curvas de Acurácia - {nome_modelo}', fontsize=15)
     plt.xlabel('Época', fontsize=12)
     plt.ylabel('Acurácia', fontsize=12)
@@ -568,13 +590,16 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_acuracia.png", dpi=300)
     plt.close()
 
-    # 3. Curvas de métricas adicionais
-    if 'precision' in historico.columns and 'recall' in historico.columns and ('auc' in historico.columns or 'AUC' in historico.columns):
+    has_prec_recall_auc = (
+        ('precision' in df.columns and 'recall' in df.columns) and ('AUC' in df.columns or 'auc' in df.columns)
+    )
+    if has_prec_recall_auc:
         plt.figure(figsize=(18, 6))
 
         plt.subplot(1, 3, 1)
-        plt.plot(historico['precision'], label='Treino', color='blue')
-        plt.plot(historico.get('val_precision', []), label='Validação', color='orange')
+        plt.plot(df.get('precision', []), label='Treino', color='blue')
+        if 'val_precision' in df.columns:
+            plt.plot(df.get('val_precision', []), label='Validação', color='orange')
         plt.title('Precisão')
         plt.xlabel('Época')
         plt.ylabel('Precisão')
@@ -582,20 +607,21 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.grid(True, alpha=0.3)
 
         plt.subplot(1, 3, 2)
-        plt.plot(historico['recall'], label='Treino', color='blue')
-        plt.plot(historico.get('val_recall', []), label='Validação', color='orange')
+        plt.plot(df.get('recall', []), label='Treino', color='blue')
+        if 'val_recall' in df.columns:
+            plt.plot(df.get('val_recall', []), label='Validação', color='orange')
         plt.title('Recall')
         plt.xlabel('Época')
         plt.ylabel('Recall')
         plt.legend()
         plt.grid(True, alpha=0.3)
 
-        key_auc = 'AUC' if 'AUC' in historico.columns else 'auc'
-        key_val_auc = 'val_AUC' if 'val_AUC' in historico.columns else 'val_auc'
+        key_auc = 'AUC' if 'AUC' in df.columns else 'auc'
+        key_val_auc = 'val_AUC' if 'val_AUC' in df.columns else ('val_auc' if 'val_auc' in df.columns else None)
         plt.subplot(1, 3, 3)
-        plt.plot(historico[key_auc], label='Treino', color='blue')
-        if key_val_auc in historico.columns:
-            plt.plot(historico[key_val_auc], label='Validação', color='orange')
+        plt.plot(df.get(key_auc, []), label='Treino', color='blue')
+        if key_val_auc:
+            plt.plot(df.get(key_val_auc, []), label='Validação', color='orange')
         plt.title('AUC')
         plt.xlabel('Época')
         plt.ylabel('AUC')
@@ -607,48 +633,48 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_metricas.png", dpi=300)
         plt.close()
 
-    # 4. Curvas de aprendizado (Learning Curves)
     plt.figure(figsize=(15, 10))
 
-    # Subplot para loss
     plt.subplot(2, 2, 1)
-    plt.plot(historico['loss'], label='Treino', color='blue')
-    plt.plot(historico['val_loss'], label='Validação', color='orange')
+    if 'loss' in df.columns:
+        plt.plot(df['loss'], label='Treino', color='blue')
+    if 'val_loss' in df.columns:
+        plt.plot(df['val_loss'], label='Validação', color='orange')
     plt.title('Perda (Loss)', fontsize=13)
     plt.xlabel('Época', fontsize=11)
     plt.ylabel('Perda', fontsize=11)
     plt.legend()
     plt.grid(True, alpha=0.3)
 
-    # Subplot para accuracy
     plt.subplot(2, 2, 2)
-    plt.plot(historico['accuracy'], label='Treino', color='blue')
-    plt.plot(historico['val_accuracy'], label='Validação', color='orange')
+    if 'accuracy' in df.columns:
+        plt.plot(df['accuracy'], label='Treino', color='blue')
+    if 'val_accuracy' in df.columns:
+        plt.plot(df['val_accuracy'], label='Validação', color='orange')
     plt.title('Acurácia', fontsize=13)
     plt.xlabel('Época', fontsize=11)
     plt.ylabel('Acurácia', fontsize=11)
     plt.legend()
     plt.grid(True, alpha=0.3)
 
-    # Subplot para recall (se disponível)
-    if 'recall' in historico.columns:
+    if 'recall' in df.columns:
         plt.subplot(2, 2, 3)
-        plt.plot(historico['recall'], label='Treino', color='blue')
-        plt.plot(historico['val_recall'], label='Validação', color='orange')
+        plt.plot(df.get('recall', []), label='Treino', color='blue')
+        if 'val_recall' in df.columns:
+            plt.plot(df.get('val_recall', []), label='Validação', color='orange')
         plt.title('Recall', fontsize=13)
         plt.xlabel('Época', fontsize=11)
         plt.ylabel('Recall', fontsize=11)
         plt.legend()
         plt.grid(True, alpha=0.3)
 
-    # Subplot para AUC (se disponível)
-    if 'auc' in historico.columns or 'AUC' in historico.columns:
-        key_auc = 'AUC' if 'AUC' in historico.columns else 'auc'
-        key_val_auc = 'val_AUC' if 'val_AUC' in historico.columns else 'val_auc'
+    if 'auc' in df.columns or 'AUC' in df.columns:
+        key_auc = 'AUC' if 'AUC' in df.columns else 'auc'
+        key_val_auc = 'val_AUC' if 'val_AUC' in df.columns else ('val_auc' if 'val_auc' in df.columns else None)
         plt.subplot(2, 2, 4)
-        plt.plot(historico[key_auc], label='Treino', color='blue')
-        if key_val_auc in historico.columns:
-            plt.plot(historico[key_val_auc], label='Validação', color='orange')
+        plt.plot(df.get(key_auc, []), label='Treino', color='blue')
+        if key_val_auc:
+            plt.plot(df.get(key_val_auc, []), label='Validação', color='orange')
         plt.title('AUC', fontsize=13)
         plt.xlabel('Época', fontsize=11)
         plt.ylabel('AUC', fontsize=11)
@@ -736,13 +762,16 @@ def visualizar_matrizes_confusao_modelos_classicos(y_test, y_preds, nomes_modelo
         nomes_modelos (list): Lista com nomes dos modelos
     """
     for nome, y_pred in zip(nomes_modelos, y_preds):
-        # Matriz de confusão
         cm = confusion_matrix(y_test, y_pred)
+        labels = np.array([["vn", "fp"], ["fn", "vp"]])
+        annot = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+        ax = sns.heatmap(cm, annot=annot, fmt='', cmap='Blues', cbar=False)
         plt.title(f'Matriz de Confusão - {nome}', fontsize=15)
-        plt.ylabel('Valor Real', fontsize=12)
-        plt.xlabel('Valor Predito', fontsize=12)
+        plt.ylabel('Real', fontsize=12)
+        plt.xlabel('Predito', fontsize=12)
+        ax.set_xticklabels(['Negativo', 'Positivo'])
+        ax.set_yticklabels(['Negativo', 'Positivo'], rotation=0)
         plt.tight_layout()
         plt.savefig(f"{RESULTS_DIR}/graficos/confusao/matriz_confusao_{nome.replace(' ', '_').lower()}.png", dpi=300)
         plt.close()
@@ -758,7 +787,6 @@ def visualizar_curvas_roc_modelos_classicos(y_test, y_probs, nomes_modelos):
         nomes_modelos (list): Lista com nomes dos modelos
     """
     for nome, y_prob in zip(nomes_modelos, y_probs):
-        # Curva ROC
         fpr, tpr, _ = roc_curve(y_test, y_prob)
         roc_auc = auc(fpr, tpr)
         plt.figure(figsize=(8, 6))
@@ -850,11 +878,15 @@ def exportar_grafico_metrica_barras(valor, nome_metrica_pt, nome_modelo):
 
 def exportar_matriz_confusao(y_true, y_pred, nome_modelo):
     cm = confusion_matrix(y_true, y_pred)
+    labels = np.array([["vn", "fp"], ["fn", "vp"]])
+    annot = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
     plt.figure(figsize=(6, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    ax = sns.heatmap(cm, annot=annot, fmt='', cmap='Blues')
     plt.title(f'Matriz de Confusão - {nome_modelo}')
     plt.xlabel('Predito')
     plt.ylabel('Real')
+    ax.set_xticklabels(['Negativo', 'Positivo'])
+    ax.set_yticklabels(['Negativo', 'Positivo'], rotation=0)
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/confusao/matriz_confusao_{nome_modelo}.png", dpi=300)
     plt.close()

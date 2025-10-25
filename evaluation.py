@@ -17,7 +17,7 @@ from sklearn.metrics import (
     average_precision_score,
 )
 from sklearn.calibration import calibration_curve
-from imblearn.metrics import geometric_mean_score, specificity_score
+from imblearn.metrics import specificity_score
 from config import RESULTS_DIR, LOGGER
 
 
@@ -33,12 +33,17 @@ def visualizar_analise_exploratoria_dados(df):
 
 def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     LOGGER.info(f"Generating evaluation plots for {nome_modelo}.")
-    confusion_matrix_values = confusion_matrix(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred)
+    labels = np.array([["vn", "fp"], ["fn", "vp"]])
+    annot = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
     plt.figure(figsize=(8, 6))
-    sns.heatmap(confusion_matrix_values, annot=True, fmt='d', cmap='Blues')
-    plt.title(f'Confusion Matrix - {nome_modelo}')
-    plt.ylabel('True')
-    plt.xlabel('Predicted')
+    ax = sns.heatmap(cm, annot=annot, fmt='', cmap='Blues', cbar=False)
+    plt.title(f'Matriz de Confusão - {nome_modelo}')
+    plt.ylabel('Real')
+    plt.xlabel('Predito')
+    ax.set_xticklabels(['Negativo', 'Positivo'])
+    ax.set_yticklabels(['Negativo', 'Positivo'], rotation=0)
+    plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "graficos", "confusao", f"cm_{nome_modelo.replace(' ', '_').lower()}.png"), dpi=300)
     plt.close()
     fpr, tpr, _ = roc_curve(y_true, y_prob)
@@ -91,11 +96,8 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     tn, fp, fn, tp = confusion_matrix_values.ravel()
     specificity = specificity_score(y_test, y_pred) if (tn + fp) > 0 else 0.0
     recall_pos = recall_score(y_test, y_pred)
-    npv = tn / (tn + fn) if (tn + fn) > 0 else 0.0
     ap = average_precision_score(y_test, y_prob)
-    gmean = geometric_mean_score(y_test, y_pred) if (tp + fn) > 0 and (tn + fp) > 0 else 0.0
     precision_val = precision_score(y_test, y_pred)
-    _for = 1 - npv
 
     metrics = {
         'modelo': nome_modelo,
@@ -107,7 +109,6 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
         'precision': precision_val,
         'recall': recall_pos,
         'specificity': specificity,
-        'gmean': gmean,
     }
     pd.DataFrame([metrics]).to_csv(os.path.join(RESULTS_DIR, f"{nome_modelo.replace(' ', '_').lower()}_metricas.csv"), index=False)
     visualizar_resultados(y_test, y_pred, y_prob, nome_modelo)
@@ -186,5 +187,4 @@ def comparar_todos_modelos(df_metrics):
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "comparacao_modelos_roc_auc.png"), dpi=300)
     plt.close()
-    # Gera gráficos para outras métricas
     comparar_metricas_multiplas(df_metrics)

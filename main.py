@@ -6,7 +6,7 @@ import data_processing
 import evaluation
 
 
-def run_pipeline(retrain_models, compare_train_test=False):
+def run_pipeline(retrain_models, compare_train_test=False, plot_history=False, plot_history_model="MLP"):
     criar_diretorios_projeto()
     LOGGER.info("--- INICIANDO PIPELINE DE PREDIÇÃO DE DIABETES ---")
 
@@ -38,12 +38,16 @@ def run_pipeline(retrain_models, compare_train_test=False):
         LOGGER.info("--- FASE DE TREINAMENTO (Flag --retrain ativada) ---")
         classic_models = modeling.obter_modelos_classicos(RANDOM_STATE)
         training.treinar_modelos_classicos_pt(classic_models, x_train, y_train)
+        from gerar_graficos import visualizar_historico_treinamento as _viz_hist
         modelo_mlp = modeling.criar_modelo_mlp_pt(input_shape=(x_train.shape[1],))
-        training.treinar_modelo_keras_pt(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
-        # modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
-        # training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
+        modelo_mlp, hist_mlp = training.treinar_modelo_keras_pt(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
+        _viz_hist(hist_mlp, "MLP")
+        modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
+        modelo_cnn, hist_cnn = training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
+        _viz_hist(hist_cnn, "CNN")
         # modelo_hibrido = modeling.criar_modelo_hibrido_pt(input_shape=(x_train.shape[1], 1))
-        # training.treinar_modelo_keras_pt(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
+        # modelo_hibrido, hist_hib = training.treinar_modelo_keras_pt(modelo_hibrido, x_train, y_train, x_val, y_val, "Hibrido_CNN_LSTM")
+        # _viz_hist(hist_hib, "Hibrido_CNN_LSTM")
     elif retrain_models and not tf_available:
         LOGGER.info("--- FASE DE TREINAMENTO (apenas modelos clássicos; TensorFlow ausente) ---")
         from modeling import obter_modelos_classicos
@@ -87,7 +91,6 @@ def run_pipeline(retrain_models, compare_train_test=False):
             with open(model_path, 'rb') as f:
                 loaded_classic_models[name] = pickle.load(f)
 
-    # Avaliação em TESTE (sempre)
     for name, model in loaded_classic_models.items():
         metrics = evaluation.avaliar_modelo(model, x_test, y_test, name, is_keras_model=False)
         all_metrics.append(metrics)
@@ -117,27 +120,21 @@ def run_pipeline(retrain_models, compare_train_test=False):
     else:
         LOGGER.error("Nenhuma métrica foi gerada. Execute com a flag --retrain primeiro.")
 
-    # Comparação Treino vs Teste (opcional via flag)
     if compare_train_test:
         import pandas as pd
         import gerar_graficos as gg
         train_metrics_rows = []
         test_metrics_rows = []
-
-        # Clássicos: medir em train e test com nomes distintos para salvar gráficos sem sobrescrever
         for name, model in loaded_classic_models.items():
             try:
                 m_train = evaluation.avaliar_modelo(model, x_train, y_train, f"{name}_train", is_keras_model=False)
                 m_test = evaluation.avaliar_modelo(model, x_test, y_test, f"{name}_test", is_keras_model=False)
-                # Ajustar 'modelo' base para alinhamento entre DataFrames
                 m_train['modelo'] = name
                 m_test['modelo'] = name
                 train_metrics_rows.append(m_train)
                 test_metrics_rows.append(m_test)
             except Exception as e:
                 LOGGER.error(f"Falha ao comparar treino/teste para {name}: {e}")
-
-        # Keras (se disponível): medir em train e test
         if tf_available and load_model is not None:
             keras_models_to_evaluate = {
                 "MLP": "MLP_best.keras",
@@ -160,7 +157,6 @@ def run_pipeline(retrain_models, compare_train_test=False):
                     LOGGER.error(f"Falha ao comparar treino/teste para {name} (Keras): {e}")
         else:
             LOGGER.info("Comparação treino/teste para modelos Keras ignorada (TensorFlow indisponível).")
-
         if train_metrics_rows and test_metrics_rows:
             df_train = pd.DataFrame(train_metrics_rows)
             df_test = pd.DataFrame(test_metrics_rows)
@@ -169,12 +165,31 @@ def run_pipeline(retrain_models, compare_train_test=False):
         else:
             LOGGER.warning("Não foi possível gerar comparação Treino vs Teste (sem métricas).")
 
+    if plot_history:
+        import pandas as pd
+        import gerar_graficos as gg
+        import os
+        history_path = os.path.join(RESULTS_DIR, "history", f"{plot_history_model}_history.csv")
+        if os.path.exists(history_path):
+            df_hist = pd.read_csv(history_path)
+            gg.visualizar_historico_treinamento(df_hist, plot_history_model)
+            LOGGER.info("Curvas de histórico geradas do pipeline.")
+        else:
+            LOGGER.error(f"Arquivo de histórico não encontrado: {history_path}")
+
     LOGGER.info("--- PIPELINE CONCLUÍDO ---")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pipeline de Treinamento e Avaliação para Predição de Diabetes.")
     parser.add_argument('--retrain', action='store_true', help="Força retreinamento de todos os modelos.")
-    # parser.add_argument('--comparacao-treino-teste', action='store_true', help="Gera gráficos comparando métricas no treino vs teste.")
+    parser.add_argument('--comparacao-treino-teste', action='store_true', help="Gera gráficos comparando métricas no treino vs teste.")
+    parser.add_argument('--plot-history', action='store_true', help="Gera curvas de histórico (acurácia/perda) a partir do CSV.")
+    parser.add_argument('--plot-history-model', default='MLP', help="Nome do modelo cujo histórico será lido (default: MLP).")
     args = parser.parse_args()
-    run_pipeline(retrain_models=args.retrain, compare_train_test=args.retrain)
+    run_pipeline(
+        retrain_models=args.retrain,
+        compare_train_test=args.__dict__.get('comparacao_treino_teste', False),
+        plot_history=args.plot_history,
+        plot_history_model=args.plot_history_model
+    )
