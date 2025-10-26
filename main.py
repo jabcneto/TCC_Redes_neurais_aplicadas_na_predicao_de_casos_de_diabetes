@@ -138,47 +138,29 @@ def parse_arguments():
 Exemplos de uso:
 
   MLP:
-  1. Buscar melhores hiperparâmetros MLP (50 trials):
-     python3 main.py --tune --trials 50
-
-  2. Buscar hiperparâmetros MLP com Bayesian (30 trials):
+  1. Buscar hiperparâmetros MLP com Bayesian (30 trials):
      python3 main.py --bayesian --trials 30
 
   CNN:
-  3. Buscar melhores hiperparâmetros CNN (50 trials):
-     python3 main.py --tune-cnn --trials 50
-
-  4. Buscar hiperparâmetros CNN com Bayesian (30 trials):
+  2. Buscar hiperparâmetros CNN com Bayesian (30 trials):
      python3 main.py --bayesian-cnn --trials 30
 
   Validação:
-  5. Validação cruzada com modelo pré-treinado:
+  3. Validação cruzada com modelo pré-treinado:
      python3 main.py --cv
 
-  6. Validação cruzada aninhada:
+  4. Validação cruzada aninhada:
      python3 main.py --nested-cv --folds 5
 
-  7. Apenas avaliar modelos já treinados:
+  5. Apenas avaliar modelos já treinados:
      python3 main.py
         """
-    )
-
-    parser.add_argument(
-        '--tune',
-        action='store_true',
-        help="Busca intensiva de hiperparâmetros MLP para máxima precisão (pode levar horas)."
     )
 
     parser.add_argument(
         '--bayesian',
         action='store_true',
         help="Busca bayesiana de hiperparâmetros MLP (pode ser mais rápida e eficiente)."
-    )
-
-    parser.add_argument(
-        '--tune-cnn',
-        action='store_true',
-        help="Busca intensiva de hiperparâmetros CNN para máxima precisão (pode levar horas)."
     )
 
     parser.add_argument(
@@ -214,28 +196,6 @@ Exemplos de uso:
     )
 
     parser.add_argument(
-        '--balance-strategy',
-        type=str,
-        default='smote',
-        choices=['smote', 'smotenc', 'adasyn', 'smote_tomek', 'smote_enn', 'ros', 'rus', 'none'],
-        help="Estratégia de balanceamento: smote, smotenc, adasyn, smote_tomek, smote_enn, ros, rus, none. Padrão: smote."
-    )
-
-    parser.add_argument(
-        '--sampling-strategy',
-        type=float,
-        default=0.7,
-        help="Proporção alvo da classe minoritária após reamostragem (ex.: 0.4). Padrão: 0.7."
-    )
-
-    parser.add_argument(
-        '--k-neighbors',
-        type=int,
-        default=5,
-        help="Número de vizinhos para métodos baseados em KNN (SMOTE/ADASYN). Padrão: 5."
-    )
-
-    parser.add_argument(
         '--auto-balance',
         action='store_true',
         help="Seleciona automaticamente a melhor estratégia de balanceamento com base na precisão em validação."
@@ -248,16 +208,13 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     run_pipeline(
-        tune_hyperparameters=args.tune or args.bayesian,
+        tune_hyperparameters=args.bayesian,
         use_bayesian=args.bayesian,
-        tune_cnn=args.tune_cnn or args.bayesian_cnn,
+        tune_cnn=args.bayesian_cnn,
         use_bayesian_cnn=args.bayesian_cnn,
         use_cv=args.cv,
         use_nested_cv=args.nested_cv,
         n_folds=args.folds,
         tuning_trials=args.trials,
-        balance_strategy=args.balance_strategy,
-        sampling_strategy=args.sampling_strategy,
-        k_neighbors=args.k_neighbors,
         auto_balance=args.auto_balance
     )
