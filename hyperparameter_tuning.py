@@ -14,7 +14,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam, RMSprop, SGD
-from tensorflow.keras.metrics import Precision, Recall
+from tensorflow.keras.metrics import Precision, Recall, AUC, PrecisionAtRecall
 from config import RESULTS_DIR, LOGGER
 
 
@@ -28,12 +28,13 @@ class TuningProgressCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         val_precision = logs.get('val_precision', 0)
-        val_loss = logs.get('val_loss', 0)
-
+        val_pr_auc = logs.get('val_pr_auc', 0)
         if val_precision > self.best_val_precision:
             self.best_val_precision = val_precision
-            LOGGER.info(f"  Trial {self.trial_number}/{self.total_trials} - Época {epoch+1}: "
-                       f"val_precision melhorou para {val_precision:.4f}")
+            LOGGER.info(
+                f"  Trial {self.trial_number}/{self.total_trials} - Época {epoch+1}: "
+                f"val_precision={val_precision:.4f}, val_pr_auc={val_pr_auc:.4f}"
+            )
 
 
 class CustomTuner(kt.BayesianOptimization):
@@ -331,7 +332,14 @@ def build_tunable_mlp(hp):
     model.compile(
         optimizer=optimizer,
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
+        metrics=[
+            'accuracy',
+            AUC(name='auc'),
+            AUC(curve='PR', name='pr_auc'),
+            Precision(name='precision'),
+            Recall(name='recall'),
+            PrecisionAtRecall(0.80, name='precision_at_recall_80')
+        ]
     )
 
     return model
@@ -354,7 +362,7 @@ def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
 
     tuner = CustomTuner(
         model_builder,
-        objective=kt.Objective('val_precision', direction='max'),
+        objective=kt.Objective('val_pr_auc', direction='max'),
         max_trials=max_trials,
         executions_per_trial=executions_per_trial,
         directory=os.path.join(RESULTS_DIR, 'tuning'),
@@ -365,18 +373,18 @@ def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
     tuner.set_validation_data(x_val, y_val)
 
     LOGGER.info(f"Busca configurada: {max_trials} trials, {executions_per_trial} executions per trial")
-    LOGGER.info("Objetivo: Maximizar val_precision")
+    LOGGER.info("Objetivo: Maximizar val_pr_auc (com logs de val_precision)")
 
     class CustomEarlyStopping(keras.callbacks.EarlyStopping):
         def on_epoch_end(self, epoch, logs=None):
             super().on_epoch_end(epoch, logs)
             if self.stopped_epoch > 0 and epoch == self.stopped_epoch:
                 LOGGER.info(f"    🛑 EarlyStopping acionado na época {epoch+1}")
-                LOGGER.info(f"       val_precision não melhorou por {self.patience} épocas")
-                LOGGER.info(f"       Melhor val_precision: {logs.get('val_precision', 0):.4f}")
+                LOGGER.info(f"       val_pr_auc não melhorou por {self.patience} épocas")
+                LOGGER.info(f"       Melhor val_pr_auc: {logs.get('val_pr_auc', 0):.4f}")
 
     early_stop = CustomEarlyStopping(
-        monitor='val_precision',
+        monitor='val_pr_auc',
         patience=15,
         mode='max',
         restore_best_weights=True,
@@ -392,6 +400,7 @@ def tune_mlp_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
                     f"loss={logs.get('loss', 0):.4f}, "
                     f"val_loss={logs.get('val_loss', 0):.4f}, "
                     f"val_precision={logs.get('val_precision', 0):.4f}, "
+                    f"val_pr_auc={logs.get('val_pr_auc', 0):.4f}, "
                     f"val_accuracy={logs.get('val_accuracy', 0):.4f}"
                 )
 
@@ -498,7 +507,14 @@ def create_model_from_best_hps(best_hps, input_shape):
     model.compile(
         optimizer=optimizer,
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
+        metrics=[
+            'accuracy',
+            AUC(name='auc'),
+            AUC(curve='PR', name='pr_auc'),
+            Precision(name='precision'),
+            Recall(name='recall'),
+            PrecisionAtRecall(0.80, name='precision_at_recall_80')
+        ]
     )
 
     return model

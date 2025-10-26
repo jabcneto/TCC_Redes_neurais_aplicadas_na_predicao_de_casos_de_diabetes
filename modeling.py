@@ -19,7 +19,7 @@ def criar_modelo_mlp_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
-    from tensorflow.keras.metrics import Precision, Recall
+    from tensorflow.keras.metrics import Precision, Recall, AUC, PrecisionAtRecall
 
     model = Sequential([
         Input(shape=input_shape),
@@ -36,7 +36,7 @@ def criar_modelo_mlp_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
+        metrics=['accuracy', AUC(name='auc'), AUC(curve='PR', name='pr_auc'), Precision(name='precision'), Recall(name='recall'), PrecisionAtRecall(0.80, name='precision_at_recall_80')]
     )
     model.summary()
     return model
@@ -52,7 +52,7 @@ def criar_modelo_cnn_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     )
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
-    from tensorflow.keras.metrics import Precision, Recall
+    from tensorflow.keras.metrics import Precision, Recall, AUC, PrecisionAtRecall
 
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
@@ -74,7 +74,7 @@ def criar_modelo_cnn_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
+        metrics=['accuracy', AUC(name='auc'), AUC(curve='PR', name='pr_auc'), Precision(name='precision'), Recall(name='recall'), PrecisionAtRecall(0.80, name='precision_at_recall_80')]
     )
     model.summary()
     return model
@@ -90,7 +90,7 @@ def criar_modelo_hibrido_pt(input_shape, learning_rate=0.0005, regularization=0.
     )
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
-    from tensorflow.keras.metrics import Precision, Recall
+    from tensorflow.keras.metrics import Precision, Recall, AUC, PrecisionAtRecall
 
     if len(input_shape) == 1:
         actual_input_shape = (input_shape[0], 1)
@@ -111,7 +111,7 @@ def criar_modelo_hibrido_pt(input_shape, learning_rate=0.0005, regularization=0.
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss='binary_crossentropy',
-        metrics=['accuracy', 'AUC', Precision(name='precision'), Recall(name='recall')]
+        metrics=['accuracy', AUC(name='auc'), AUC(curve='PR', name='pr_auc'), Precision(name='precision'), Recall(name='recall'), PrecisionAtRecall(0.80, name='precision_at_recall_80')]
     )
     model.summary()
     return model

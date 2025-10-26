@@ -450,12 +450,19 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
         nome_modelo (str): Nome do modelo para salvar visualizações
     """
 
+    display_name = nome_modelo
+    try:
+        if str(nome_modelo).lower().endswith('_train'):
+            display_name = str(nome_modelo)[:-6]
+    except Exception:
+        display_name = nome_modelo
+
     plt.figure(figsize=(10, 8))
     cm = confusion_matrix(y_true, y_pred)
     labels = np.array([["vn", "fp"], ["fn", "vp"]])
     annot_counts = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
     ax = sns.heatmap(cm, annot=annot_counts, fmt='', cmap='Blues', cbar=False)
-    plt.title(f'Matriz de Confusão - {nome_modelo}', fontsize=15)
+    plt.title(f'Matriz de Confusão - {display_name}', fontsize=15)
     plt.ylabel('Real', fontsize=12)
     plt.xlabel('Predito', fontsize=12)
     ax.set_xticklabels(['Negativo', 'Positivo'])
@@ -468,7 +475,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     annot_norm = [[f"{labels[i, j]}\n{cm_norm[i, j]:.2f}" for j in range(cm_norm.shape[1])] for i in range(cm_norm.shape[0])]
     ax = sns.heatmap(cm_norm, annot=annot_norm, fmt='', cmap='Blues', cbar=False)
-    plt.title(f'Matriz de Confusão Normalizada - {nome_modelo}', fontsize=15)
+    plt.title(f'Matriz de Confusão Normalizada - {display_name}', fontsize=15)
     plt.ylabel('Real', fontsize=12)
     plt.xlabel('Predito', fontsize=12)
     ax.set_xticklabels(['Negativo', 'Positivo'])
@@ -487,7 +494,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.ylim([0.0, 1.05])
     plt.xlabel('Taxa de Falsos Positivos', fontsize=12)
     plt.ylabel('Taxa de Verdadeiros Positivos', fontsize=12)
-    plt.title(f'Curva ROC - {nome_modelo}', fontsize=15)
+    plt.title(f'Curva ROC - {display_name}', fontsize=15)
     plt.legend(loc="lower right")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -504,7 +511,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.ylim([0.0, 1.05])
     plt.xlabel('Recall', fontsize=12)
     plt.ylabel('Precision', fontsize=12)
-    plt.title(f'Curva Precision-Recall - {nome_modelo}', fontsize=15)
+    plt.title(f'Curva Precision-Recall - {display_name}', fontsize=15)
     plt.legend(loc="lower left")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -521,7 +528,7 @@ def visualizar_resultados(y_true, y_pred, y_prob, nome_modelo):
     plt.axvline(x=0.5, color='black', linestyle='--', label='Limiar (0.5)')
     plt.xlabel('Probabilidade Predita', fontsize=12)
     plt.ylabel('Contagem', fontsize=12)
-    plt.title(f'Distribuição de Probabilidades - {nome_modelo}', fontsize=15)
+    plt.title(f'Distribuição de Probabilidades - {display_name}', fontsize=15)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -562,12 +569,19 @@ def visualizar_historico_treinamento(historico, nome_modelo):
     if 'val_AUC' not in df.columns and 'val_auc' in df.columns:
         df['val_AUC'] = df['val_auc']
 
+    display_name = nome_modelo
+    try:
+        if str(nome_modelo).lower().endswith('_train'):
+            display_name = str(nome_modelo)[:-6]
+    except Exception:
+        display_name = nome_modelo
+
     plt.figure(figsize=(12, 8))
     if 'loss' in df.columns:
         plt.plot(df['loss'], label='Treino', color='blue')
     if 'val_loss' in df.columns:
         plt.plot(df['val_loss'], label='Validação', color='orange')
-    plt.title(f'Curvas de Perda - {nome_modelo}', fontsize=15)
+    plt.title(f'Curvas de Perda - {display_name}', fontsize=15)
     plt.xlabel('Época', fontsize=12)
     plt.ylabel('Perda (Binary Crossentropy)', fontsize=12)
     plt.legend()
@@ -581,7 +595,7 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.plot(df['accuracy'], label='Treino', color='blue')
     if 'val_accuracy' in df.columns:
         plt.plot(df['val_accuracy'], label='Validação', color='orange')
-    plt.title(f'Curvas de Acurácia - {nome_modelo}', fontsize=15)
+    plt.title(f'Curvas de Acurácia - {display_name}', fontsize=15)
     plt.xlabel('Época', fontsize=12)
     plt.ylabel('Acurácia', fontsize=12)
     plt.legend()
@@ -628,7 +642,7 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.legend()
         plt.grid(True, alpha=0.3)
 
-        plt.suptitle(f'Métricas de Treinamento - {nome_modelo}', fontsize=16, y=1.05)
+        plt.suptitle(f'Métricas de Treinamento - {display_name}', fontsize=16, y=1.05)
         plt.tight_layout()
         plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_metricas.png", dpi=300)
         plt.close()
@@ -681,7 +695,7 @@ def visualizar_historico_treinamento(historico, nome_modelo):
         plt.legend()
         plt.grid(True, alpha=0.3)
 
-    plt.suptitle(f'Curvas de Aprendizado - {nome_modelo}', fontsize=16, y=1.02)
+    plt.suptitle(f'Curvas de Aprendizado - {display_name}', fontsize=16, y=1.02)
     plt.tight_layout()
     plt.savefig(f"{RESULTS_DIR}/graficos/{nome_modelo}_curvas_aprendizado.png", dpi=300)
     plt.close()
@@ -853,13 +867,19 @@ def gerar_todos_graficos(df=None, resultados_df=None):
 
 
 def exportar_grafico_metrica_barras(valor, nome_metrica_pt, nome_modelo):
+    display_name = nome_modelo
+    try:
+        if str(nome_modelo).lower().endswith('_train'):
+            display_name = str(nome_modelo)[:-6]
+    except Exception:
+        display_name = nome_modelo
     plt.figure(figsize=(6, 6))
     plt.bar([nome_metrica_pt], [valor], color='#2E86C1')
     y_max = 1.0
     if nome_metrica_pt in {'Log Loss', 'Brier Score'} or (isinstance(valor, (int, float)) and valor > 1.0):
         y_max = max(1.0, float(valor) * 1.2)
     plt.ylim(0, y_max)
-    plt.title(f'{nome_metrica_pt} - {nome_modelo}')
+    plt.title(f'{nome_metrica_pt} - {display_name}')
     plt.ylabel(nome_metrica_pt)
     plt.tight_layout()
     nome_arquivo = {
@@ -880,9 +900,15 @@ def exportar_matriz_confusao(y_true, y_pred, nome_modelo):
     cm = confusion_matrix(y_true, y_pred)
     labels = np.array([["vn", "fp"], ["fn", "vp"]])
     annot = [[f"{labels[i, j]}\n{cm[i, j]}" for j in range(cm.shape[1])] for i in range(cm.shape[0])]
+    display_name = nome_modelo
+    try:
+        if str(nome_modelo).lower().endswith('_train'):
+            display_name = str(nome_modelo)[:-6]
+    except Exception:
+        display_name = nome_modelo
     plt.figure(figsize=(6, 6))
     ax = sns.heatmap(cm, annot=annot, fmt='', cmap='Blues')
-    plt.title(f'Matriz de Confusão - {nome_modelo}')
+    plt.title(f'Matriz de Confusão - {display_name}')
     plt.xlabel('Predito')
     plt.ylabel('Real')
     ax.set_xticklabels(['Negativo', 'Positivo'])

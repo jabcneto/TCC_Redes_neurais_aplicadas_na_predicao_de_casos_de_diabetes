@@ -89,7 +89,8 @@ def run_cnn_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, use_
 
 
 def run_pipeline(tune_hyperparameters=False, use_bayesian=False, tune_cnn=False, use_bayesian_cnn=False,
-                 use_cv=False, use_nested_cv=False, n_folds=5, tuning_trials=50):
+                 use_cv=False, use_nested_cv=False, n_folds=5, tuning_trials=50,
+                 balance_strategy='smote', sampling_strategy=0.7, k_neighbors=5, auto_balance=False):
     criar_diretorios_projeto()
     LOGGER.info("--- INICIANDO PIPELINE DE PREDIÇÃO DE DIABETES ---")
 
@@ -99,7 +100,13 @@ def run_pipeline(tune_hyperparameters=False, use_bayesian=False, tune_cnn=False,
         return
 
     df = data_processing.analisar_dados(df)
-    x_train, x_val, x_test, y_train, y_val, y_test, scaler, encoder, feature_names = data_processing.pre_processar_dados(df)
+    x_train, x_val, x_test, y_train, y_val, y_test, scaler, encoder, feature_names = data_processing.pre_processar_dados(
+        df,
+        balance_strategy=balance_strategy,
+        sampling_strategy=sampling_strategy,
+        k_neighbors=k_neighbors,
+        auto_balance=auto_balance
+    )
 
     if use_nested_cv:
         run_nested_cross_validation(x_train, y_train, x_val, y_val, n_folds, tuning_trials)
@@ -206,6 +213,34 @@ Exemplos de uso:
         help="Número de trials para tuning. Sugestões: 15 (rápido), 50 (padrão), 100 (intensivo)."
     )
 
+    parser.add_argument(
+        '--balance-strategy',
+        type=str,
+        default='smote',
+        choices=['smote', 'smotenc', 'adasyn', 'smote_tomek', 'smote_enn', 'ros', 'rus', 'none'],
+        help="Estratégia de balanceamento: smote, smotenc, adasyn, smote_tomek, smote_enn, ros, rus, none. Padrão: smote."
+    )
+
+    parser.add_argument(
+        '--sampling-strategy',
+        type=float,
+        default=0.7,
+        help="Proporção alvo da classe minoritária após reamostragem (ex.: 0.4). Padrão: 0.7."
+    )
+
+    parser.add_argument(
+        '--k-neighbors',
+        type=int,
+        default=5,
+        help="Número de vizinhos para métodos baseados em KNN (SMOTE/ADASYN). Padrão: 5."
+    )
+
+    parser.add_argument(
+        '--auto-balance',
+        action='store_true',
+        help="Seleciona automaticamente a melhor estratégia de balanceamento com base na precisão em validação."
+    )
+
     return parser.parse_args()
 
 
@@ -220,5 +255,9 @@ if __name__ == "__main__":
         use_cv=args.cv,
         use_nested_cv=args.nested_cv,
         n_folds=args.folds,
-        tuning_trials=args.trials
+        tuning_trials=args.trials,
+        balance_strategy=args.balance_strategy,
+        sampling_strategy=args.sampling_strategy,
+        k_neighbors=args.k_neighbors,
+        auto_balance=args.auto_balance
     )

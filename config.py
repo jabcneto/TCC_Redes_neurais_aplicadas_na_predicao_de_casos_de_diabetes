@@ -10,9 +10,9 @@ warnings.filterwarnings('ignore')
 
 RESULTS_DIR = "resultados_diabetes"
 
-DEFAULT_EPOCHS = 100
-DEFAULT_TUNING_EPOCHS = 100
-DEFAULT_FINAL_TRAINING_EPOCHS = 150
+DEFAULT_EPOCHS = 15
+DEFAULT_TUNING_EPOCHS = 5
+DEFAULT_FINAL_TRAINING_EPOCHS = 10
 DEFAULT_BATCH_SIZE = 128
 
 class ColoredFormatter(logging.Formatter):

@@ -30,7 +30,10 @@ def run_nested_cross_validation(x_train, y_train, x_val, y_val, n_folds, max_tri
         y_train=y_train_full,
         outer_folds=n_folds,
         inner_folds=3,
-        max_trials=max_trials
+        max_trials=max_trials,
+        epochs=epochs,
+        batch_size=DEFAULT_BATCH_SIZE,
+        verbose=1
     )
     return nested_results
 
@@ -141,12 +144,12 @@ def _compare_cv_with_holdout_models(cv_results, x_test, y_test, load_model):
         LOGGER.info("\n--- COMPARANDO CV COM MODELO BAYESIANO ---")
         loaded_model = load_model(bayesian_model_path)
         holdout_metrics = evaluation.avaliar_modelo(loaded_model, x_test, y_test, "Bayesian_Holdout", is_keras_model=True)
-        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics)
+        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics, model_name="MLP_Bayesian")
     elif os.path.exists(tuned_model_path):
         LOGGER.info("\n--- COMPARANDO CV COM MODELO TUNED ---")
         loaded_model = load_model(tuned_model_path)
         holdout_metrics = evaluation.avaliar_modelo(loaded_model, x_test, y_test, "Tuned_Holdout", is_keras_model=True)
-        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics)
+        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics, model_name="MLP_Tuned")
 
 
 def _compare_cnn_cv_with_holdout(cv_results, x_test, y_test, load_model):
@@ -157,12 +160,12 @@ def _compare_cnn_cv_with_holdout(cv_results, x_test, y_test, load_model):
         LOGGER.info("\n--- COMPARANDO CV COM MODELO CNN BAYESIANO ---")
         loaded_model = load_model(bayesian_model_path)
         holdout_metrics = evaluation.avaliar_modelo(loaded_model, x_test, y_test, "CNN_Bayesian_Holdout", is_keras_model=True)
-        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics)
+        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics, model_name="CNN_Bayesian")
     elif os.path.exists(tuned_model_path):
         LOGGER.info("\n--- COMPARANDO CV COM MODELO CNN TUNED ---")
         loaded_model = load_model(tuned_model_path)
         holdout_metrics = evaluation.avaliar_modelo(loaded_model, x_test, y_test, "CNN_Tuned_Holdout", is_keras_model=True)
-        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics)
+        cross_validation.compare_cv_with_holdout(cv_results, holdout_metrics, model_name="CNN_Tuned")
 
 
 def run_cross_validation_after_tuning(best_hps, tuned_metrics, x_train, y_train, x_val, y_val, n_folds, epochs=None):
@@ -185,4 +188,14 @@ def run_cross_validation_after_tuning(best_hps, tuned_metrics, x_train, y_train,
         batch_size=DEFAULT_BATCH_SIZE
     )
 
-    cross_validation.compare_cv_with_holdout(cv_results, tuned_metrics)
+    if hasattr(best_hps, 'values'):
+        hps_values = best_hps.values
+    else:
+        hps_values = best_hps
+
+    if 'num_conv_layers' in hps_values:
+        model_name = "CNN_Tuned"
+    else:
+        model_name = "MLP_Tuned"
+
+    cross_validation.compare_cv_with_holdout(cv_results, tuned_metrics, model_name=model_name)

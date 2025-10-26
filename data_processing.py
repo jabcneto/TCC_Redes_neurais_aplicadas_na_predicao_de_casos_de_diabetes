@@ -2,12 +2,15 @@
 from typing import Optional, Tuple, List
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
 from sklearn.model_selection import train_test_split
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler, SMOTENC
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.combine import SMOTEENN, SMOTETomek
 from evaluation import visualizar_analise_exploratoria_dados
 from utils import RANDOM_STATE
-from config import LOGGER
+from config import LOGGER, RESULTS_DIR
+import os
 
 
 """
@@ -138,10 +141,79 @@ def _apply_bounds(series: pd.Series, bounds: Tuple[float, float]) -> pd.Series:
     return series.clip(lower=lower, upper=upper)
 
 
+class CombinedCategoricalEncoder:
+    def __init__(self, cat_cols):
+        self.cat_cols = cat_cols
+        self.ordinal = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+        try:
+            self.ohe = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+        except TypeError:
+            self.ohe = OneHotEncoder(sparse=False, handle_unknown='ignore')
+        self._feature_names = None
+
+    def fit(self, df_cat):
+        X_ord = self.ordinal.fit_transform(df_cat)
+        self.ohe.fit(X_ord)
+        cats = self.ohe.categories_
+        names = []
+        for col, cat_vals in zip(self.cat_cols, cats):
+            for v in cat_vals:
+                names.append(f"{col}_{int(v)}")
+        self._feature_names = names
+        return self
+
+    def transform(self, df_cat):
+        X_ord = self.ordinal.transform(df_cat)
+        return self.ohe.transform(X_ord)
+
+    def get_feature_names_out(self, input_features=None):
+        return np.array(self._feature_names or [])
+
+
+def _plot_resampled_distribution(y, name):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    counts = pd.Series(y).value_counts().sort_index()
+    plt.figure(figsize=(6, 4))
+    sns.barplot(x=counts.index.astype(str), y=counts.values, palette='viridis')
+    plt.title(f'Class distribution - {name}')
+    plt.xlabel('Class')
+    plt.ylabel('Count')
+    out_path = os.path.join(RESULTS_DIR, 'graficos', 'distribuicao', f'dist_{name}.png')
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close()
+    LOGGER.info(f"Gráfico de distribuição salvo: {out_path}")
+
+
+def _plot_before_after_distribution(y_before, y_after, name):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
+    counts_before = pd.Series(y_before).value_counts().sort_index()
+    counts_after = pd.Series(y_after).value_counts().sort_index()
+    sns.barplot(ax=axes[0], x=counts_before.index.astype(str), y=counts_before.values, palette='viridis')
+    axes[0].set_title('Before')
+    axes[0].set_xlabel('Class')
+    axes[0].set_ylabel('Count')
+    sns.barplot(ax=axes[1], x=counts_after.index.astype(str), y=counts_after.values, palette='viridis')
+    axes[1].set_title('After')
+    axes[1].set_xlabel('Class')
+    out_path = os.path.join(RESULTS_DIR, 'graficos', 'distribuicao', f'dist_before_after_{name}.png')
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close()
+    LOGGER.info(f"Gráfico de distribuição antes/depois salvo: {out_path}")
+
+
 def pre_processar_dados(
     df: pd.DataFrame,
     test_size: float = 0.2,
-    val_size: float = 0.1
+    val_size: float = 0.1,
+    balance_strategy: str = "smote",
+    sampling_strategy: float = 0.7,
+    k_neighbors: int = 5,
+    auto_balance: bool = False
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, pd.Series, pd.Series, pd.Series, StandardScaler, OneHotEncoder, List[str]]:
     """
     Build train/validation/test datasets with encoding, scaling, and class balancing.
@@ -165,6 +237,14 @@ def pre_processar_dados(
     val_size : float, default=0.1
         Proportion of the full dataset assigned to the validation split.
         The function internally converts this into a fraction of the non-test portion.
+    balance_strategy : str, default="smote"
+        Resampling strategy for class balancing. Options: "smote", "adasyn", "smote_tomek", "smote_enn", "ros", "rus", "none".
+    sampling_strategy : float, default=0.7
+        Target ratio for the minority class after resampling.
+    k_neighbors : int, default=5
+        Number of neighbors to use for KNN-based resampling methods (SMOTE, ADASYN).
+    auto_balance : bool, default=False
+        If True, automatically selects the best balancing strategy based on validation precision.
 
     Returns
     -------
@@ -284,18 +364,159 @@ def pre_processar_dados(
     class_counts = y_train.value_counts()
     LOGGER.info(f"Distribuição original das classes no treino: {class_counts.to_dict()}")
 
-    minority_class = class_counts.min()
-    majority_class = class_counts.max()
-    ratio = minority_class / majority_class
+    X_train_res = X_train_scaled
+    y_train_res = y_train
 
-    if ratio < 0.5:
-        smote = SMOTE(random_state=RANDOM_STATE, sampling_strategy=0.7, k_neighbors=5)
-        X_train_res, y_train_res = smote.fit_resample(X_train_scaled, y_train)
-        LOGGER.info(f"SMOTE aplicado com sampling_strategy=0.7. Nova distribuição: {pd.Series(y_train_res).value_counts().to_dict()}")
+    if auto_balance:
+        LOGGER.info("Auto-balance ativado: testando estratégias para maximizar precisão de validação.")
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.metrics import precision_score
+        from utils import find_optimal_threshold
+
+        def _score_strategy(x_tr, y_tr, x_v, y_v):
+            try:
+                clf = LogisticRegression(max_iter=1000, solver='liblinear')
+                clf.fit(x_tr, y_tr)
+                p = clf.predict_proba(x_v)[:, 1]
+                thr, _ = find_optimal_threshold(y_v.values if hasattr(y_v, 'values') else y_v, p, objective='precision', min_recall=0.5)
+                y_hat = (p > thr).astype(int)
+                return precision_score(y_v, y_hat)
+            except Exception:
+                return 0.0
+
+        candidates = [
+            ("none", None),
+            ("smote", 0.3),
+            ("smote", 0.5),
+            ("smote_tomek", 0.5),
+            ("smote_enn", 0.5),
+            ("ros", 0.5),
+            ("rus", 0.5),
+        ]
+        best_name = "none"
+        best_ss = None
+        best_score = -1.0
+
+        for name, ss in candidates:
+            try:
+                if name == "none":
+                    x_bal, y_bal = X_train_scaled, y_train
+                else:
+                    if name == "smote":
+                        sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=ss, k_neighbors=k_neighbors)
+                    elif name == "adasyn":
+                        sampler = ADASYN(random_state=RANDOM_STATE, sampling_strategy=ss, n_neighbors=k_neighbors)
+                    elif name == "smote_tomek":
+                        sampler = SMOTETomek(random_state=RANDOM_STATE, sampling_strategy=ss)
+                    elif name == "smote_enn":
+                        sampler = SMOTEENN(random_state=RANDOM_STATE, sampling_strategy=ss)
+                    elif name == "ros":
+                        sampler = RandomOverSampler(random_state=RANDOM_STATE, sampling_strategy=ss)
+                    elif name == "rus":
+                        sampler = RandomUnderSampler(random_state=RANDOM_STATE, sampling_strategy=ss)
+                    else:
+                        sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=ss, k_neighbors=k_neighbors)
+                    x_bal, y_bal = sampler.fit_resample(X_train_scaled, y_train)
+                score = _score_strategy(x_bal, y_bal, X_val_scaled, y_val)
+                LOGGER.info(f"Estratégia testada: {name} (ss={ss}) -> val_precision={score:.4f}")
+                if score > best_score:
+                    best_score = score
+                    best_name = name
+                    best_ss = ss
+            except Exception as e:
+                LOGGER.warning(f"Falha ao testar estratégia {name} (ss={ss}): {e}")
+
+        if best_name == "none":
+            LOGGER.info("Auto-balance escolheu: none (sem reamostragem)")
+            X_train_res, y_train_res = X_train_scaled, y_train
+        else:
+            LOGGER.info(f"Auto-balance escolheu: {best_name} com sampling_strategy={best_ss}")
+            try:
+                if best_name == "smote":
+                    sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=best_ss, k_neighbors=k_neighbors)
+                elif best_name == "adasyn":
+                    sampler = ADASYN(random_state=RANDOM_STATE, sampling_strategy=best_ss, n_neighbors=k_neighbors)
+                elif best_name == "smote_tomek":
+                    sampler = SMOTETomek(random_state=RANDOM_STATE, sampling_strategy=best_ss)
+                elif best_name == "smote_enn":
+                    sampler = SMOTEENN(random_state=RANDOM_STATE, sampling_strategy=best_ss)
+                elif best_name == "ros":
+                    sampler = RandomOverSampler(random_state=RANDOM_STATE, sampling_strategy=best_ss)
+                elif best_name == "rus":
+                    sampler = RandomUnderSampler(random_state=RANDOM_STATE, sampling_strategy=best_ss)
+                else:
+                    sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=best_ss, k_neighbors=k_neighbors)
+                X_train_res, y_train_res = sampler.fit_resample(X_train_scaled, y_train)
+                LOGGER.info(f"Nova distribuição após auto-balance: {pd.Series(y_train_res).value_counts().to_dict()}")
+                _plot_resampled_distribution(y_train_res, f"train_post_{best_name}_{str(best_ss).replace('.', '')}")
+                _plot_before_after_distribution(y_train, y_train_res, f"train_{best_name}_{str(best_ss).replace('.', '')}")
+            except Exception as e:
+                LOGGER.warning(f"Falha ao aplicar estratégia escolhida. Mantendo dados originais. Erro: {e}")
+                X_train_res, y_train_res = X_train_scaled, y_train
     else:
-        X_train_res = X_train_scaled
-        y_train_res = y_train
-        LOGGER.info("SMOTE não aplicado - classes já balanceadas.")
+        minority_class = class_counts.min()
+        majority_class = class_counts.max()
+        ratio = minority_class / majority_class
+        apply_balance = balance_strategy.lower() != "none" and ratio < 0.95
+        if apply_balance:
+            bs = balance_strategy.lower()
+            try:
+                if bs == "smotenc":
+                    cat_indices = list(range(len(num_cols), len(num_cols) + len(cat_cols)))
+                    enc = CombinedCategoricalEncoder(cat_cols)
+                    enc.fit(X_train[cat_cols])
+                    X_train_num_arr = X_train[num_cols].to_numpy(dtype=float) if num_cols else np.empty((len(X_train), 0))
+                    X_train_cat_ord = enc.ordinal.transform(X_train[cat_cols]) if cat_cols else np.empty((len(X_train), 0))
+                    X_train_for_smote = np.hstack([X_train_num_arr, X_train_cat_ord])
+                    sampler = SMOTENC(categorical_features=cat_indices, random_state=RANDOM_STATE, sampling_strategy=sampling_strategy, k_neighbors=k_neighbors)
+                    X_resampled, y_resampled = sampler.fit_resample(X_train_for_smote, y_train)
+                    X_train_num_res = X_resampled[:, :len(num_cols)] if len(num_cols) > 0 else np.empty((len(X_resampled), 0))
+                    X_train_cat_res_ord = X_resampled[:, len(num_cols):] if len(cat_cols) > 0 else np.empty((len(X_resampled), 0))
+                    enc.ohe.fit(X_train_cat_res_ord)
+                    X_train_cat_res_ohe = enc.ohe.transform(X_train_cat_res_ord)
+                    X_val_cat_ohe = enc.transform(X_val[cat_cols]) if cat_cols else np.empty((len(X_val), 0))
+                    X_test_cat_ohe = enc.transform(X_test[cat_cols]) if cat_cols else np.empty((len(X_test), 0))
+                    X_train_final = np.hstack([X_train_num_res, X_train_cat_res_ohe])
+                    X_val_final = np.hstack([X_val[num_cols].to_numpy(dtype=float) if num_cols else np.empty((len(X_val), 0), dtype=float), X_val_cat_ohe])
+                    X_test_final = np.hstack([X_test[num_cols].to_numpy(dtype=float) if num_cols else np.empty((len(X_test), 0), dtype=float), X_test_cat_ohe])
+                    feature_names = (num_cols if num_cols else []) + list(enc.get_feature_names_out())
+                    scaler = StandardScaler()
+                    X_train_res = scaler.fit_transform(X_train_final)
+                    X_val_scaled = scaler.transform(X_val_final)
+                    X_test_scaled = scaler.transform(X_test_final)
+                    y_train_res = pd.Series(y_resampled)
+                    LOGGER.info(f"Balanceamento 'smotenc' aplicado com sampling_strategy={sampling_strategy}. Nova distribuição: {y_train_res.value_counts().to_dict()}")
+                    _plot_resampled_distribution(y_train_res, f"train_post_smotenc_{str(sampling_strategy).replace('.', '')}")
+                    _plot_before_after_distribution(y_train, y_train_res, f"train_smotenc_{str(sampling_strategy).replace('.', '')}")
+                    LOGGER.info(
+                        f"Divisão dos dados: Treino={X_train_res.shape}, Validação={X_val_scaled.shape}, Teste={X_test_scaled.shape}"
+                    )
+                    return X_train_res, X_val_scaled, X_test_scaled, y_train_res, y_val, y_test, scaler, enc, feature_names
+                elif bs == "smote":
+                    sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy, k_neighbors=k_neighbors)
+                elif bs == "adasyn":
+                    sampler = ADASYN(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy, n_neighbors=k_neighbors)
+                elif bs == "smote_tomek":
+                    sampler = SMOTETomek(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy)
+                elif bs == "smote_enn":
+                    sampler = SMOTEENN(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy)
+                elif bs == "ros":
+                    sampler = RandomOverSampler(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy)
+                elif bs == "rus":
+                    sampler = RandomUnderSampler(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy)
+                else:
+                    sampler = SMOTE(random_state=RANDOM_STATE, sampling_strategy=sampling_strategy, k_neighbors=k_neighbors)
+
+                X_train_res, y_train_res = sampler.fit_resample(X_train_scaled, y_train)
+                LOGGER.info(f"Balanceamento '{bs}' aplicado com sampling_strategy={sampling_strategy}. Nova distribuição: {pd.Series(y_train_res).value_counts().to_dict()}")
+                _plot_resampled_distribution(y_train_res, f"train_post_{bs}_{str(sampling_strategy).replace('.', '')}")
+                _plot_before_after_distribution(y_train, y_train_res, f"train_{bs}_{str(sampling_strategy).replace('.', '')}")
+            except Exception as e:
+                LOGGER.warning(f"Falha ao aplicar '{balance_strategy}'. Continuando sem reamostragem. Erro: {e}")
+                X_train_res = X_train_scaled
+                y_train_res = y_train
+        else:
+            LOGGER.info("Balanceamento não aplicado (estratégia 'none' ou classes já próximas do equilíbrio).")
 
     LOGGER.info(
         f"Divisão dos dados: Treino={X_train_res.shape}, Validação={X_val_scaled.shape}, Teste={X_test_scaled.shape}"

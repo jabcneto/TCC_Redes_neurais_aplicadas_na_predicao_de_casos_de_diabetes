@@ -28,7 +28,7 @@ def create_model_from_hyperparameters(best_hps_dict, input_shape):
     from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam, Nadam, RMSprop, SGD
-    from tensorflow.keras.metrics import AUC, Precision, Recall
+    from tensorflow.keras.metrics import AUC, Precision, Recall, PrecisionAtRecall
 
     model = Sequential()
     model.add(Input(shape=input_shape))
@@ -65,7 +65,14 @@ def create_model_from_hyperparameters(best_hps_dict, input_shape):
     model.compile(
         optimizer=optimizer,
         loss='binary_crossentropy',
-        metrics=['accuracy', AUC(name='auc'), Precision(name='precision'), Recall(name='recall')]
+        metrics=[
+            'accuracy',
+            AUC(name='auc'),
+            AUC(curve='PR', name='pr_auc'),
+            Precision(name='precision'),
+            Recall(name='recall'),
+            PrecisionAtRecall(0.80, name='precision_at_recall_80')
+        ]
     )
 
     return model

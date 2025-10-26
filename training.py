@@ -13,7 +13,7 @@ from tqdm import tqdm
 from config import RESULTS_DIR, LOGGER
 
 
-def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
+def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_pr_auc'):
     from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger, TensorBoard
     log_dir = os.path.join(RESULTS_DIR, "logs", f"{nome_modelo}_{time.strftime('%Y%m%d-%H%M%S')}")
     best_model_path = os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_best.keras")
@@ -26,7 +26,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
     return [
         EarlyStopping(
             monitor=monitor,
-            paciencia=paciencia,
+            patience=paciencia,
             verbose=1,
             mode=mode,
             restore_best_weights=True
@@ -41,7 +41,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
         ReduceLROnPlateau(
             monitor=monitor,
             factor=0.5,
-            paciencia=paciencia // 2,
+            patience=max(1, paciencia // 2),
             min_lr=1e-7,
             mode=mode,
             verbose=1
@@ -51,23 +51,37 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_precision'):
     ]
 
 
-def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=150, batch_size=64):
+def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, epochs=150, batch_size=64, class_weight=None):
     LOGGER.info(f"Iniciando treinamento do modelo: {nome_modelo}")
-    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_precision')
+    callbacks = criar_callbacks_pt(nome_modelo, monitor='val_pr_auc')
 
     if "cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower():
         if len(x_train.shape) == 2:
             x_train = np.expand_dims(x_train, axis=-1)
             x_val = np.expand_dims(x_val, axis=-1)
 
-    history = model.fit(
-        x_train, y_train,
+    if class_weight is None:
+        try:
+            from utils import compute_class_weights_from_labels
+            class_weight = compute_class_weights_from_labels(y_train)
+            LOGGER.info(f"class_weight aplicado: {class_weight}")
+        except Exception as e:
+            LOGGER.warning(f"Falha ao calcular class_weight: {e}")
+            class_weight = None
+
+    fit_kwargs = dict(
+        x=x_train,
+        y=y_train,
         validation_data=(x_val, y_val),
         epochs=epochs,
         batch_size=batch_size,
         callbacks=callbacks,
-        verbose=0
+        verbose=1
     )
+    if class_weight is not None:
+        fit_kwargs["class_weight"] = class_weight
+
+    history = model.fit(**fit_kwargs)
     model.save(os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_final.keras"))
     return model, history
 
