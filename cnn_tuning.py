@@ -1,6 +1,6 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -126,7 +126,17 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
 
             def wrapped_run_trial(trial, *trial_args, **trial_kwargs):
                 progress_callback.on_trial_begin(trial)
-                result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                result = None
+                try:
+                    result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                finally:
+                    try:
+                        import gc
+                        from tensorflow.keras import backend as K
+                        K.clear_session()
+                        gc.collect()
+                    except Exception:
+                        pass
                 progress_callback.on_trial_end(trial)
                 return result
 
@@ -141,7 +151,7 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
         epochs=epochs,
         batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
-        verbose=1
+        verbose=0
     )
 
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -155,6 +165,7 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
 def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_per_trial=2, progress_callback=None, epochs=None):
     import keras_tuner as kt
     from tensorflow.keras.callbacks import EarlyStopping
+    from sklearn.metrics import f1_score
 
     if epochs is None:
         epochs = DEFAULT_TUNING_EPOCHS
@@ -189,7 +200,17 @@ def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_
 
             def wrapped_run_trial(trial, *trial_args, **trial_kwargs):
                 progress_callback.on_trial_begin(trial)
-                result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                result = None
+                try:
+                    result = original_run_trial(trial, *trial_args, **trial_kwargs)
+                finally:
+                    try:
+                        import gc
+                        from tensorflow.keras import backend as K
+                        K.clear_session()
+                        gc.collect()
+                    except Exception:
+                        pass
                 progress_callback.on_trial_end(trial)
                 return result
 
@@ -204,13 +225,34 @@ def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_
         epochs=epochs,
         batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
-        verbose=1
+        verbose=0
     )
 
-    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
-    best_model = tuner.get_best_models(num_models=1)[0]
+    # Selecionar por F1 no conjunto de validação entre os top modelos
+    k = min(10, max_trials)
+    cand_models = tuner.get_best_models(num_models=k)
+    cand_hps = tuner.get_best_hyperparameters(num_trials=k)
+
+    best_idx = 0
+    best_f1 = -1.0
+
+    for i, model in enumerate(cand_models):
+        try:
+            y_prob = model.predict(x_val, verbose=0).flatten()
+            y_pred = (y_prob > 0.5).astype(int)
+            f1 = f1_score(y_val, y_pred, zero_division=0)
+        except Exception:
+            f1 = -1.0
+        if f1 > best_f1:
+            best_f1 = f1
+            best_idx = i
+
+    best_model = cand_models[best_idx] if cand_models else tuner.get_best_models(num_models=1)[0]
+    best_hps = cand_hps[best_idx] if cand_hps else tuner.get_best_hyperparameters(num_trials=1)[0]
 
     _save_bayesian_config(tuner, best_hps)
+
+    LOGGER.info(f"Seleção final por F1 na validação (threshold 0.5): F1={best_f1:.4f}")
 
     return best_model, best_hps, tuner
 
@@ -346,3 +388,34 @@ def _save_bayesian_config(tuner, best_hps):
         json.dump(config, f, indent=4)
 
     LOGGER.info(f"\nConfiguração bayesiana salva em: {config_path}")
+
+
+def load_cnn_hps_from_trial_json(trial_json_path: str) -> dict | None:
+    if not os.path.exists(trial_json_path):
+        LOGGER.error(f"Arquivo não encontrado: {trial_json_path}")
+        return None
+    try:
+        with open(trial_json_path, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        LOGGER.error(f"Falha ao ler {trial_json_path}: {e}")
+        return None
+    hp_values = None
+    if isinstance(data, dict):
+        if 'hyperparameters' in data and isinstance(data['hyperparameters'], dict):
+            hp_section = data['hyperparameters']
+            if 'values' in hp_section and isinstance(hp_section['values'], dict):
+                hp_values = hp_section['values']
+            else:
+                hp_values = hp_section
+        elif 'values' in data and isinstance(data['values'], dict):
+            hp_values = data['values']
+    if not isinstance(hp_values, dict):
+        LOGGER.error("Estrutura de trial.json não reconhecida para extrair hiperparâmetros.")
+        return None
+    return hp_values
+
+
+def create_cnn_from_hps(hps: dict, input_dim: int):
+    return create_cnn_from_best_hps(hps, input_shape=(input_dim,))
+

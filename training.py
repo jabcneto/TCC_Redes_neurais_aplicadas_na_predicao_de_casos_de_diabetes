@@ -1,6 +1,6 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -27,7 +27,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_pr_auc'):
         EarlyStopping(
             monitor=monitor,
             patience=paciencia,
-            verbose=1,
+            verbose=0,
             mode=mode,
             restore_best_weights=True
         ),
@@ -36,7 +36,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_pr_auc'):
             save_best_only=True,
             monitor=monitor,
             mode=mode,
-            verbose=1
+            verbose=0
         ),
         ReduceLROnPlateau(
             monitor=monitor,
@@ -44,7 +44,7 @@ def criar_callbacks_pt(nome_modelo, paciencia=20, monitor='val_pr_auc'):
             patience=max(1, paciencia // 2),
             min_lr=1e-7,
             mode=mode,
-            verbose=1
+            verbose=0
         ),
         CSVLogger(filename=os.path.join(RESULTS_DIR, "history", f"{nome_modelo}_history.csv")),
         TensorBoard(log_dir=log_dir)
@@ -56,7 +56,12 @@ def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, 
     callbacks = criar_callbacks_pt(nome_modelo, monitor='val_pr_auc')
 
     if "cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower():
-        if len(x_train.shape) == 2:
+        try:
+            input_shape = model.input_shape
+            expects_rank = len(input_shape) if input_shape is not None else 0
+        except Exception:
+            expects_rank = 0
+        if expects_rank >= 3 and len(x_train.shape) == 2:
             x_train = np.expand_dims(x_train, axis=-1)
             x_val = np.expand_dims(x_val, axis=-1)
 
@@ -76,7 +81,7 @@ def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, 
         epochs=epochs,
         batch_size=batch_size,
         callbacks=callbacks,
-        verbose=1
+        verbose=0
     )
     if class_weight is not None:
         fit_kwargs["class_weight"] = class_weight
@@ -90,13 +95,28 @@ def treinar_modelos_classicos_pt(models, x_train, y_train):
     trained_models = {}
 
     LOGGER.info("Iniciando treinamento dos modelos clássicos...")
+    try:
+        from utils import compute_class_weights_from_labels
+        class_weights = compute_class_weights_from_labels(y_train)
+        sample_weight = np.array([class_weights[int(y)] for y in y_train])
+    except Exception as e:
+        LOGGER.warning(f"Falha ao calcular class/sample weights: {e}")
+        sample_weight = None
+
     for name, model in tqdm(models.items(), desc="Treinando modelos clássicos"):
         if hasattr(model, 'verbose'):
             model.verbose = 0
         if hasattr(model, 'verbosity'):
             model.verbosity = 0
 
-        model.fit(x_train, y_train)
+        fit_kwargs = dict(X=x_train, y=y_train)
+        if sample_weight is not None:
+            try:
+                model.fit(x_train, y_train, sample_weight=sample_weight)
+            except TypeError:
+                model.fit(x_train, y_train)
+        else:
+            model.fit(x_train, y_train)
 
         with open(os.path.join(RESULTS_DIR, "modelos", f"{name.replace(' ', '_').lower()}.pkl"), 'wb') as f:
             pickle.dump(model, f)

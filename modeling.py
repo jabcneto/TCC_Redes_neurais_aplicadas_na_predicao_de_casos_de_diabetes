@@ -1,14 +1,12 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 logging.getLogger('absl').setLevel(logging.ERROR)
 
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from xgboost import XGBClassifier
 from config import LOGGER
 
 
@@ -48,7 +46,7 @@ def criar_modelo_cnn_pt(input_shape, learning_rate=0.0005, regularization=0.01):
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import (
         Dense, Dropout, BatchNormalization, Input,
-        Conv1D, MaxPooling1D, Flatten, GlobalAveragePooling1D
+        Conv1D, GlobalAveragePooling1D
     )
     from tensorflow.keras.regularizers import l2
     from tensorflow.keras.optimizers import Adam
@@ -119,12 +117,6 @@ def criar_modelo_hibrido_pt(input_shape, learning_rate=0.0005, regularization=0.
 
 def obter_modelos_classicos(random_state):
     models = {
-        'Regressão Logística': LogisticRegression(
-            random_state=random_state,
-            C=0.1,
-            max_iter=1000,
-            penalty='l2'
-        ),
         'Random Forest': RandomForestClassifier(
             random_state=random_state,
             n_estimators=100,
@@ -141,17 +133,6 @@ def obter_modelos_classicos(random_state):
             subsample=0.8,
             min_samples_split=10,
             min_samples_leaf=5
-        ),
-        'XGBoost': XGBClassifier(
-            random_state=random_state,
-            n_estimators=100,
-            max_depth=5,
-            learning_rate=0.05,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            min_child_weight=5,
-            reg_alpha=0.1,
-            reg_lambda=1.0
         )
     }
     return models

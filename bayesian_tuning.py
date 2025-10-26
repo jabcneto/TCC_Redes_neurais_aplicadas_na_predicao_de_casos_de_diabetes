@@ -1,6 +1,4 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -74,6 +72,8 @@ class BayesianTuner(kt.BayesianOptimization):
             fit_kwargs['callbacks'] = []
         fit_kwargs['callbacks'].append(history_callback)
 
+        result = None
+        history = {}
         try:
             result = super().run_trial(trial, *fit_args, **fit_kwargs)
             history = history_callback.history_dict
@@ -83,6 +83,14 @@ class BayesianTuner(kt.BayesianOptimization):
             import traceback
             LOGGER.error(f"Traceback:\n{traceback.format_exc()}")
             raise
+        finally:
+            try:
+                import gc
+                from tensorflow.keras import backend as K
+                K.clear_session()
+                gc.collect()
+            except Exception:
+                pass
 
         trial_duration = time.time() - trial_start
         self._process_trial_results(trial, hp, trial_duration, history)
@@ -127,9 +135,9 @@ class BayesianTuner(kt.BayesianOptimization):
         }
 
         try:
-            # Preferir histórico capturado; fallback para trial.metrics
             precision_hist = (history or {}).get('val_precision', []) if history else []
             pr_auc_hist = (history or {}).get('val_pr_auc', []) if history else []
+            recall_hist = (history or {}).get('val_recall', []) if history else []
 
             if not precision_hist:
                 try:
@@ -141,6 +149,11 @@ class BayesianTuner(kt.BayesianOptimization):
                     pr_auc_hist = trial.metrics.get_history('val_pr_auc') or []
                 except Exception:
                     pr_auc_hist = []
+            if not recall_hist:
+                try:
+                    recall_hist = trial.metrics.get_history('val_recall') or []
+                except Exception:
+                    recall_hist = []
 
             if precision_hist:
                 best_precision = max(precision_hist)
@@ -159,11 +172,13 @@ class BayesianTuner(kt.BayesianOptimization):
             else:
                 trial_data['best_val_pr_auc'] = 0
 
-            # Outras métricas
+            if recall_hist:
+                trial_data['val_recall_history'] = recall_hist
+                trial_data['best_val_recall'] = max(recall_hist)
+
             for metric_name, metric_key in [
                 ('accuracy', 'val_accuracy'),
                 ('auc', 'val_auc'),
-                ('recall', 'val_recall'),
                 ('loss', 'val_loss')
             ]:
                 hist = (history or {}).get(metric_key, [])
@@ -179,19 +194,29 @@ class BayesianTuner(kt.BayesianOptimization):
                         trial_data[f'best_{metric_key}'] = max(hist)
                     trial_data[f'{metric_key}_history'] = hist
 
-            # Score de comparação permanece precisão (compatibilidade), mas registramos PR AUC
-            best_precision = trial_data.get('best_val_precision', 0)
-            if best_precision > self.best_score:
-                self.best_score = best_precision
+            f1_hist = []
+            if precision_hist and recall_hist and len(precision_hist) == len(recall_hist):
+                for p, r in zip(precision_hist, recall_hist):
+                    denom = (p + r) if (p + r) != 0 else 1e-12
+                    f1_hist.append(2 * p * r / denom)
+                trial_data['f1_history'] = f1_hist
+                trial_data['best_val_f1'] = max(f1_hist) if f1_hist else 0
+            else:
+                trial_data['best_val_f1'] = 0
+
+            score = trial_data.get('best_val_f1', 0)
+            if score > self.best_score:
+                self.best_score = score
 
             LOGGER.info(f"\n✓ Trial {self.trial_count} concluído em {duration:.1f}s")
-            LOGGER.info(f"  Melhor val_precision: {trial_data.get('best_val_precision', 0):.4f}")
+            LOGGER.info(f"  Melhor val_f1: {trial_data.get('best_val_f1', 0):.4f}")
             LOGGER.info(f"  Melhor val_pr_auc: {trial_data.get('best_val_pr_auc', 0):.4f}")
 
         except Exception as e:
             LOGGER.warning(f"Trial {self.trial_count}: Erro ao processar métricas - {e}")
             trial_data['best_val_precision'] = 0
             trial_data['best_val_pr_auc'] = 0
+            trial_data['best_val_f1'] = 0
 
         self.trials_data.append(trial_data)
 
@@ -225,6 +250,7 @@ class BayesianTuner(kt.BayesianOptimization):
                 'duration_seconds': trial_data.get('duration_seconds', 0),
                 'best_val_precision': trial_data.get('best_val_precision', 0),
                 'best_val_pr_auc': trial_data.get('best_val_pr_auc', 0),
+                'best_val_f1': trial_data.get('best_val_f1', 0),
                 'best_val_accuracy': trial_data.get('best_val_accuracy', 0),
                 'best_val_auc': trial_data.get('best_val_auc', 0),
                 'best_val_recall': trial_data.get('best_val_recall', 0),
@@ -264,9 +290,10 @@ class BayesianTuner(kt.BayesianOptimization):
             auc_hist = trial_data.get('val_auc_history', trial_data.get('auc_history', []))
             recall_hist = trial_data.get('val_recall_history', trial_data.get('recall_history', []))
             loss_hist = trial_data.get('val_loss_history', trial_data.get('loss_history', []))
+            f1_hist = trial_data.get('f1_history', [])
 
             max_epochs = max(
-                len(precision_hist), len(pr_auc_hist), len(accuracy_hist), len(auc_hist), len(recall_hist), len(loss_hist)
+                len(precision_hist), len(pr_auc_hist), len(accuracy_hist), len(auc_hist), len(recall_hist), len(loss_hist), len(f1_hist)
             )
 
             history_records = []
@@ -281,6 +308,7 @@ class BayesianTuner(kt.BayesianOptimization):
                     'val_auc': auc_hist[epoch] if epoch < len(auc_hist) else None,
                     'val_recall': recall_hist[epoch] if epoch < len(recall_hist) else None,
                     'val_loss': loss_hist[epoch] if epoch < len(loss_hist) else None,
+                    'val_f1': f1_hist[epoch] if epoch < len(f1_hist) else None,
                 }
                 history_records.append(record)
 
@@ -295,13 +323,13 @@ class BayesianTuner(kt.BayesianOptimization):
             json.dump(self.trials_data, f, indent=2)
         LOGGER.info(f"✓ Dados detalhados salvos: {json_path}")
 
-        best_trial = max(self.trials_data, key=lambda x: x.get('best_val_precision', 0))
+        best_trial = max(self.trials_data, key=lambda x: x.get('best_val_f1', 0))
         best_config_path = os.path.join(output_dir, 'bayesian_best_config.json')
         with open(best_config_path, 'w') as f:
             json.dump({
                 'trial_id': best_trial['trial_id'],
                 'trial_number': best_trial['trial_number'],
-                'best_val_precision': best_trial.get('best_val_precision', 0),
+                'best_val_f1': best_trial.get('best_val_f1', 0),
                 'best_val_pr_auc': best_trial.get('best_val_pr_auc', 0),
                 'duration_seconds': best_trial.get('duration_seconds', 0),
                 'hyperparameters': best_trial['hyperparameters']
@@ -454,7 +482,7 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
         patience=20,
         mode='max',
         restore_best_weights=True,
-        verbose=1
+        verbose=0
     )
 
     class EpochProgressCallback(keras.callbacks.Callback):
@@ -499,7 +527,17 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
 
         def wrapped_run_trial(trial, *args, **kwargs):
             progress_callback.on_trial_begin(trial)
-            result = original_run_trial(trial, *args, **kwargs)
+            result = None
+            try:
+                result = original_run_trial(trial, *args, **kwargs)
+            finally:
+                try:
+                    import gc
+                    from tensorflow.keras import backend as K
+                    K.clear_session()
+                    gc.collect()
+                except Exception:
+                    pass
             progress_callback.on_trial_end(trial)
             return result
 
@@ -512,7 +550,7 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
         validation_data=(x_val, y_val),
         epochs=epochs,
         callbacks=[early_stop, epoch_progress],
-        verbose=1
+        verbose=0
     )
 
     LOGGER.info("\n" + "=" * 80)
@@ -522,35 +560,62 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
     tuning_results_dir = os.path.join(RESULTS_DIR, 'tuning', 'bayesian_results')
     df_trials = tuner.save_trials_data(tuning_results_dir)
 
-    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+    best_by_f1 = max(tuner.trials_data, key=lambda x: x.get('best_val_f1', 0)) if tuner.trials_data else None
+    best_hps = best_by_f1['hyperparameters'] if best_by_f1 else tuner.get_best_hyperparameters(num_trials=1)[0]
 
     LOGGER.info("\n" + "=" * 80)
-    LOGGER.info("🏆 MELHOR CONFIGURAÇÃO ENCONTRADA")
+    LOGGER.info("🏆 MELHOR CONFIGURAÇÃO ENCONTRADA (seleção por F1)")
     LOGGER.info("=" * 80)
 
-    num_layers = best_hps.get('num_layers')
+    if hasattr(best_hps, 'values') and not callable(getattr(best_hps, 'values')) and isinstance(getattr(best_hps, 'values'), dict):
+        hps_view = best_hps.values
+    elif isinstance(best_hps, dict):
+        hps_view = best_hps
+    else:
+        try:
+            hps_view = dict(best_hps)
+        except Exception:
+            hps_view = {}
+
+    num_layers = hps_view.get('num_layers')
     LOGGER.info(f"\n📐 Arquitetura: {num_layers} camadas")
 
-    for i in range(num_layers):
+    for i in range(num_layers or 0):
+        units_i = hps_view.get(f"units_layer_{i}")
+        act_i = hps_view.get(f"activation_{i}")
+        l2_i = hps_view.get(f"l2_reg_{i}")
+        bn_i = hps_view.get(f"batch_norm_{i}")
+        drop_i = hps_view.get(f"dropout_{i}")
         LOGGER.info(f"\n  Camada {i+1}:")
-        LOGGER.info(f"    • Neurônios: {best_hps.get(f'units_layer_{i}')} ")
-        LOGGER.info(f"    • Ativação: {best_hps.get(f'activation_{i}')} ")
-        LOGGER.info(f"    • L2 Reg: {best_hps.get(f'l2_reg_{i}'):.6f} ")
-        LOGGER.info(f"    • Batch Norm: {best_hps.get(f'batch_norm_{i}')} ")
-        LOGGER.info(f"    • Dropout: {best_hps.get(f'dropout_{i}'):.2f}")
+        LOGGER.info(f"    • Neurônios: {units_i}")
+        LOGGER.info(f"    • Ativação: {act_i}")
+        try:
+            LOGGER.info(f"    • L2 Reg: {float(l2_i):.6f}")
+        except Exception:
+            LOGGER.info(f"    • L2 Reg: {l2_i}")
+        LOGGER.info(f"    • Batch Norm: {bn_i}")
+        LOGGER.info(f"    • Dropout: {drop_i}")
 
     LOGGER.info(f"\n⚙️  Otimização:")
-    LOGGER.info(f"    • Otimizador: {best_hps.get('optimizer')}")
-    LOGGER.info(f"    • Learning Rate: {best_hps.get('learning_rate'):.6f}")
-    batch_size_value = best_hps.get('batch_size') if 'batch_size' in best_hps.values else 64
+    LOGGER.info(f"    • Otimizador: {hps_view.get('optimizer')}")
+    lr_value = hps_view.get('learning_rate')
+    try:
+        LOGGER.info(f"    • Learning Rate: {float(lr_value):.6f}")
+    except Exception:
+        LOGGER.info(f"    • Learning Rate: {lr_value}")
+    batch_size_value = hps_view.get('batch_size', 64)
     LOGGER.info(f"    • Batch Size: {batch_size_value}")
     LOGGER.info("=" * 80)
 
-    best_model = tuner.get_best_models(num_models=1)[0]
+    try:
+        best_model = tuner.get_best_models(num_models=1)[0]
+    except Exception:
+        best_model = None
 
-    best_model_path = os.path.join(RESULTS_DIR, "modelos", "MLP_Bayesian_best.keras")
-    best_model.save(best_model_path)
-    LOGGER.info(f"\n✓ Melhor modelo salvo: {best_model_path}")
+    if best_model is not None:
+        best_model_path = os.path.join(RESULTS_DIR, "modelos", "MLP_Bayesian_best.keras")
+        best_model.save(best_model_path)
+        LOGGER.info(f"\n✓ Melhor modelo salvo: {best_model_path}")
 
     tuner.results_summary(num_trials=5)
 
@@ -855,3 +920,53 @@ def export_comparison_report(results_dir, output_file='trial_comparison_report.t
 
     finally:
         sys.stdout = old_stdout
+
+
+def load_hps_from_results(results_dir: str, trial_number: int | None = None, trial_id: str | None = None) -> dict | None:
+    detailed_path = os.path.join(results_dir, 'bayesian_trials_detailed.json')
+    if not os.path.exists(detailed_path):
+        LOGGER.error(f"Detalhes de trials não encontrados: {detailed_path}")
+        return None
+    try:
+        with open(detailed_path, 'r') as f:
+            trials = json.load(f)
+    except Exception as e:
+        LOGGER.error(f"Falha ao ler {detailed_path}: {e}")
+        return None
+    for t in trials:
+        if trial_number is not None and int(t.get('trial_number', -1)) == int(trial_number):
+            return t.get('hyperparameters', None)
+        if trial_id is not None and str(t.get('trial_id')) == str(trial_id):
+            return t.get('hyperparameters', None)
+    LOGGER.warning("Trial não encontrado nos detalhes.")
+    return None
+
+
+def create_mlp_from_hps(hp: dict):
+    model = Sequential()
+    model.add(Input(shape=(hp.get('input_dim'),)))
+    num_layers = hp.get('num_layers')
+    for i in range(num_layers):
+        units = hp.get(f'units_layer_{i}')
+        activation = hp.get(f'activation_{i}')
+        l2_reg = hp.get(f'l2_reg_{i}')
+        model.add(Dense(units, activation=activation, kernel_regularizer=l2(l2_reg)))
+        if hp.get(f'batch_norm_{i}'):
+            model.add(BatchNormalization())
+        dropout_rate = hp.get(f'dropout_{i}')
+        model.add(Dropout(dropout_rate))
+    model.add(Dense(1, activation='sigmoid'))
+    optimizer_choice = hp.get('optimizer')
+    learning_rate = hp.get('learning_rate')
+    if optimizer_choice == 'adam':
+        optimizer = Adam(learning_rate=learning_rate)
+    elif optimizer_choice == 'nadam':
+        optimizer = Nadam(learning_rate=learning_rate)
+    else:
+        optimizer = RMSprop(learning_rate=learning_rate)
+    model.compile(
+        optimizer=optimizer,
+        loss='binary_crossentropy',
+        metrics=['accuracy', AUC(name='auc'), AUC(curve='PR', name='pr_auc'), Precision(name='precision'), Recall(name='recall'), PrecisionAtRecall(0.80, name='precision_at_recall_80')]
+    )
+    return model

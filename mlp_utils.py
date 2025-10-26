@@ -1,8 +1,8 @@
 import os
 from config import RESULTS_DIR, LOGGER
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -15,12 +15,20 @@ def check_tensorflow_availability():
         from tensorflow.keras.models import load_model
         import modeling
         import training
-        import hyperparameter_tuning
         import bayesian_tuning
-        return True, load_model, modeling, training, hyperparameter_tuning, bayesian_tuning
+        return True, load_model, modeling, training, None, bayesian_tuning
     except Exception as e:
         LOGGER.warning(f"TensorFlow indisponível. Partes de deep learning serão ignoradas. Detalhe: {e}")
         return False, None, None, None, None, None
+
+
+def _extract_hparams_dict(hps_obj):
+    if isinstance(hps_obj, dict):
+        return hps_obj
+    values_attr = getattr(hps_obj, 'values', None)
+    if isinstance(values_attr, dict):
+        return values_attr
+    return None
 
 
 def create_model_from_hyperparameters(best_hps_dict, input_shape):
@@ -78,6 +86,16 @@ def create_model_from_hyperparameters(best_hps_dict, input_shape):
     return model
 
 
+def create_model_from_best_hps(best_hps, input_shape):
+    best_hps_dict = _extract_hparams_dict(best_hps)
+    if best_hps_dict is None:
+        try:
+            best_hps_dict = dict(best_hps)
+        except Exception:
+            raise TypeError(f"Hiperparâmetros em formato inesperado: {type(best_hps)}")
+    return create_model_from_hyperparameters(best_hps_dict, input_shape)
+
+
 def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tuned_Final"):
     from tensorflow.keras.callbacks import EarlyStopping, LambdaCallback
     from config import DEFAULT_BATCH_SIZE, DEFAULT_FINAL_TRAINING_EPOCHS
@@ -90,9 +108,9 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
 
     input_shape = (x_train_full.shape[1],)
 
-    if hasattr(best_hps, 'values'):
-        from hyperparameter_tuning import create_model_from_best_hps
-        final_model = create_model_from_best_hps(best_hps, input_shape)
+    hps_dict = _extract_hparams_dict(best_hps)
+    if hps_dict is not None:
+        final_model = create_model_from_hyperparameters(hps_dict, input_shape)
     else:
         final_model = create_model_from_hyperparameters(best_hps, input_shape)
 
@@ -108,18 +126,18 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
         monitor='loss',
         patience=20,
         restore_best_weights=True,
-        verbose=1
+        verbose=0
     )
 
-    if hasattr(best_hps, 'values') and 'batch_size' in best_hps.values:
-        batch_size = best_hps.get('batch_size')
+    if hps_dict is not None:
+        batch_size = hps_dict.get('batch_size', DEFAULT_BATCH_SIZE)
     elif hasattr(best_hps, 'get'):
         try:
             batch_size = best_hps.get('batch_size')
         except KeyError:
             batch_size = DEFAULT_BATCH_SIZE
     else:
-        batch_size = best_hps.get('batch_size', DEFAULT_BATCH_SIZE) if isinstance(best_hps, dict) else DEFAULT_BATCH_SIZE
+        batch_size = DEFAULT_BATCH_SIZE
 
     LOGGER.info(f"Usando batch_size: {batch_size}")
     LOGGER.info(f"Epochs para treinamento final: {DEFAULT_FINAL_TRAINING_EPOCHS}")

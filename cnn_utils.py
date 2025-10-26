@@ -2,8 +2,8 @@ import os
 import time
 from config import RESULTS_DIR, LOGGER
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+
 
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -116,7 +116,7 @@ def retrain_final_cnn(best_hps, x_train_full, y_train_full, model_name="CNN_Fina
         monitor='loss',
         patience=20,
         restore_best_weights=True,
-        verbose=1
+        verbose=0
     )
 
     if hasattr(best_hps, 'values') and 'batch_size' in best_hps.values:
