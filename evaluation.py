@@ -17,6 +17,7 @@ from sklearn.metrics import (
     average_precision_score,
 )
 from config import RESULTS_DIR, LOGGER
+from utils import find_optimal_threshold
 
 
 def _display_title_name(nome_modelo: str) -> str:
@@ -96,7 +97,7 @@ def plot_pr_curve(y_true, y_score, model_name):
     plt.close()
 
 
-def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
+def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False, threshold: float | None = None, threshold_objective: str = 'f1', min_recall: float | None = None, min_precision: float | None = None):
     LOGGER.info(f"Evaluating model: {nome_modelo}")
     if is_keras_model:
         if ("cnn" in nome_modelo.lower() or "hibrido" in nome_modelo.lower()) and len(x_test.shape) == 2:
@@ -105,7 +106,33 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     else:
         y_prob = model.predict_proba(x_test)[:, 1]
 
-    y_pred = (y_prob > 0.5).astype(int)
+    used_threshold = threshold
+    thr_stats = {}
+    if used_threshold is None:
+        obj = (threshold_objective or 'f1').lower()
+        if obj not in ('f1', 'precision', 'recall'):
+            LOGGER.warning(f"Invalid threshold_objective '{threshold_objective}', defaulting to 'f1'.")
+            obj = 'f1'
+        try:
+            used_threshold, thr_stats = find_optimal_threshold(
+                y_test,
+                y_prob,
+                objective=obj,
+                min_recall=min_recall,
+                min_precision=min_precision,
+            )
+            LOGGER.info(
+                f"Optimal threshold via PR for {nome_modelo}: {used_threshold:.4f} "
+                f"(objective={obj}, min_recall={min_recall}, min_precision={min_precision}, "
+                f"precision={thr_stats.get('precision', float('nan')):.4f}, "
+                f"recall={thr_stats.get('recall', float('nan')):.4f}, "
+                f"f1={thr_stats.get('f1', float('nan')):.4f})"
+            )
+        except Exception as e:
+            used_threshold = 0.5
+            LOGGER.warning(f"Failed to compute optimal threshold for {nome_modelo}, defaulting to 0.5: {e}")
+
+    y_pred = (y_prob >= used_threshold).astype(int)
 
     acc = accuracy_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred, zero_division=0)
@@ -133,6 +160,10 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
         'accuracy': acc,
         'roc_auc': roc,
         'pr_auc': pr,
+        'threshold': float(used_threshold),
+        'threshold_objective': (threshold_objective or 'f1').lower(),
+        'min_recall': None if min_recall is None else float(min_recall),
+        'min_precision': None if min_precision is None else float(min_precision),
     }
 
     out_csv = os.path.join(RESULTS_DIR, f"{nome_modelo.replace(' ', '_').lower()}_metricas.csv")
@@ -148,6 +179,7 @@ def avaliar_modelo(model, x_test, y_test, nome_modelo, is_keras_model=False):
     except Exception as e:
         LOGGER.warning(f"PR curve failed for {nome_modelo}: {e}")
     return metrics
+
 
 
 def comparar_todos_modelos(df_metrics):

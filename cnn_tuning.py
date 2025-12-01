@@ -151,7 +151,7 @@ def tune_cnn_hyperparameters(x_train, y_train, x_val, y_val, max_trials=50, exec
         epochs=epochs,
         batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
-        verbose=0
+        verbose=1
     )
 
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -225,7 +225,7 @@ def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_
         epochs=epochs,
         batch_size=DEFAULT_BATCH_SIZE,
         callbacks=[early_stop],
-        verbose=0
+        verbose=1
     )
 
     # Selecionar por F1 no conjunto de validação entre os top modelos
@@ -238,7 +238,7 @@ def bayesian_tune_cnn(x_train, y_train, x_val, y_val, max_trials=30, executions_
 
     for i, model in enumerate(cand_models):
         try:
-            y_prob = model.predict(x_val, verbose=0).flatten()
+            y_prob = model.predict(x_val, verbose=1).flatten()
             y_pred = (y_prob > 0.5).astype(int)
             f1 = f1_score(y_val, y_pred, zero_division=0)
         except Exception:
@@ -400,22 +400,48 @@ def load_cnn_hps_from_trial_json(trial_json_path: str) -> dict | None:
     except Exception as e:
         LOGGER.error(f"Falha ao ler {trial_json_path}: {e}")
         return None
-    hp_values = None
-    if isinstance(data, dict):
-        if 'hyperparameters' in data and isinstance(data['hyperparameters'], dict):
-            hp_section = data['hyperparameters']
-            if 'values' in hp_section and isinstance(hp_section['values'], dict):
-                hp_values = hp_section['values']
-            else:
-                hp_values = hp_section
-        elif 'values' in data and isinstance(data['values'], dict):
-            hp_values = data['values']
+
+    def looks_like_hps(d: dict) -> bool:
+        if not isinstance(d, dict):
+            return False
+        keys = set(d.keys())
+        known = {
+            'num_conv_layers','filters_layer_0','kernel_size_0','conv_activation_0','conv_l2_reg_0','conv_batch_norm_0','use_pooling_0','pool_size_0','conv_dropout_0',
+            'num_dense_layers','dense_units_0','dense_activation_0','dense_l2_reg_0','dense_batch_norm_0','dense_dropout_0',
+            'optimizer','learning_rate','batch_size'
+        }
+        return bool(keys & known)
+
+    def find_hps(obj):
+        if isinstance(obj, dict):
+            if 'hyperparameters' in obj and isinstance(obj['hyperparameters'], dict):
+                hp_section = obj['hyperparameters']
+                if 'values' in hp_section and isinstance(hp_section['values'], dict):
+                    return hp_section['values']
+                if looks_like_hps(hp_section):
+                    return hp_section
+            if 'values' in obj and isinstance(obj['values'], dict):
+                if looks_like_hps(obj['values']):
+                    return obj['values']
+            if looks_like_hps(obj):
+                return obj
+            for v in obj.values():
+                res = find_hps(v)
+                if isinstance(res, dict):
+                    return res
+        if isinstance(obj, list):
+            for v in obj:
+                res = find_hps(v)
+                if isinstance(res, dict):
+                    return res
+        return None
+
+    hp_values = find_hps(data)
     if not isinstance(hp_values, dict):
-        LOGGER.error("Estrutura de trial.json não reconhecida para extrair hiperparâmetros.")
+        LOGGER.error("Estrutura de arquivo não reconhecida para extrair hiperparâmetros.")
         return None
     return hp_values
 
 
 def create_cnn_from_hps(hps: dict, input_dim: int):
     return create_cnn_from_best_hps(hps, input_shape=(input_dim,))
-

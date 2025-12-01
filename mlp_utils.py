@@ -126,7 +126,7 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
         monitor='loss',
         patience=20,
         restore_best_weights=True,
-        verbose=0
+        verbose=1
     )
 
     if hps_dict is not None:
@@ -149,7 +149,7 @@ def retrain_final_model(best_hps, x_train_full, y_train_full, model_name="MLP_Tu
         epochs=DEFAULT_FINAL_TRAINING_EPOCHS,
         batch_size=batch_size,
         callbacks=[early_stop, epoch_logger],
-        verbose=0
+        verbose=1
     )
 
     retrain_time = time.time() - retrain_start

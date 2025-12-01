@@ -1,0 +1,235 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\setlength{\labelsep}{0pt}\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.7 }
+
+\bibitem[ABRAHAM 2005]{Abraham2005}
+\abntrefinfo{ABRAHAM}{ABRAHAM}{2005}
+{ABRAHAM, A. Artificial neural networks. In:  SYDENHAM, P.~H.; THORN, R. (Ed.).
+  \emph{Handbook of Measuring System Design}. London: John Wiley \& Sons, 2005.
+  p. 901--908.}
+
+\bibitem[ALZUBAIDI et al. 2021]{AlZubaidi2021}
+\abntrefinfo{ALZUBAIDI et al.}{ALZUBAIDI et al.}{2021}
+{ALZUBAIDI, L. et al. Review of deep learning: Concepts, {CNN} architectures,
+  challenges, applications, future directions.
+\emph{Journal of Big Data}, v.~8, n.~1, p. 1--74, 2021.}
+
+\bibitem[ARAÚJO 2021]{Araujo2021}
+\abntrefinfo{ARAÚJO}{ARAÚJO}{2021}
+{ARAÚJO, L. F.~d. \emph{Uma abordagem baseada em redes neurais artificiais
+  para diagnóstico de diabetes}.
+Macapá, 2021.}
+
+\bibitem[BASSO et al. 2014]{Basso2014}
+\abntrefinfo{BASSO et al.}{BASSO et al.}{2014}
+{BASSO, M. et al. Sistema inteligente para apoio ao diagnóstico de diabetes
+  empregando redes neurais. In:  \emph{Anais do {EATI} - Encontro Anual de
+  Tecnologia da Informação}. [S.l.: s.n.], 2014. p. 56--63. In: ENCONTRO
+  ANUAL DE TECNOLOGIA DA INFORMAÇÃO, {[2014]}, {UFSM}.}
+
+\bibitem[BISHOP 2006]{Bishop2006}
+\abntrefinfo{BISHOP}{BISHOP}{2006}
+{BISHOP, C.~M. \emph{Pattern Recognition and Machine Learning}. [S.l.]:
+  Springer, 2006.}
+
+\bibitem[{BRASIL} 2022]{BRASIL2022}
+\abntrefinfo{{BRASIL}}{{BRASIL}}{2022}
+{{BRASIL}. \emph{Diabetes ({Diabetes Mellitus})}. 2022. Ministério da Saúde.
+  Disponível em:
+  \url{https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes}.
+Acesso em: [Data de Acesso]. Usado para a classificação dos tipos de
+  diabetes.}
+
+\bibitem[BURKOV 2020]{Burkov2020}
+\abntrefinfo{BURKOV}{BURKOV}{2020}
+{BURKOV, A. \emph{Machine Learning Engineering}. [S.l.]: True Positive Inc.,
+  2020.}
+
+\bibitem[Busnardo 2024]{Busnardo2024}
+\abntrefinfo{Busnardo}{BUSNARDO}{2024}
+{BUSNARDO, N.~G. Detecção de fake news utilizando redes neurais
+  convolucionais.
+Rio do Sul, 2024.}
+
+\bibitem[CHAPELLE, SCHOLKOPF e ZIEN 2006]{Chapelle2006}
+\abntrefinfo{CHAPELLE, SCHOLKOPF e ZIEN}{CHAPELLE; SCHOLKOPF; ZIEN}{2006}
+{CHAPELLE, O.; SCHOLKOPF, B.; ZIEN, A. \emph{Semi-Supervised Learning}. [S.l.]:
+  {MIT} Press, 2006.}
+
+\bibitem[DEO 2015]{Deo2015}
+\abntrefinfo{DEO}{DEO}{2015}
+{DEO, R.~C. Machine learning in medicine.
+\emph{Circulation}, v.~132, n.~20, p. 1920--1930, 2015.}
+
+\bibitem[FEITOSA, SOUZA e SOUZA 2024]{Feitosa2024}
+\abntrefinfo{FEITOSA, SOUZA e SOUZA}{FEITOSA; SOUZA; SOUZA}{2024}
+{FEITOSA, R. D.~F.; SOUZA, D. T.~d.; SOUZA, R.~T. \emph{Introdução a Machine
+  Learning e redes neurais}. [S.l.]: Cegraf {UFG}, 2024.}
+
+\bibitem[FREITAS 2024]{Freitas2024}
+\abntrefinfo{FREITAS}{FREITAS}{2024}
+{FREITAS, N. C. A.~d. \emph{Machine learning: técnicas e cases}. 1. ed.
+  [S.l.]: Novatec, 2024.}
+
+\bibitem[GOODFELLOW, BENGIO e COURVILLE 2016]{Goodfellow2016}
+\abntrefinfo{GOODFELLOW, BENGIO e COURVILLE}{GOODFELLOW; BENGIO;
+  COURVILLE}{2016}
+{GOODFELLOW, I.; BENGIO, Y.; COURVILLE, A. \emph{Deep Learning}. [S.l.]: {MIT}
+  Press, 2016.}
+
+\bibitem[HAN, KAMBER e PEI 2012]{Han2012}
+\abntrefinfo{HAN, KAMBER e PEI}{HAN; KAMBER; PEI}{2012}
+{HAN, J.; KAMBER, M.; PEI, J. \emph{Data Mining: Concepts and Techniques}. 3.
+  ed. [S.l.]: Morgan Kaufmann, 2012.}
+
+\bibitem[HASTIE, TIBSHIRANI e FRIEDMAN 2009]{Hastie2009}
+\abntrefinfo{HASTIE, TIBSHIRANI e FRIEDMAN}{HASTIE; TIBSHIRANI; FRIEDMAN}{2009}
+{HASTIE, T.; TIBSHIRANI, R.; FRIEDMAN, J. \emph{The Elements of Statistical
+  Learning: Data Mining, Inference, and Prediction}. 2. ed. [S.l.]: Springer,
+  2009.}
+
+\bibitem[HAYKIN 2009]{Haykin2009}
+\abntrefinfo{HAYKIN}{HAYKIN}{2009}
+{HAYKIN, S. \emph{Neural Networks and Learning Machines}. 3. ed. Upper Saddle
+  River, NJ: Pearson Education, 2009.}
+
+\bibitem[{IAMMUSTAFA} 2022]{Iammustafa2022}
+\abntrefinfo{{IAMMUSTAFA}}{{IAMMUSTAFA}}{2022}
+{{IAMMUSTAFA}. \emph{Diabetes prediction dataset}. 2022. Kaggle. Disponível
+  em:
+  \url{https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset/data}.}
+
+\bibitem[{IDF} 2021]{IDF2021}
+\abntrefinfo{{IDF}}{{IDF}}{2021}
+{{IDF}. \emph{{IDF} Diabetes Atlas}. 10. ed. [S.l.]: {IDF}, 2021. Disponível
+  em:
+  \url{https://profissional.diabetes.org.br/wp-content/uploads/2022/02/IDF_Atlas_10th_Edition_2021-.pdf}.}
+
+\bibitem[ISLAM e ISLAM 2019]{Islam2019}
+\abntrefinfo{ISLAM e ISLAM}{ISLAM; ISLAM}{2019}
+{ISLAM, S.; ISLAM, M.~M. Diabetes prediction: A deep learning approach.
+\emph{International Journal of Information Engineering and Electronic
+  Business}, v.~11, n.~2, p. 21--27, 2019.}
+
+\bibitem[KAVAKIOTIS et al. 2017]{Kavakiotis2017}
+\abntrefinfo{KAVAKIOTIS et al.}{KAVAKIOTIS et al.}{2017}
+{KAVAKIOTIS, I. et al. Machine learning and data mining methods in diabetes
+  research.
+\emph{Computational and Structural Biotechnology Journal}, v.~15, p. 104--116,
+  2017.}
+
+\bibitem[KOVALESKI et al. 2018]{Kovaleski2018}
+\abntrefinfo{KOVALESKI et al.}{KOVALESKI et al.}{2018}
+{KOVALESKI, P. d.~A. et al. \emph{Implementação De Redes Neurais Profundas
+  Para Reconhecimento De Ações Vídeos}.
+[S.l.], 2018.}
+
+\bibitem[LECUN, BENGIO e HINTON 2015]{LeCun2015}
+\abntrefinfo{LECUN, BENGIO e HINTON}{LECUN; BENGIO; HINTON}{2015}
+{LECUN, Y.; BENGIO, Y.; HINTON, G. Deep learning.
+\emph{Nature}, v.~521, p. 436--444, 2015.}
+
+\bibitem[MCKINNEY 2010]{McKinney2010}
+\abntrefinfo{MCKINNEY}{MCKINNEY}{2010}
+{MCKINNEY, W. Data structures for statistical computing in {Python}. In:
+  \emph{Proceedings of the 9th Python in Science Conference}. [S.l.: s.n.],
+  2010. v.~445, p. 56--61.}
+
+\bibitem[MIOTTO et al. 2018]{Miotto2018}
+\abntrefinfo{MIOTTO et al.}{MIOTTO et al.}{2018}
+{MIOTTO, R. et al. Deep learning for healthcare: review, opportunities and
+  challenges.
+\emph{Briefings in Bioinformatics}, v.~19, n.~6, p. 1236--1246, 2018.}
+
+\bibitem[MITCHELL 1997]{Mitchell1997}
+\abntrefinfo{MITCHELL}{MITCHELL}{1997}
+{MITCHELL, T.~M. \emph{Machine Learning}. [S.l.]: McGraw Hill, 1997.}
+
+\bibitem[PEDREGOSA et al. 2011]{Pedregosa2011}
+\abntrefinfo{PEDREGOSA et al.}{PEDREGOSA et al.}{2011}
+{PEDREGOSA, F. et al. {Scikit-learn}: machine learning in python.
+\emph{J. Mach. Learn. Res.}, v.~12, p.~2825, 2011.}
+
+\bibitem[PIGHINI 2025]{Pighini2025}
+\abntrefinfo{PIGHINI}{PIGHINI}{2025}
+{PIGHINI, H.~D. \emph{Um estudo sobre métricas para a avaliação de
+  atributos}.
+[S.l.], 2025.}
+
+\bibitem[PRADO 2001]{Prado2001}
+\abntrefinfo{PRADO}{PRADO}{2001}
+{PRADO, H. A.~d.
+\emph{Orpheo: Uma Estrutura de Trabalho para Integração dos Paradigmas de
+  Aprendizado Supervisionado e Não-Supervisionado}.
+Tese (Doutorado) --- {PPGC} da {UFRGS}, 2001.}
+
+\bibitem[PYLINTON 2021]{Pylinton2021}
+\abntrefinfo{PYLINTON}{PYLINTON}{2021}
+{PYLINTON, L. Análise de {IDEs} para desenvolvimento em {Python}: {PyCharm},
+  {VSCode} e {Spyder}.
+\emph{Revista Brasileira de Computação Aplicada}, v.~13, n.~2, p. 23--35,
+  2021.}
+
+\bibitem[ROCHA 2021]{Rocha2021}
+\abntrefinfo{ROCHA}{ROCHA}{2021}
+{ROCHA, D. A.~S. \emph{Python para desenvolvedores}. 3. ed. [S.l.]: Novatec,
+  2021.}
+
+\bibitem[SANTOS 2005]{Santos2005}
+\abntrefinfo{SANTOS}{SANTOS}{2005}
+{SANTOS, A.~M. Usando redes neurais artificiais e regressão logística na
+  predição da hepatite a.
+\emph{Revista Brasileira de Epidemiologia}, v.~8, n.~2, p. 117--126, 2005.}
+
+\bibitem[SANTOS 2024]{Santos2024}
+\abntrefinfo{SANTOS}{SANTOS}{2024}
+{SANTOS, D. P.~d. \emph{Tecnologia aplicada à saúde: uso de inteligência
+  artificial na predição de diabetes para adultos}.
+[S.l.], 2024.}
+
+\bibitem[{SBD} 2025]{SBD2025}
+\abntrefinfo{{SBD}}{{SBD}}{2025}
+{{SBD}. \emph{Dados Epidemiológicos do diabetes mellitus no {Brasil}}. 2025.
+  Disponível em:
+  \url{https://diabetes.org.br/wp-content/uploads/2025/02/Dados-Epidemiologicos-SBD_comT1Dindex_2024_pdf.pdf}.}
+
+\bibitem[SISODIA e SISODIA 2018]{Sisodia2018}
+\abntrefinfo{SISODIA e SISODIA}{SISODIA; SISODIA}{2018}
+{SISODIA, D.; SISODIA, D.~S. Prediction of diabetes using classification
+  algorithms.
+\emph{Procedia Computer Science}, v.~132, p. 1578--1585, 2018.}
+
+\bibitem[Spörl, Castro e Luchiari 2011]{Sporl2011}
+\abntrefinfo{Spörl, Castro e Luchiari}{SPöRL; CASTRO; LUCHIARI}{2011}
+{SPöRL, C.; CASTRO, E.; LUCHIARI, A. Aplicação de redes neurais artificiais
+  na construção de modelos de fragilidade ambiental.
+\emph{Geography Department, University of Sao Paulo}, p. 113--135, 01 2011.}
+
+\bibitem[STRAUSS, JÚNIOR e FERREIRA 2022]{Strauss2022}
+\abntrefinfo{STRAUSS, JÚNIOR e FERREIRA}{STRAUSS; JÚNIOR; FERREIRA}{2022}
+{STRAUSS, E.; JÚNIOR, M. V.~B.; FERREIRA, W. L.~L. A importância de utilizar
+  métricas adequadas de avaliação de performance em modelos preditivos de
+  machine learning.
+\emph{Projectus}, v.~7, n.~4, p. 1--13, 2022.}
+
+\bibitem[TRASK 2019]{Trask2019}
+\abntrefinfo{TRASK}{TRASK}{2019}
+{TRASK, A.~W. \emph{Grokking Deep Learning}. [S.l.]: Manning Publications,
+  2019.}
+
+\bibitem[{WHO} 2016]{WHO2016}
+\abntrefinfo{{WHO}}{{WHO}}{2016}
+{{WHO}. \emph{Global report on diabetes}. [S.l.]: {WHO}, 2016. Disponível em:
+  \url{https://www.who.int/publications/i/item/9789241565257}.}
+
+\bibitem[{WORLD HEALTH ORGANIZATION ({WHO})} 2021]{WHO2021}
+\abntrefinfo{{WORLD HEALTH ORGANIZATION ({WHO})}}{{WORLD HEALTH ORGANIZATION
+  ({WHO})}}{2021}
+{{WORLD HEALTH ORGANIZATION ({WHO})}. \emph{Diabetes}. 2021. Genebra: {WHO}.
+  Disponível em:
+  \url{https://www.who.int/news-room/fact-sheets/detail/diabetes}.}
+
+\end{thebibliography}

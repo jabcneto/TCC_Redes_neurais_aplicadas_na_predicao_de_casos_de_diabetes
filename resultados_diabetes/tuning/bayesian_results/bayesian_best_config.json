@@ -1,0 +1,29 @@
+{
+  "trial_id": "00",
+  "trial_number": 1,
+  "best_val_f1": 0,
+  "best_val_pr_auc": 0,
+  "duration_seconds": 427.52795791625977,
+  "hyperparameters": {
+    "input_dim": 12,
+    "batch_size": 32,
+    "num_layers": 3,
+    "units_layer_0": 96,
+    "activation_0": "elu",
+    "l2_reg_0": 0.006316520046470236,
+    "batch_norm_0": false,
+    "dropout_0": 0.1,
+    "units_layer_1": 96,
+    "activation_1": "selu",
+    "l2_reg_1": 0.0014934649318658272,
+    "batch_norm_1": true,
+    "dropout_1": 0.1,
+    "optimizer": "adam",
+    "learning_rate": 0.0010145085549121715,
+    "units_layer_2": 32,
+    "activation_2": "relu",
+    "l2_reg_2": 1e-05,
+    "batch_norm_2": false,
+    "dropout_2": 0.1
+  }
+}

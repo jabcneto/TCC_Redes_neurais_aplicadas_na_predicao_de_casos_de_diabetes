@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
 import os
+import json
 
 from config import LOGGER, criar_diretorios_projeto
 from utils import DATASET_PATH
@@ -21,7 +22,7 @@ from tuning_pipelines import (
 )
 from consolidate_tuning import consolidate_tuning
 
-from training import treinar_modelo_keras_pt
+from training import treinar_modelo_keras_pt, summarize_history_csv
 from config import DEFAULT_FINAL_TRAINING_EPOCHS, DEFAULT_BATCH_SIZE, RESULTS_DIR
 from bayesian_tuning import load_hps_from_results as load_mlp_hps_from_results, create_mlp_from_hps
 from cnn_tuning import load_cnn_hps_from_trial_json, create_cnn_from_hps
@@ -59,7 +60,7 @@ def run_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuning_t
 
     if best_model is not None:
         LOGGER.info("\n--- AVALIAÇÃO DO MODELO OTIMIZADO ---")
-        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "MLP_Tuned", is_keras_model=True)
+        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "MLP_Tuned", is_keras_model=True, min_recall=0.80)
         LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
         LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
         LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
@@ -71,7 +72,7 @@ def run_cnn_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuni
 
     if best_model is not None:
         LOGGER.info("\n--- AVALIAÇÃO DO MODELO CNN OTIMIZADO ---")
-        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "CNN_Tuned", is_keras_model=True)
+        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "CNN_Tuned", is_keras_model=True, min_recall=0.80)
         LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
         LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
         LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
@@ -171,6 +172,71 @@ def run_pipeline(tune_hyperparameters=False,
     LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
 
 
+def _summarize_consolidated_tuning_history():
+    tuning_dir = os.path.join(RESULTS_DIR, 'tuning')
+    in_csv = os.path.join(tuning_dir, 'consolidated_epoch_history.csv')
+    if not os.path.exists(in_csv):
+        LOGGER.warning(f"Arquivo não encontrado: {in_csv}")
+        return None
+    df = pd.read_csv(in_csv)
+    if df.empty:
+        LOGGER.warning("Arquivo consolidated_epoch_history.csv está vazio.")
+        return None
+
+    num_cols = [c for c in df.columns if c.startswith('val_')]
+    for c in num_cols:
+        df[c] = pd.to_numeric(df[c], errors='coerce')
+
+    group_cols = ['tuning_source', 'model_type', 'trial_id', 'trial_number']
+    rows = []
+    for keys, g in df.groupby(group_cols, dropna=False):
+        data = {k: v for k, v in zip(group_cols, keys)}
+        for m in num_cols:
+            s = g[m]
+            data[f'{m}_mean'] = float(s.mean(skipna=True)) if s.notna().any() else float('nan')
+            data[f'{m}_std'] = float(s.std(skipna=True)) if s.notna().sum() > 1 else 0.0
+            data[f'{m}_min'] = float(s.min(skipna=True)) if s.notna().any() else float('nan')
+            data[f'{m}_max'] = float(s.max(skipna=True)) if s.notna().any() else float('nan')
+        rows.append(data)
+
+    out_df = pd.DataFrame(rows)
+    out_path = os.path.join(tuning_dir, 'consolidated_epoch_history_summary_by_trial.csv')
+    os.makedirs(tuning_dir, exist_ok=True)
+    out_df.to_csv(out_path, index=False)
+    LOGGER.info(f"Resumo de tuning salvo em: {out_path}")
+    return out_path
+
+
+def _find_cnn_trial_file(trial_number: int | None = None, trial_id: str | None = None) -> str | None:
+    roots = [
+        os.path.join(RESULTS_DIR, 'tuning', 'cnn_bayesian_results', 'cnn_bayesian_tuning'),
+        os.path.join(RESULTS_DIR, 'tuning', 'cnn_results', 'cnn_tuning'),
+    ]
+    candidates = []
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        if trial_number is not None:
+            names = [f"trial_{trial_number}", f"trial_{trial_number:02d}"]
+            for name in names:
+                d = os.path.join(root, name)
+                if os.path.isdir(d):
+                    candidates.append(d)
+        if trial_id is not None:
+            d = os.path.join(root, f"trial_{trial_id}")
+            if os.path.isdir(d):
+                candidates.append(d)
+    for d in candidates:
+        for fn in ['trial.json', 'build_config.json']:
+            p = os.path.join(d, fn)
+            if os.path.isfile(p):
+                return p
+        for fn in os.listdir(d):
+            if fn.endswith('.json') and os.path.isfile(os.path.join(d, fn)):
+                return os.path.join(d, fn)
+    return None
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Pipeline de Treinamento e Avaliação para Predição de Diabetes.",
@@ -196,8 +262,26 @@ Exemplos de uso:
   Retreinar MLP por trial id:
      python main.py --train-mlp-trial-id 0007
 
+  Retreinar CNN por trial number (procura trial.json/build_config.json automaticamente):
+     python main.py --train-cnn-trial-number 19
+
+  Retreinar CNN por trial id (ex.: 07 ou 19):
+     python main.py --train-cnn-trial-id 19
+
   Retreinar CNN a partir de um trial.json do Keras Tuner:
      python main.py --train-cnn-trial-json resultados_diabetes/tuning/cnn_bayesian_results/cnn_bayesian_tuning/trial_00/trial.json
+
+  Gerar resumo de histórico para um modelo específico (sem sufixo _history.csv):
+     python main.py --summarize-history-model MLP_Bayesian_Selected
+
+  Gerar resumo de histórico para todos os modelos com CSV salvo:
+     python main.py --summarize-history-all
+
+  Gerar resumo a partir do consolidated_epoch_history.csv:
+     python main.py --summarize-tuning-history
+
+  Retreinar automaticamente os melhores modelos salvos:
+     python main.py --retrain-best-models
         """
     )
 
@@ -244,11 +328,114 @@ Exemplos de uso:
         help="Caminho para trial.json do Keras Tuner para retreino de CNN."
     )
 
+    parser.add_argument(
+        '--train-cnn-trial-number',
+        type=int,
+        help="Número do trial da CNN."
+    )
+
+    parser.add_argument(
+        '--train-cnn-trial-id',
+        type=str,
+        help="ID do trial da CNN."
+    )
+
+    parser.add_argument(
+        '--summarize-history-all',
+        action='store_true',
+        help="Gera CSV de resumo para todos os históricos já salvos em resultados_diabetes/history/*."
+    )
+
+    parser.add_argument(
+        '--summarize-history-model',
+        type=str,
+        help="Nome do modelo para resumir histórico (sem sufixo). Ex.: MLP_Bayesian_Selected"
+    )
+
+    parser.add_argument(
+        '--summarize-tuning-history',
+        action='store_true',
+        help="Gera um CSV de resumo por trial a partir de resultados_diabetes/tuning/consolidated_epoch_history.csv."
+    )
+
+    parser.add_argument(
+        '--retrain-best-models',
+        action='store_true',
+        help="Retreina automaticamente os modelos marcados como melhores nos arquivos de configuração salvos."
+    )
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
+
+    # Retreino de CNN por número/ID de trial
+    if getattr(args, 'train_cnn_trial_number', None) is not None or getattr(args, 'train_cnn_trial_id', None) is not None:
+        criar_diretorios_projeto()
+        df = data_processing.carregar_dados(DATASET_PATH)
+        if df is None:
+            LOGGER.error("Falha ao carregar os dados.")
+            raise SystemExit(1)
+        df = data_processing.analisar_dados(df)
+        x_train, x_val, x_test, y_train, y_val, y_test, scaler, encoder, feature_names = data_processing.pre_processar_dados(df)
+        p = _find_cnn_trial_file(trial_number=getattr(args, 'train_cnn_trial_number', None), trial_id=getattr(args, 'train_cnn_trial_id', None))
+        if not p:
+            LOGGER.error("Não foi possível localizar o JSON do trial informado nas pastas de tuning.")
+            raise SystemExit(1)
+        hps = load_cnn_hps_from_trial_json(p)
+        if hps is None:
+            LOGGER.error("Hiperparâmetros da CNN não encontrados no arquivo informado.")
+            raise SystemExit(1)
+        model = create_cnn_from_hps(hps, input_dim=x_train.shape[1])
+        batch_size = hps.get('batch_size', DEFAULT_BATCH_SIZE)
+        epochs = DEFAULT_FINAL_TRAINING_EPOCHS
+        model, history = treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo="CNN_Bayesian_Selected", epochs=epochs, batch_size=batch_size)
+        tuned_metrics = evaluation.avaliar_modelo(model, x_test, y_test, "CNN_Selected", is_keras_model=True)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
+        LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
+        raise SystemExit(0)
+
+    # Retreino automático dos melhores modelos salvos
+    if getattr(args, 'retrain_best_models', False):
+        _retrain_best_models()
+        raise SystemExit(0)
+
+    # Resumo de tuning (independente dos históricos por modelo)
+    if getattr(args, 'summarize_tuning_history', False):
+        criar_diretorios_projeto()
+        _summarize_consolidated_tuning_history()
+        raise SystemExit(0)
+
+    # Resumos de histórico (sem necessidade de carregar dados)
+    if getattr(args, 'summarize_history_all', False) or getattr(args, 'summarize_history_model', None):
+        criar_diretorios_projeto()
+        hist_dir = os.path.join(RESULTS_DIR, 'history')
+        os.makedirs(hist_dir, exist_ok=True)
+
+        if getattr(args, 'summarize_history_model', None):
+            nome = args.summarize_history_model
+            out = summarize_history_csv(nome)
+            if out:
+                LOGGER.info(f"Resumo gerado para {nome}: {out}")
+            else:
+                LOGGER.warning(f"Não foi possível gerar resumo para {nome}. Verifique se existe {hist_dir}/{nome}_history.csv")
+
+        if getattr(args, 'summarize_history_all', False):
+            generated = 0
+            if os.path.isdir(hist_dir):
+                for fn in os.listdir(hist_dir):
+                    if fn.endswith('_history.csv') and os.path.isfile(os.path.join(hist_dir, fn)):
+                        nome = fn[:-12]
+                        out = summarize_history_csv(nome)
+                        if out:
+                            generated += 1
+                            LOGGER.info(f"Resumo gerado para {nome}: {out}")
+            LOGGER.info(f"Resumos gerados: {generated}")
+        raise SystemExit(0)
 
     run_pipeline(
         tune_hyperparameters=args.bayesian,

@@ -482,7 +482,7 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
         patience=20,
         mode='max',
         restore_best_weights=True,
-        verbose=0
+        verbose=1
     )
 
     class EpochProgressCallback(keras.callbacks.Callback):
@@ -550,7 +550,7 @@ def bayesian_tune_mlp(x_train, y_train, x_val, y_val, max_trials=30, executions_
         validation_data=(x_val, y_val),
         epochs=epochs,
         callbacks=[early_stop, epoch_progress],
-        verbose=0
+        verbose=1
     )
 
     LOGGER.info("\n" + "=" * 80)

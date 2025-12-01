@@ -116,7 +116,7 @@ def retrain_final_cnn(best_hps, x_train_full, y_train_full, model_name="CNN_Fina
         monitor='loss',
         patience=20,
         restore_best_weights=True,
-        verbose=0
+        verbose=1
     )
 
     if hasattr(best_hps, 'values') and 'batch_size' in best_hps.values:
@@ -139,7 +139,7 @@ def retrain_final_cnn(best_hps, x_train_full, y_train_full, model_name="CNN_Fina
         epochs=DEFAULT_FINAL_TRAINING_EPOCHS,
         batch_size=batch_size,
         callbacks=[early_stop, epoch_logger],
-        verbose=0
+        verbose=1
     )
 
     retrain_time = time.time() - retrain_start

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from config import RESULTS_DIR, LOGGER
+import os
 
 def visualizar_comparacao_treino_teste(resultados_treino_df, resultados_teste_df, metricas=None):
     """
@@ -126,3 +127,41 @@ def visualizar_comparacao_treino_teste(resultados_treino_df, resultados_teste_df
         plt.close()
 
     LOGGER.info('Gráficos agrupados por métrica gerados')
+
+
+def plot_training_history(model_name: str, metrics: list[str] | None = None):
+    if metrics is None:
+        metrics = ['loss', 'accuracy', 'precision', 'recall', 'auc', 'pr_auc']
+    csv_path = os.path.join(RESULTS_DIR, 'history', f"{model_name}_history.csv")
+    if not os.path.exists(csv_path):
+        LOGGER.warning(f"History CSV not found: {csv_path}")
+        return None
+    df = pd.read_csv(csv_path)
+    out_dir = os.path.join(RESULTS_DIR, 'graficos', 'history')
+    os.makedirs(out_dir, exist_ok=True)
+    generated = []
+    for m in metrics:
+        has_train = m in df.columns
+        has_val = f"val_{m}" in df.columns
+        if not has_train and not has_val:
+            continue
+        plt.figure(figsize=(10, 6))
+        if has_train:
+            plt.plot(df[m].values, label=m, color='#1f77b4')
+        if has_val:
+            plt.plot(df[f"val_{m}"].values, label=f"val_{m}", color='#ff7f0e')
+        plt.xlabel('epoch')
+        plt.ylabel(m)
+        plt.title(f'{model_name} - {m}')
+        plt.legend()
+        plt.grid(alpha=0.3)
+        plt.tight_layout()
+        out_path = os.path.join(out_dir, f"history_{model_name.replace(' ', '_').lower()}_{m}.png")
+        plt.savefig(out_path, dpi=300)
+        plt.close()
+        generated.append(out_path)
+    if not generated:
+        LOGGER.warning(f"No supported metrics found in {csv_path}")
+        return None
+    LOGGER.info(f"History plots saved: {len(generated)}")
+    return generated

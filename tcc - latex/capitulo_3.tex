@@ -1,0 +1,31 @@
+% --- CAPÍTULO 3 ---
+\chapter{Trabalhos correlatos}
+Este capítulo apresenta quatro trabalhos relevantes para o tema da predição de diabetes utilizando inteligência artificial. Cada trabalho é descrito em detalhes, abordando o contexto, a solução proposta e as principais métricas obtidas. Ao final de cada seção, é feito um comparativo com o TCC em desenvolvimento, destacando diferenças e potenciais avanços.
+
+\section{Uma abordagem baseada em redes neurais artificiais para diagnóstico de diabetes}
+O trabalho de Araújo \cite{Araujo2021} propõe uma abordagem para diagnóstico de diabetes tipo 2 por meio de redes neurais artificiais. A base de dados utilizada foi a tradicional Pima Indians Diabetes Dataset, composta por informações clínicas de pacientes como glicose, IMC, idade, pressão arterial e número de gestações. O autor justifica a escolha da base por sua ampla aceitação acadêmica e foco em variáveis fisiológicas.
+
+A técnica adotada foi o uso de uma rede neural MLP (Multilayer Perceptron), com o framework Tensor Flow. O autor aplicou técnicas de pré-processamento, como normalização dos dados e aplicação do algoritmo SMOTE para balanceamento. Os experimentos foram avaliados por meio de validação cruzada e apresentaram bons resultados, embora o trabalho não forneça uma tabela específica com métricas como acurácia ou F1-score.
+
+Comparando com o presente TCC, destaca-se que este projeto utiliza um conjunto de dados mais abrangente, o Diabetes Prediction Dataset do Kaggle, que além das variáveis clínicas, inclui fatores comportamentais e de estilo de vida como frequência de exercícios, estresse, sono e alimentação. Isso amplia a capacidade preditiva do modelo. Além disso, são utilizadas arquiteturas de redes neurais modernas com potencial de melhor desempenho.
+
+\section{Tecnologia aplicada à saúde: uso de inteligência artificial na predição de diabetes}
+Santos \cite{Santos2024} propôs o uso de algoritmos de aprendizado de máquina para prever diabetes tipo 2 em adultos. O foco do trabalho está na comparação de desempenho entre diferentes classificadores: Random Forest, Regressão Logística, K-Nearest Neighbors e Árvore de Decisão. As ferramentas utilizadas foram R e Python, com ênfase em métricas como acurácia, sensibilidade e precisão.
+
+A autora realizou uma análise sistemática dos modelos com diferentes divisões dos dados. Embora as métricas numéricas exatas não tenham sido especificadas com detalhes no resumo do trabalho, é indicado que os resultados foram satisfatórios e que o Random Forest apresentou desempenho superior entre os modelos testados.
+
+Diferente do trabalho de Santos, este TCC propõe a utilização exclusiva de redes neurais artificiais para a predição, com foco em modelagem profunda (deep learning). Além disso, destaca-se o uso de dados mais recentes e diversificados, o que pode permitir maior generalização dos resultados. 
+
+\section{Sistema Inteligente para Apoio ao Diagnóstico de Diabetes Empregando Redes Neurais}
+No projeto desenvolvido Basso \cite{Basso2014} apresenta um sistema inteligente para apoio ao diagnóstico de diabetes utilizando uma rede neural feedforward com múltiplas camadas. O sistema foi implementado em Java, com base de dados Pima Indians, e integração com o SQL Server para armazenamento dos dados. A arquitetura neural adotada possui uma camada oculta com 10 neurônios, utilizando o algoritmo de treinamento backpropagation.
+
+Foram utilizados 538 pacientes para treinamento e 230 para teste. O sistema atingiu uma acurácia de 81,31\%, com 187 acertos e 43 erros. O resultado foi considerado promissor, especialmente por superar trabalhos anteriores que utilizaram a mesma base. A normalização dos dados e a escolha empírica da arquitetura foram apontadas como pontos-chave do sucesso do modelo.
+
+Este trabalho se diferencia por utilizar tecnologias mais atuais, além de dados com variáveis comportamentais, não presentes na base Pima. Espera-se, portanto, alcançar maior desempenho preditivo, além de facilitar a integração do modelo a ambientes modernos e sistemas clínicos reais.
+
+\section{Diabetes Prediction: A Deep Learning Approach}
+No artigo desenvolvido por Islam e Islam\cite{Islam2019}, aplica-se uma abordagem de Deep Neural Network (DNN) para a predição de diabetes tipo 2, para dados tabulares. A base de dados utilizada também foi a Pima Indians, e a rede implementada possui quatro camadas ocultas com 12, 16, 16 e 14 neurônios respectivamente. O modelo foi avaliado com validação cruzada 5-fold e 10-fold.
+
+Os resultados obtidos foram bastante expressivos: 98,35\% de acurácia, 97,39\% de sensibilidade e 99,80\% de especificidade com validação 5-fold. Na validação 10-fold, a acurácia foi de 97,27\%. As ferramentas utilizadas incluíram Scikit-learn e a IDE Spyder, em Python.
+
+Embora o desempenho seja notável, o presente trabalho propõe utilizar uma base com maior diversidade de variáveis, o que pode melhorar a aplicabilidade e a robustez do modelo preditivo, o trabalho atual também propõe fazer a comparação entre os modelos treinados utilizando algoritmos clássicos de machine learning e a comparação com models de redes neurais.

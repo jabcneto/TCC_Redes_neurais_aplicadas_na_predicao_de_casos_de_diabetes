@@ -42,7 +42,7 @@ def pre_processar_dados(
     val_size: float = 0.05,
     balance_strategy: str = "smote",
     sampling_strategy: float = 0.4,
-    k_neighbors: int = 5
+    k_neighbors: int = 15
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, pd.Series, pd.Series, pd.Series, StandardScaler, OneHotEncoder, List[str]]:
     LOGGER.info("Iniciando pré-processamento dos dados.")
     X = df.drop(columns=['diabetes'])
@@ -68,10 +68,10 @@ def pre_processar_dados(
         X_val[num_cols] = X_val[num_cols].clip(lower=lower, upper=upper, axis=1)
         X_test[num_cols] = X_test[num_cols].clip(lower=lower, upper=upper, axis=1)
 
-    # One-hot encode categorical columns (drop first; ignore unknowns)
+    # # One-hot encode categorical columns (drop first; ignore unknowns)
     encoder = OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False)
 
-    # Fit on train; transform val/test; if no categorical features, return empty arrays
+    # # Fit on train; transform val/test; if no categorical features, return empty arrays
     X_train_cat = encoder.fit_transform(X_train[cat_cols]) if cat_cols else np.empty((len(X_train), 0))
     X_val_cat = encoder.transform(X_val[cat_cols]) if cat_cols else np.empty((len(X_val), 0))
     X_test_cat = encoder.transform(X_test[cat_cols]) if cat_cols else np.empty((len(X_test), 0))
@@ -82,12 +82,12 @@ def pre_processar_dados(
     X_val_num = X_val[num_cols].to_numpy(dtype=float) if num_cols else np.empty((len(X_val), 0))
     X_test_num = X_test[num_cols].to_numpy(dtype=float) if num_cols else np.empty((len(X_test), 0))
 
-    # Concatenate numeric and categorical blocks
+    # # Concatenate numeric and categorical blocks
     X_train_final = np.hstack([X_train_num, X_train_cat])
     X_val_final = np.hstack([X_val_num, X_val_cat])
     X_test_final = np.hstack([X_test_num, X_test_cat])
-
-    # Final feature names after encoding
+    #
+    # # Final feature names after encoding
     feature_names = (num_cols if num_cols else []) + cat_feature_names
 
     scaler = StandardScaler()
