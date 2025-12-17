@@ -1,174 +1,92 @@
 import argparse
-import os
-import pickle
 import pandas as pd
+import os
+import json
 
-from config import RESULTS_DIR, LOGGER, criar_diretorios_projeto
-from utils import RANDOM_STATE, DATASET_PATH
+from config import LOGGER, criar_diretorios_projeto
+from utils import DATASET_PATH
 import data_processing
 import evaluation
 
+import logging
 
-def check_tensorflow_availability():
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
+from mlp_utils import check_tensorflow_availability
+from model_management import load_classic_models, evaluate_classic_models, evaluate_mlp_models, evaluate_cnn_models
+from comparison_utils import compare_train_test_metrics
+from tuning_pipelines import (
+    run_bayesian_tuning,
+    run_cnn_bayesian_tuning
+)
+from consolidate_tuning import consolidate_tuning
+
+from training import treinar_modelo_keras_pt, summarize_history_csv
+from training_time_tracker import log_all_training_times
+from config import DEFAULT_FINAL_TRAINING_EPOCHS, DEFAULT_BATCH_SIZE, RESULTS_DIR
+from bayesian_tuning import load_hps_from_results as load_mlp_hps_from_results, create_mlp_from_hps
+from cnn_tuning import load_cnn_hps_from_trial_json, create_cnn_from_hps
+
+
+def _fmt4(v):
     try:
-        import tensorflow
-        from tensorflow.keras.models import load_model
-        import modeling
-        import training
-        return True, load_model, modeling, training
-    except Exception as e:
-        LOGGER.warning(f"TensorFlow indisponível. Partes de deep learning serão ignoradas. Detalhe: {e}")
-        return False, None, None, None
+        return f"{float(v):.4f}"
+    except Exception:
+        return "NA"
 
 
-def train_classic_models(x_train, y_train):
-    from modeling import obter_modelos_classicos
-    from training import treinar_modelos_classicos_pt
+def run_evaluation_pipeline(x_train, y_train, x_test, y_test):
+    LOGGER.info("\n--- FASE DE AVALIAÇÃO ---")
 
-    LOGGER.info("Treinando modelos clássicos...")
-    classic_models = obter_modelos_classicos(RANDOM_STATE)
-    treinar_modelos_classicos_pt(classic_models, x_train, y_train)
+    loaded_classic_models = load_classic_models(x_train, y_train)
+    all_metrics = evaluate_classic_models(loaded_classic_models, x_test, y_test)
 
+    tf_available, load_model, *_ = check_tensorflow_availability()
+    mlp_metrics = evaluate_mlp_models(x_test, y_test, tf_available, load_model)
+    cnn_metrics = evaluate_cnn_models(x_test, y_test, tf_available, load_model)
+    all_metrics.extend(mlp_metrics)
+    all_metrics.extend(cnn_metrics)
 
-def train_deep_learning_models(modeling, training, x_train, y_train, x_val, y_val):
-    from gerar_graficos import visualizar_historico_treinamento
-
-    LOGGER.info("Treinando modelos de deep learning...")
-
-    modelo_mlp = modeling.criar_modelo_mlp_pt(input_shape=(x_train.shape[1],))
-    modelo_mlp, hist_mlp = training.treinar_modelo_keras_pt(modelo_mlp, x_train, y_train, x_val, y_val, "MLP")
-    visualizar_historico_treinamento(hist_mlp, "MLP")
-
-    modelo_cnn = modeling.criar_modelo_cnn_pt(input_shape=(x_train.shape[1], 1))
-    modelo_cnn, hist_cnn = training.treinar_modelo_keras_pt(modelo_cnn, x_train, y_train, x_val, y_val, "CNN")
-    visualizar_historico_treinamento(hist_cnn, "CNN")
-
-
-def load_classic_models(x_train, y_train):
-    from modeling import obter_modelos_classicos
-    from training import treinar_modelos_classicos_pt
-
-    classic_for_names = obter_modelos_classicos(RANDOM_STATE)
-    loaded_models = {}
-    need_retrain = False
-
-    for name in classic_for_names.keys():
-        model_path = os.path.join(RESULTS_DIR, "modelos", f"{name.replace(' ', '_').lower()}.pkl")
-        try:
-            if os.path.exists(model_path):
-                with open(model_path, 'rb') as f:
-                    loaded_models[name] = pickle.load(f)
-            else:
-                LOGGER.warning(f"Modelo clássico {name} não encontrado em disco.")
-                need_retrain = True
-        except Exception as e:
-            LOGGER.warning(f"Falha ao carregar modelo clássico {name}: {e}")
-            need_retrain = True
-
-    if need_retrain:
-        LOGGER.info("Retreinando modelos clássicos devido a ausência/erro de carga...")
-        train_classic_models(x_train, y_train)
-        loaded_models = {}
-        for name in classic_for_names.keys():
-            model_path = os.path.join(RESULTS_DIR, "modelos", f"{name.replace(' ', '_').lower()}.pkl")
-            with open(model_path, 'rb') as f:
-                loaded_models[name] = pickle.load(f)
-
-    return loaded_models
-
-
-def evaluate_classic_models(loaded_models, x_test, y_test):
-    all_metrics = []
-    for name, model in loaded_models.items():
-        metrics = evaluation.avaliar_modelo(model, x_test, y_test, name, is_keras_model=False)
-        all_metrics.append(metrics)
-    return all_metrics
-
-
-def evaluate_keras_models(load_model, x_test, y_test):
-    keras_models = {
-        "MLP": "MLP_best.keras",
-        "CNN": "CNN_best.keras",
-        "Hibrido_CNN_LSTM": "Hibrido_CNN_LSTM_best.keras"
-    }
-
-    all_metrics = []
-    for name, filename in keras_models.items():
-        model_path = os.path.join(RESULTS_DIR, "modelos", filename)
-        if os.path.exists(model_path):
-            best_model = load_model(model_path)
-            metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, name, is_keras_model=True)
-            all_metrics.append(metrics)
-        else:
-            LOGGER.warning(f"Modelo Keras {name} não encontrado. Pule a avaliação ou execute com --retrain.")
-
-    return all_metrics
-
-
-def compare_train_test_metrics(loaded_classic_models, x_train, y_train, x_test, y_test, tf_available, load_model):
-    import gerar_graficos as gg
-
-    train_metrics = []
-    test_metrics = []
-
-    for name, model in loaded_classic_models.items():
-        try:
-            m_train = evaluation.avaliar_modelo(model, x_train, y_train, f"{name}_train", is_keras_model=False)
-            m_test = evaluation.avaliar_modelo(model, x_test, y_test, f"{name}_test", is_keras_model=False)
-            m_train['modelo'] = name
-            m_test['modelo'] = name
-            train_metrics.append(m_train)
-            test_metrics.append(m_test)
-        except Exception as e:
-            LOGGER.error(f"Falha ao comparar treino/teste para {name}: {e}")
-
-    if tf_available and load_model:
-        keras_models = {
-            "MLP": "MLP_best.keras",
-            "CNN": "CNN_best.keras",
-            "Hibrido_CNN_LSTM": "Hibrido_CNN_LSTM_best.keras"
-        }
-
-        for name, filename in keras_models.items():
-            model_path = os.path.join(RESULTS_DIR, "modelos", filename)
-            if not os.path.exists(model_path):
-                continue
-            try:
-                best_model = load_model(model_path)
-                m_train = evaluation.avaliar_modelo(best_model, x_train, y_train, f"{name}_train", is_keras_model=True)
-                m_test = evaluation.avaliar_modelo(best_model, x_test, y_test, f"{name}_test", is_keras_model=True)
-                m_train['modelo'] = name
-                m_test['modelo'] = name
-                train_metrics.append(m_train)
-                test_metrics.append(m_test)
-            except Exception as e:
-                LOGGER.error(f"Falha ao comparar treino/teste para {name} (Keras): {e}")
-
-    if train_metrics and test_metrics:
-        df_train = pd.DataFrame(train_metrics)
-        df_test = pd.DataFrame(test_metrics)
-        gg.visualizar_comparacao_treino_teste(df_train, df_test)
-        LOGGER.info("Comparação Treino vs Teste gerada com sucesso.")
+    if all_metrics:
+        metrics_df = pd.DataFrame(all_metrics)
+        evaluation.comparar_todos_modelos(metrics_df)
+        compare_train_test_metrics(loaded_classic_models, x_train, y_train, x_test, y_test, tf_available, load_model)
     else:
-        LOGGER.warning("Não foi possível gerar comparação Treino vs Teste (sem métricas).")
+        LOGGER.error("Nenhuma métrica foi gerada. Execute com --bayesian primeiro.")
 
 
-def plot_training_history():
-    import gerar_graficos as gg
+def run_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuning_trials):
+    best_model, best_hps = run_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=tuning_trials)
 
-    model_names = ["MLP", "CNN", "Hibrido_CNN_LSTM"]
-
-    for model_name in model_names:
-        history_path = os.path.join(RESULTS_DIR, "history", f"{model_name}_history.csv")
-        if os.path.exists(history_path):
-            df_hist = pd.read_csv(history_path)
-            gg.visualizar_historico_treinamento(df_hist, model_name)
-            LOGGER.info(f"Curvas de histórico geradas para {model_name}.")
-        else:
-            LOGGER.warning(f"Arquivo de histórico não encontrado: {history_path}")
+    if best_model is not None:
+        LOGGER.info("\n--- AVALIAÇÃO DO MODELO OTIMIZADO ---")
+        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "MLP_Tuned", is_keras_model=True, min_recall=0.80)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
 
 
-def run_pipeline(retrain_models):
+def run_cnn_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuning_trials):
+    best_model, best_hps = run_cnn_bayesian_tuning(x_train, y_train, x_val, y_val, max_trials=tuning_trials)
+
+    if best_model is not None:
+        LOGGER.info("\n--- AVALIAÇÃO DO MODELO CNN OTIMIZADO ---")
+        tuned_metrics = evaluation.avaliar_modelo(best_model, x_test, y_test, "CNN_Tuned", is_keras_model=True, min_recall=0.80)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
+
+
+def run_pipeline(tune_hyperparameters=False,
+                 tuning_trials=50,
+                 train_mlp_trial_number=None,
+                 train_mlp_trial_id=None,
+                 train_cnn_trial_json=None,
+                 run_mlp_bayesian_flag=False,
+                 run_cnn_bayesian_flag=False):
     criar_diretorios_projeto()
     LOGGER.info("--- INICIANDO PIPELINE DE PREDIÇÃO DE DIABETES ---")
 
@@ -178,48 +96,357 @@ def run_pipeline(retrain_models):
         return
 
     df = data_processing.analisar_dados(df)
-    x_train, x_val, x_test, y_train, y_val, y_test, scaler, encoder, feature_names = data_processing.pre_processar_dados(df)
+    (x_train,
+     x_val,
+     x_test,
+     y_train,
+     y_val,
+     y_test,
+     scaler,
+     encoder,
+     feature_names
+     ) = data_processing.pre_processar_dados(df)
 
-    tf_available, load_model, modeling, training = check_tensorflow_availability()
+    if train_mlp_trial_number is not None or train_mlp_trial_id is not None:
+        results_dir = os.path.join(RESULTS_DIR, 'tuning', 'bayesian_results')
+        hp = load_mlp_hps_from_results(results_dir, trial_number=train_mlp_trial_number, trial_id=train_mlp_trial_id)
+        if hp is None:
+            LOGGER.error("Hiperparâmetros do MLP não encontrados para o trial especificado.")
+            return
+        hp['input_dim'] = x_train.shape[1]
+        model = create_mlp_from_hps(hp)
+        batch_size = hp.get('batch_size', DEFAULT_BATCH_SIZE)
+        epochs = DEFAULT_FINAL_TRAINING_EPOCHS
+        model, history = treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo="MLP_Bayesian_Selected", epochs=epochs, batch_size=batch_size)
+        tuned_metrics = evaluation.avaliar_modelo(model, x_test, y_test, "MLP_Selected", is_keras_model=True)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
+        LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
+        return
 
-    if retrain_models:
-        LOGGER.info("--- FASE DE TREINAMENTO (Flag --retrain ativada) ---")
-        train_classic_models(x_train, y_train)
+    if train_cnn_trial_json is not None:
+        hps = load_cnn_hps_from_trial_json(train_cnn_trial_json)
+        if hps is None:
+            LOGGER.error("Hiperparâmetros da CNN não encontrados no arquivo informado.")
+            return
+        model = create_cnn_from_hps(hps, input_dim=x_train.shape[1])
+        batch_size = hps.get('batch_size', DEFAULT_BATCH_SIZE)
+        epochs = DEFAULT_FINAL_TRAINING_EPOCHS
+        model, history = treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo="CNN_Bayesian_Selected", epochs=epochs, batch_size=batch_size)
+        tuned_metrics = evaluation.avaliar_modelo(model, x_test, y_test, "CNN_Selected", is_keras_model=True)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
+        LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
+        return
 
-        if tf_available:
-            train_deep_learning_models(modeling, training, x_train, y_train, x_val, y_val)
-        else:
-            LOGGER.info("Treinamento de modelos de deep learning ignorado (TensorFlow ausente).")
-    else:
-        LOGGER.info("--- FASE DE TREINAMENTO PULADA (Usando modelos pré-treinados) ---")
+    run_mlp = False
+    run_cnn = False
+    if run_mlp_bayesian_flag or run_cnn_bayesian_flag:
+        run_mlp = run_mlp_bayesian_flag
+        run_cnn = run_cnn_bayesian_flag
+    elif tune_hyperparameters:
+        run_mlp = True
+        run_cnn = True
 
-    LOGGER.info("--- FASE DE AVALIAÇÃO ---")
+    any_ran = False
 
-    loaded_classic_models = load_classic_models(x_train, y_train)
-    all_metrics = evaluate_classic_models(loaded_classic_models, x_test, y_test)
+    if run_cnn:
+        run_cnn_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuning_trials)
+        any_ran = True
 
-    if tf_available and load_model:
-        keras_metrics = evaluate_keras_models(load_model, x_test, y_test)
-        all_metrics.extend(keras_metrics)
-    else:
-        LOGGER.info("Avaliação de modelos Keras ignorada (TensorFlow indisponível).")
+    if run_mlp:
+        run_tuning_pipeline(x_train, y_train, x_val, y_val, x_test, y_test, tuning_trials)
+        any_ran = True
 
-    if all_metrics:
-        metrics_df = pd.DataFrame(all_metrics)
-        evaluation.comparar_todos_modelos(metrics_df)
-    else:
-        LOGGER.error("Nenhuma métrica foi gerada. Execute com a flag --retrain primeiro.")
+    if any_ran:
+        tuning_root = os.path.join(os.path.dirname(__file__), "resultados_diabetes", "tuning")
+        t_csv, e_csv = consolidate_tuning(tuning_root)
+        LOGGER.info(f"CSV consolidado de trials: {t_csv}")
+        LOGGER.info(f"CSV consolidado de épocas: {e_csv}")
+        return
 
-    compare_train_test_metrics(loaded_classic_models, x_train, y_train, x_test, y_test, tf_available, load_model)
+    run_evaluation_pipeline(x_train, y_train, x_test, y_test)
+    LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
 
-    plot_training_history()
 
-    LOGGER.info("--- PIPELINE CONCLUÍDO ---")
+def _summarize_consolidated_tuning_history():
+    tuning_dir = os.path.join(RESULTS_DIR, 'tuning')
+    in_csv = os.path.join(tuning_dir, 'consolidated_epoch_history.csv')
+    if not os.path.exists(in_csv):
+        LOGGER.warning(f"Arquivo não encontrado: {in_csv}")
+        return None
+    df = pd.read_csv(in_csv)
+    if df.empty:
+        LOGGER.warning("Arquivo consolidated_epoch_history.csv está vazio.")
+        return None
+
+    num_cols = [c for c in df.columns if c.startswith('val_')]
+    for c in num_cols:
+        df[c] = pd.to_numeric(df[c], errors='coerce')
+
+    group_cols = ['tuning_source', 'model_type', 'trial_id', 'trial_number']
+    rows = []
+    for keys, g in df.groupby(group_cols, dropna=False):
+        data = {k: v for k, v in zip(group_cols, keys)}
+        for m in num_cols:
+            s = g[m]
+            data[f'{m}_mean'] = float(s.mean(skipna=True)) if s.notna().any() else float('nan')
+            data[f'{m}_std'] = float(s.std(skipna=True)) if s.notna().sum() > 1 else 0.0
+            data[f'{m}_min'] = float(s.min(skipna=True)) if s.notna().any() else float('nan')
+            data[f'{m}_max'] = float(s.max(skipna=True)) if s.notna().any() else float('nan')
+        rows.append(data)
+
+    out_df = pd.DataFrame(rows)
+    out_path = os.path.join(tuning_dir, 'consolidated_epoch_history_summary_by_trial.csv')
+    os.makedirs(tuning_dir, exist_ok=True)
+    out_df.to_csv(out_path, index=False)
+    LOGGER.info(f"Resumo de tuning salvo em: {out_path}")
+    return out_path
+
+
+def _find_cnn_trial_file(trial_number: int | None = None, trial_id: str | None = None) -> str | None:
+    roots = [
+        os.path.join(RESULTS_DIR, 'tuning', 'cnn_bayesian_results', 'cnn_bayesian_tuning'),
+        os.path.join(RESULTS_DIR, 'tuning', 'cnn_results', 'cnn_tuning'),
+    ]
+    candidates = []
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        if trial_number is not None:
+            names = [f"trial_{trial_number}", f"trial_{trial_number:02d}"]
+            for name in names:
+                d = os.path.join(root, name)
+                if os.path.isdir(d):
+                    candidates.append(d)
+        if trial_id is not None:
+            d = os.path.join(root, f"trial_{trial_id}")
+            if os.path.isdir(d):
+                candidates.append(d)
+    for d in candidates:
+        for fn in ['trial.json', 'build_config.json']:
+            p = os.path.join(d, fn)
+            if os.path.isfile(p):
+                return p
+        for fn in os.listdir(d):
+            if fn.endswith('.json') and os.path.isfile(os.path.join(d, fn)):
+                return os.path.join(d, fn)
+    return None
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Pipeline de Treinamento e Avaliação para Predição de Diabetes.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Exemplos de uso:
+
+  Avaliar modelos já treinados:
+     python main.py
+
+  Tuning bayesiano (CNN + MLP) com 30 trials:
+     python main.py --bayesian --trials 30
+
+  Tuning apenas MLP:
+     python main.py --bayesian-mlp --trials 30
+
+  Tuning apenas CNN:
+     python main.py --bayesian-cnn --trials 30
+
+  Retreinar MLP por trial number:
+     python main.py --train-mlp-trial-number 7
+
+  Retreinar MLP por trial id:
+     python main.py --train-mlp-trial-id 0007
+
+  Retreinar CNN por trial number (procura trial.json/build_config.json automaticamente):
+     python main.py --train-cnn-trial-number 19
+
+  Retreinar CNN por trial id (ex.: 07 ou 19):
+     python main.py --train-cnn-trial-id 19
+
+  Retreinar CNN a partir de um trial.json do Keras Tuner:
+     python main.py --train-cnn-trial-json resultados_diabetes/tuning/cnn_bayesian_results/cnn_bayesian_tuning/trial_00/trial.json
+
+  Gerar resumo de histórico para um modelo específico (sem sufixo _history.csv):
+     python main.py --summarize-history-model MLP_Bayesian_Selected
+
+  Gerar resumo de histórico para todos os modelos com CSV salvo:
+     python main.py --summarize-history-all
+
+  Gerar resumo a partir do consolidated_epoch_history.csv:
+     python main.py --summarize-tuning-history
+
+  Retreinar automaticamente os melhores modelos salvos:
+     python main.py --retrain-best-models
+        """
+    )
+
+    parser.add_argument(
+        '--bayesian',
+        action='store_true',
+        help="Executa busca bayesiana de hiperparâmetros para CNN e MLP."
+    )
+
+    parser.add_argument(
+        '--bayesian-mlp',
+        action='store_true',
+        help="Executa busca bayesiana apenas para o MLP."
+    )
+
+    parser.add_argument(
+        '--bayesian-cnn',
+        action='store_true',
+        help="Executa busca bayesiana apenas para a CNN."
+    )
+
+    parser.add_argument(
+        '--trials',
+        type=int,
+        default=50,
+        help="Número de trials para tuning. Sugestões: 15 (rápido), 50 (padrão), 100 (intensivo)."
+    )
+
+    parser.add_argument(
+        '--train-mlp-trial-number',
+        type=int,
+        help="Número do trial do MLP em bayesian_trials_detailed.json para retreino."
+    )
+
+    parser.add_argument(
+        '--train-mlp-trial-id',
+        type=str,
+        help="ID do trial do MLP em bayesian_trials_detailed.json para retreino."
+    )
+
+    parser.add_argument(
+        '--train-cnn-trial-json',
+        type=str,
+        help="Caminho para trial.json do Keras Tuner para retreino de CNN."
+    )
+
+    parser.add_argument(
+        '--train-cnn-trial-number',
+        type=int,
+        help="Número do trial da CNN."
+    )
+
+    parser.add_argument(
+        '--train-cnn-trial-id',
+        type=str,
+        help="ID do trial da CNN."
+    )
+
+    parser.add_argument(
+        '--summarize-history-all',
+        action='store_true',
+        help="Gera CSV de resumo para todos os históricos já salvos em resultados_diabetes/history/*."
+    )
+
+    parser.add_argument(
+        '--summarize-history-model',
+        type=str,
+        help="Nome do modelo para resumir histórico (sem sufixo). Ex.: MLP_Bayesian_Selected"
+    )
+
+    parser.add_argument(
+        '--summarize-tuning-history',
+        action='store_true',
+        help="Gera um CSV de resumo por trial a partir de resultados_diabetes/tuning/consolidated_epoch_history.csv."
+    )
+
+    parser.add_argument(
+        '--retrain-best-models',
+        action='store_true',
+        help="Retreina automaticamente os modelos marcados como melhores nos arquivos de configuração salvos."
+    )
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Pipeline de Treinamento e Avaliação para Predição de Diabetes.")
-    parser.add_argument('--retrain', action='store_true', help="Força retreinamento de todos os modelos.")
-    args = parser.parse_args()
+    args = parse_arguments()
 
-    run_pipeline(retrain_models=args.retrain)
+    # Retreino de CNN por número/ID de trial
+    if getattr(args, 'train_cnn_trial_number', None) is not None or getattr(args, 'train_cnn_trial_id', None) is not None:
+        criar_diretorios_projeto()
+        df = data_processing.carregar_dados(DATASET_PATH)
+        if df is None:
+            LOGGER.error("Falha ao carregar os dados.")
+            raise SystemExit(1)
+        df = data_processing.analisar_dados(df)
+        x_train, x_val, x_test, y_train, y_val, y_test, scaler, encoder, feature_names = data_processing.pre_processar_dados(df)
+        p = _find_cnn_trial_file(trial_number=getattr(args, 'train_cnn_trial_number', None), trial_id=getattr(args, 'train_cnn_trial_id', None))
+        if not p:
+            LOGGER.error("Não foi possível localizar o JSON do trial informado nas pastas de tuning.")
+            raise SystemExit(1)
+        hps = load_cnn_hps_from_trial_json(p)
+        if hps is None:
+            LOGGER.error("Hiperparâmetros da CNN não encontrados no arquivo informado.")
+            raise SystemExit(1)
+        model = create_cnn_from_hps(hps, input_dim=x_train.shape[1])
+        batch_size = hps.get('batch_size', DEFAULT_BATCH_SIZE)
+        epochs = DEFAULT_FINAL_TRAINING_EPOCHS
+        model, history = treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo="CNN_Bayesian_Selected", epochs=epochs, batch_size=batch_size)
+        tuned_metrics = evaluation.avaliar_modelo(model, x_test, y_test, "CNN_Selected", is_keras_model=True)
+        LOGGER.info(f"Precision: {_fmt4(tuned_metrics.get('precision'))}")
+        LOGGER.info(f"Recall: {_fmt4(tuned_metrics.get('recall'))}")
+        LOGGER.info(f"F1-Score: {_fmt4(tuned_metrics.get('f1'))}")
+        LOGGER.info(f"AUC-ROC: {_fmt4(tuned_metrics.get('roc_auc'))}")
+        LOGGER.info("\n--- PIPELINE CONCLUÍDO ---")
+        raise SystemExit(0)
+
+    # Retreino automático dos melhores modelos salvos
+    if getattr(args, 'retrain_best_models', False):
+        _retrain_best_models()
+        raise SystemExit(0)
+
+    # Resumo de tuning (independente dos históricos por modelo)
+    if getattr(args, 'summarize_tuning_history', False):
+        criar_diretorios_projeto()
+        _summarize_consolidated_tuning_history()
+        raise SystemExit(0)
+
+    # Resumos de histórico (sem necessidade de carregar dados)
+    if getattr(args, 'summarize_history_all', False) or getattr(args, 'summarize_history_model', None):
+        criar_diretorios_projeto()
+        hist_dir = os.path.join(RESULTS_DIR, 'history')
+        os.makedirs(hist_dir, exist_ok=True)
+
+        if getattr(args, 'summarize_history_model', None):
+            nome = args.summarize_history_model
+            out = summarize_history_csv(nome)
+            if out:
+                LOGGER.info(f"Resumo gerado para {nome}: {out}")
+            else:
+                LOGGER.warning(f"Não foi possível gerar resumo para {nome}. Verifique se existe {hist_dir}/{nome}_history.csv")
+
+        if getattr(args, 'summarize_history_all', False):
+            generated = 0
+            if os.path.isdir(hist_dir):
+                for fn in os.listdir(hist_dir):
+                    if fn.endswith('_history.csv') and os.path.isfile(os.path.join(hist_dir, fn)):
+                        nome = fn[:-12]
+                        out = summarize_history_csv(nome)
+                        if out:
+                            generated += 1
+                            LOGGER.info(f"Resumo gerado para {nome}: {out}")
+            LOGGER.info(f"Resumos gerados: {generated}")
+        raise SystemExit(0)
+
+    run_pipeline(
+        tune_hyperparameters=args.bayesian,
+        tuning_trials=args.trials,
+        train_mlp_trial_number=getattr(args, 'train_mlp_trial_number', None),
+        train_mlp_trial_id=getattr(args, 'train_mlp_trial_id', None),
+        train_cnn_trial_json=getattr(args, 'train_cnn_trial_json', None),
+        run_mlp_bayesian_flag=getattr(args, 'bayesian_mlp', False),
+        run_cnn_bayesian_flag=getattr(args, 'bayesian_cnn', False)
+    )
+    
+    # Exibir e salvar resumo final de tempos de treinamento
+    log_all_training_times()

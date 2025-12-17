@@ -1,0 +1,79 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AVISO IMPORTANTE!!!!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NÃO É NECESSÁRIO EDITAR ESTE ARQUIVO NA MAIORIA DAS VEZES.
+% QUALQUER MODIFICAÇÃO AQUI QUE NÃO SEJA FEITA DE FORMA CONSCIENTE, PODE FAZER COM QUE O DOCUMENTO NÃO COMPILE.
+% SÓ MEXA SE SOUBER O QUE ESTIVER FAZENDO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Como compilar no TeXstudio:
+% txs:///clean-files | txs:///pre-compile o| txs:///bibliography | txs:///pre-compile | txs:///compile | txs:///view
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper, % papel A4
+               12pt,    % Fonte 12pt
+               oneside  % Todas as páginas são o anverso do papel (para manter as margens iguais nas páginas pares e ímpares)
+               ]{book}  % Classe de documento = livro
+\usepackage{preambulo}  % Configurações do arquivo preambulo.sty
+\usepackage{booktabs}
+
+% Arquivo com as configurações/formatações do TCC
+%% Este arquivo deve ser editado para preencher as informações necessárias (nome do aluno, nome da banca, etc)
+\input{informacoes.txt}
+
+\begin{document}
+
+% Inserindo os pré-textuais
+\input{pretextuais/01-capa.tex} \newpage
+\setcounter{page}{1} % Começa a numeração a partir da folha de rosto
+\input{pretextuais/02-folhaderosto.tex} \newpage
+\input{pretextuais/03-aprovacao.tex} \newpage
+%\input{pretextuais/04-dedicatoria.tex} \newpage
+\input{pretextuais/05-agradecimentos.tex} \newpage
+%\input{pretextuais/06-epigrafe.tex} \newpage
+\input{conteudo/00a-resumo.tex} \newpage
+\input{conteudo/00b-abstract.tex} \newpage
+
+% Lista de Figuras
+\listoffigures
+\addtocontents{lof}{\protect\thispagestyle{empty}} % Usa o estilo de página vazio - para retirar numeração de página
+\pagestyle{empty} % Mantém as paginas seguintes do sumário sem numeração, para listas de figuras com mais de uma página
+
+% Lista de Tabelas
+\listoftables
+\addtocontents{lot}{\protect\thispagestyle{empty}} % Usa o estilo de página vazio - para retirar numeração de página
+\pagestyle{empty} % Mantém as paginas seguintes do sumário sem numeração, para listas de tabelas com mais de uma página
+
+\input{conteudo/00c-abreviaturas.tex} \newpage
+%\input{conteudo/00d-simbolos.tex} \newpage
+
+% Sumário
+\tableofcontents
+\addtocontents{toc}{\protect\thispagestyle{empty}} % Usa o estilo de página vazio - para retirar numeração de página
+\pagestyle{empty} % Mantém as paginas seguintes do sumário sem numeração, para sumários com mais de uma página
+
+\input{conteudo/capitulo_1.tex}
+\input{conteudo/capitulo_2.tex}
+\input{conteudo/capitulo_3.tex}
+\input{conteudo/capitulo_4.tex}
+\input{conteudo/capitulo_5.tex}
+
+\newpage
+% Referências Bibliográficas
+% Mantêm apenas a bibliografia em espaçamento simples - Exigência da NBR 6023:2018
+% não pode retirar o "{" desta linha nem o "}" depois das configurações do do \printbibliography
+% {\linespread{1}
+% \printbibliography[
+%     heading=bibintoc,   % Faz aparecer a bibliografia no sumário
+%     title={Referências} % Muda o nome do capítulo
+%     ]}\textsc{•}
+\begin{spacing}{1.0}
+    \printbibliography[
+        heading=bibintoc,   % Faz aparecer a bibliografia no sumário
+        title={Referências} % Muda o nome do capítulo
+        ]
+\end{spacing}
+
+% Apêndices e Anexos
+\input{conteudo/08-apendice.tex}
+
+\end{document}

@@ -1,0 +1,14 @@
+% --- CAPÍTULO 5 ---
+\chapter{Conclusão}
+
+Este trabalho de conclusão de curso abordou o desafio da predição de diabetes tipo 2, um problema de saúde pública de crescente relevância e prevalência global. O objetivo central foi desenvolver e avaliar modelos de redes neurais artificiais capazes de funcionar como uma ferramenta de apoio ao diagnóstico precoce, utilizando dados clínicos e comportamentais acessíveis.
+
+O problema foi tratado por meio da construção de um pipeline de Machine Learning robusto, aplicado a um dataset público com 100\,000 registros. Um desafio metodológico central foi o significativo desbalanceamento de classes do dataset (92\% não diabéticos e 8\% diabéticos). Para mitigar o risco de um modelo enviesado para a classe majoritária, foi implementada a técnica de data augmentation SMOTE (Synthetic Minority Over-sampling Technique), permitindo um treinamento mais equilibrado e focado na correta identificação dos casos positivos.
+
+Foram implementadas e comparadas diferentes arquiteturas de redes neurais, a Multi-Layer Perceptron (MLP) e a Rede Neural Convolucional (CNN). A otimização bayesiana foi utilizada para o ajuste fino dos hiperparâmetros das redes neurais, garantindo uma exploração eficiente do espaço de busca. Os resultados obtidos foram promissores: os modelos de redes neurais alcançaram acurácia elevada, com o MLP atingindo 89,11\% e a CNN 88,96\% após o retreinamento.
+
+Mais importante do que a acurácia, o foco na otimização de métricas como o recall (em que o MLP atingiu 91,98\%) e a análise da curva PR-AUC demonstrou a capacidade dos modelos em minimizar os falsos negativos. Esta foi uma decisão de projeto deliberada, dado que falhar em diagnosticar um paciente doente (falso negativo) representa o cenário de maior risco clínico e ético.
+
+A contribuição deste trabalho estende-se além dos resultados numéricos. A execução deste projeto exigiu uma imersão profunda nas complexidades da aplicação de inteligência artificial em um contexto de alto impacto social, utilizando ferramentas de mercado e de ponta. O desafio de tratar dados desbalanceados, implementar e otimizar arquiteturas de Deep Learning e interpretar os resultados sob a ótica da responsabilidade ética ao priorizar o recall solidificou competências técnicas em ciência de dados, engenharia de Machine Learning e pensamento crítico aplicado.
+
+Finalmente, este trabalho cumpre seus objetivos ao entregar modelos funcionais e ao validar a hipótese de que redes neurais são ferramentas eficazes para esta tarefa. O pipeline desenvolvido serve como alicerce para a criação de uma plataforma interativa e para a validação com datasets mais abrangentes, reforçando o potencial de aplicação prática da solução no campo da saúde.

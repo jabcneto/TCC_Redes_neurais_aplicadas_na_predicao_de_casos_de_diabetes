@@ -1,10 +1,18 @@
 import logging
-import os
 from datetime import datetime
 
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+import os
+
+
+import warnings
+warnings.filterwarnings('ignore')
 
 RESULTS_DIR = "resultados_diabetes"
+
+DEFAULT_EPOCHS = 100
+DEFAULT_TUNING_EPOCHS = 25
+DEFAULT_FINAL_TRAINING_EPOCHS = 100
+DEFAULT_BATCH_SIZE = 128
 
 class ColoredFormatter(logging.Formatter):
     """
@@ -66,12 +74,6 @@ def criar_diretorios_projeto():
     os.makedirs(os.path.join(RESULTS_DIR, "modelos"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "confusao"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "roc"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "importancia"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "distribuicao"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "shap"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "lime"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "logs"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "history"), exist_ok=True)
     os.makedirs(os.path.join(RESULTS_DIR, "graficos", "pr"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "calibracao"), exist_ok=True)
-    os.makedirs(os.path.join(RESULTS_DIR, "graficos", "metricas"), exist_ok=True)
