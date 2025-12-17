@@ -1,0 +1,496 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MODELO DE TCC CRIADO POR FELIPE BALDNER
+% PRIMEIRA VERSÃO EM ALGUM DIA DE 2022
+% CHANGELOG NO FIM DO ARQUIVO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AVISO IMPORTANTE!!!!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NÃO É NECESSÁRIO EDITAR ESTE ARQUIVO NA MAIORIA DAS VEZES.
+% QUALQUER MODIFICAÇÃO AQUI QUE NÃO SEJA FEITA DE FORMA CONSCIENTE, PODE FAZER COM QUE O DOCUMENTO NÃO COMPILE.
+% SÓ MEXA SE SOUBER O QUE ESTIVER FAZENDO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\DeclareUnicodeCharacter{2212}{-}   % Para não dar erros com o símbolo de subtração
+\usepackage[portuguese]{babel}      % Utiliza os termos em português
+\usepackage{csquotes}               % Necessário para o babel
+\usepackage[rightmargin=0cm,        % Pacote para criar ambiente para um bloco de citação direta
+            leftmargin=4cm,         % Suas configurações foram feitas para que a formatação fique de acordo com
+            font={%itshape,         % ABNT NBR 10520:2002 item 5.3 (4cm da margem esquerda, fonte menor, monoespaçada)
+                  footnotesize,     % O texto não é em itálico.
+                  singlespacing,},
+            indentfirst=false,
+            vskip=0cm
+            ]{quoting}
+
+% Configuração de página de acordo com a norma da UCP e ABNT NBR 14724:2011
+\usepackage[
+    a4paper,                    % Papel A4
+    top=3cm,                    % Margem superior de 30mm
+    bottom=2cm,                 % Margem inferior de 20mm
+    left=3cm,                   % Margem esquerda de 30mm
+    right=2cm,                  % Margem direita de 20mm
+    %marginparwidth=1.75cm      % DEIXAREI COMENTADO PARA VER SE INFLUENCIA EM ALGO
+]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{txfonts} % Para usar uma fonte similar à Times New Roman: Este package deve ser carregado APÓS o amsmath, para que não dê erro
+\usepackage{graphicx}
+\usepackage{multicol} % Para fazer texto com duas colunas
+\usepackage{multirow} % Para preencher varias linhas
+\usepackage{textcmds} % Para usar aspas simples \q{} e aspas duplas \qq{}
+\usepackage{float}    % Para usar a opção H em um float
+\usepackage{blindtext} % Dummy text
+\usepackage{color}    % Usar cores
+\usepackage[
+    backend=biber, % OBRIGATÓRIO SER BIBER
+    style=abnt,
+    extrayear,
+    url=true
+]{biblatex}
+
+% Configuração de tabulação/indentação do parágrafo 
+\parindent=10mm
+
+% Remove a hifenização de palavras na quebra de linhas. Se ficar esquisito o texto, comentar esse pacote.
+% \usepackage[none]{hyphenat}
+% A linha anterior estava produzindo textos não-justificados, passando da margem. Outra solução:
+% Fonte: https://groups.google.com/g/latex-br/c/nWqtwzCNtcc/m/XvWwpVkzEocJ
+\usepackage{hyphenat}
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+\hyphenchar\font=-1
+\sloppy
+
+% Espaçamento de 1.5: Descomentar apenas um tipo de espaçamento para não dar conflito
+% Como no Word: Fonte: https://latex.org/forum/viewtopic.php?t=28685
+% \linespread{1.25}
+% Espaçamento de 1,5 real: https://tex.stackexchange.com/questions/65849/confusion-onehalfspacing-vs-spacing-vs-word-vs-the-world
+% Se usar esse comando, pode desformatar as partes na qual é necessário espaçamento simples
+\usepackage{setspace}
+% \onehalfspacing
+\setstretch{1.5}
+
+% Bibliografia com Biblatex
+% Evitar usar \citeauthor{prodist2022} e \citeyear{prodist2022} pois não fica formatado corretamente.
+\usepackage[style=abnt, % Documentação: https://www.ctan.org/pkg/biblatex-abnt
+    %justify, % Imprime o texto justificado em vez de alinhado à esquerda - a NBR 6023:2018 diz que tem que ser à esquerda
+    extrayear, % Diferencia os anos com letras (e.g., 2017a) também na bibliografia
+    url=true % This option controls whether the url field and the access date is printed
+    ]{biblatex}
+\addbibresource{referencias.bib} % Documentação: https://www.ctan.org/pkg/biblatex
+% Como a versão do biblatex-abnt do Oveleaft não está atualizada, algumas formatações da norma nova ainda não foram consideradas.
+\DeclareFieldFormat{url}{\bibstring{urlfrom}\addcolon\addspace\url{#1}} % Para remover <...> das URLs
+% Espaçamento de uma linha vazia entre cada referência (NBR 6023:2018, item 6.3)
+\setlength\bibitemsep{\baselineskip}
+
+% Novos comandos criados para as informações do aluno, orientador, banca, etc.
+\providecommand{\Universidade}{}
+\newcommand{\DefineUniversidade}[1]{\renewcommand{\Universidade}{#1}}
+\providecommand{\Short}{}
+\newcommand{\DefineShort}[1]{\renewcommand{\Short}{#1}}
+\providecommand{\Departamento}{}
+\newcommand{\DefineDepartamento}[1]{\renewcommand{\Departamento}{#1}}
+\providecommand{\Curso}{}
+\newcommand{\DefineCurso}[1]{\renewcommand{\Curso}{#1}}
+\providecommand{\Local}{}
+\newcommand{\DefineLocal}[1]{\renewcommand{\Local}{#1}}
+\providecommand{\Ano}{}
+\newcommand{\DefineAno}[1]{\renewcommand{\Ano}{#1}}
+\providecommand{\Autor}{}
+\newcommand{\DefineAutor}[1]{\renewcommand{\Autor}{#1}}
+\providecommand{\Titulo}{}
+\newcommand{\DefineTitulo}[1]{\renewcommand{\Titulo}{#1}}
+\providecommand{\Orientador}{}
+\newcommand{\DefineOrientador}[1]{\renewcommand{\Orientador}{#1}}
+\providecommand{\Coordenador}{}
+\newcommand{\DefineCoordenador}[1]{\renewcommand{\Coordenador}{#1}}
+\providecommand{\BancaA}{}
+\newcommand{\DefineBancaA}[1]{\renewcommand{\BancaA}{#1}}
+\providecommand{\BancaAInst}{}
+\newcommand{\DefineBancaAInst}[1]{\renewcommand{\BancaAInst}{#1}}
+\providecommand{\BancaB}{}
+\newcommand{\DefineBancaB}[1]{\renewcommand{\BancaB}{#1}}
+\providecommand{\BancaBInst}{}
+\newcommand{\DefineBancaBInst}[1]{\renewcommand{\BancaBInst}{#1}}
+\providecommand{\BancaC}{}
+\newcommand{\DefineBancaC}[1]{\renewcommand{\BancaC}{#1}}
+\providecommand{\BancaCInst}{}
+\newcommand{\DefineBancaCInst}[1]{\renewcommand{\BancaCInst}{#1}}
+\providecommand{\Trabalho}{}
+\newcommand{\DefineTrabalho}[1]{\renewcommand{\Trabalho}{#1}}
+
+% Configurações de legenda
+\usepackage{caption}
+\captionsetup{
+    format=plain,            % parágrafo normal
+    labelformat=simple,      % legenda será nome e número
+    labelsep=endash,         % separador do título e descrição da legenda
+    textformat=period,       % termina a legenda com um ponto final
+    justification=centering, % legenda centralizada
+    font=small,              % fonte menor que a normal do texto
+    within=none,             % omite o número do capítulo da legenda
+                             % comentar a linha para incluir o número do cap.
+}
+% Cria um comando para inserir a fonte das figuras e tabelas.
+\newcommand{\source}[1]{\caption*{Fonte: {#1}}}
+
+% Habilita hyperlinks no sumário (tanto no título quanto no número da página), mas os deixa na própria cor do texto (senão, ficariam em azul)
+\usepackage[linktoc=all, hidelinks]{hyperref}
+
+% Configurações do sumário
+\usepackage{titletoc}
+% Os comandos titlecontents servem para formatar as entradas do sumário de forma que os números de seções fiquem alinhados à margem esquerda e os nomes das seções fiquem alinhados entre si, usando como referência o título cuja numeração é mais longa (subsubsection). Por tentativa e erro, essa medida foi determinada como 4pc.
+% Sobre a formatação do sumário: para que os capítulos e seções ficassem em maiúsculo, foi necessário usar o comando \uppercase
+%   ao invés do comando \MakeUppercase. Usando o \MakeUppercase dá conflito com o pacote hyperref.
+%   fonte: https://groups.google.com/g/comp.text.tex/c/rXbFGDych8o
+\titlecontents{chapter}
+    [3.5pc] % Margem esquerda medida a partir da margem esquerda da página
+    {\bfseries} % Formatação global da entrada do sumário
+    {\contentslabel{3.5pc}\uppercase} % Formatação para a entrada com número
+    {\uppercase} % Formatação para a entrada sem número
+    {\titlerule*[0.3pc]{.}\contentspage} % Preenchimento entre o título da entrada e o número da página
+\titlecontents{section}
+    [3.5pc]
+    {}
+    {\contentslabel{3.5pc}\uppercase}
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+\titlecontents{subsection}
+    [3.5pc]
+    {\bfseries}
+    {\contentslabel{3.5pc}}
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+\titlecontents{subsubsection}
+    [3.5pc]
+    {\itshape}
+    {\contentslabel{3.5pc}}
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+% Comentado pois não sei se serve pra alguma coisa
+%\titlecontents{numberless-entry-format}[3.5pc]{}         {\contentslabel{3.5pc}}{}{\titlerule*[0.3pc]{.}\contentspage}
+
+% Configurações para lista de figuras e tabelas
+% Fonte: https://tex.stackexchange.com/a/525781/186109
+% Foi usando -- pois é o equivalente ao endash do pacote caption usado para as legendas.
+% Fonte: https://tex.stackexchange.com/a/53637/186109
+
+\titlecontents{figure}[0mm]%
+    {\makebox{\figurename~}}%
+    {\makebox{\thecontentslabel~--~}}%
+    {}%
+    {~\dotfill~\thecontentspage}
+    % {\enspace\dotfill\enspace\thecontentspage}
+
+\titlecontents{table}[0mm]%
+    {\makebox{\tablename~}}%
+    {\makebox{\thecontentslabel~--~}}%
+    {}%
+    {~\dotfill~\thecontentspage}
+    % {\enspace\dotfill\enspace\thecontentspage}
+
+% Faz com que o sumário mostre até 3 níveis de seção (4 números)
+\setcounter{tocdepth}{3}
+
+% Faz com que sejam seções de até 3 níveis sejam numeradas (4 números)
+\setcounter{secnumdepth}{3}
+
+% Elimina a página vazia depois do sumário
+\let\cleardoublepage=\clearpage
+
+% Centraliza o título do sumário
+\addto\captionsportuguese{\renewcommand\contentsname{\hfill\bfseries\MakeUppercase Sumário \hfill}}
+% Centraliza o título da lista de figuras
+\addto\captionsportuguese{\renewcommand\listfigurename{\hfill\bfseries\MakeUppercase Lista de Figuras \hfill}}
+% Centraliza o título da lista de tabelas
+\addto\captionsportuguese{\renewcommand\listtablename{\hfill\bfseries\MakeUppercase Lista de Tabelas \hfill}}
+
+% Configura posicionamento dos títulos de capítulos e seções nas páginas e em referência aos parágrafos.
+% Os capítulos sem numeração (referências bibliográficas e \chapter*{}) devem ser centralizados.
+\usepackage{titlesec}
+\titleformat{\chapter}
+    [hang]
+    {\bfseries\MakeUppercase}
+    {\thechapter}
+    {10pt}
+    {\bfseries}
+\titleformat{name=\chapter,numberless}
+    [hang]
+    {\centering\bfseries\MakeUppercase}
+    {} % Deixar vazio para remover a numeração nos capítulos sem número
+    {10pt}
+    {\bfseries}
+\titleformat{\section}
+    [hang]
+    {\MakeUppercase}
+    {\thesection}
+    {10pt}
+    {}
+\titleformat{\subsection}
+    [hang]
+    {\bfseries}
+    {\thesubsection}
+    {10pt}
+    {\bfseries}
+\titleformat{\subsubsection}
+    [hang]
+    {\itshape}
+    {\thesubsubsection}
+    {10pt}
+    {\itshape}
+
+% Ajustes de espaçamento antes/depois de nome de capítulo, seção, etc, para que fiquem dentro da página
+% Os limites da página podem ser visualizados com o pacote showframe
+\titlespacing{\chapter}{0pt}{-20pt}{5pt}      % Ajusta o espaçamento antes do capítulo
+\titlespacing{\section}{0pt}{5pt}{5pt}      % Ajusta o espaçamento depois da seção
+\titlespacing{\subsection}{0pt}{5pt}{5pt}      % Ajusta o espaçamento antes e depois da subseção
+\titlespacing{\subsubsection}{0pt}{5pt}{5pt}      % Ajusta o espaçamento antes e depois da subseção
+
+% Configurações de cabeçalho/rodapé para os números de página
+\usepackage{fancyhdr}
+
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead[R]{\thepage}
+    \fancyfoot{}
+    \renewcommand{\headrulewidth}{0pt} % Elimina a linha horizontal no cabeçalho
+    \renewcommand{\footrulewidth}{0pt} % Elimina a linha horizontal no rodapé
+}
+
+\fancypagestyle{capitulos}{
+    \fancyhf{}
+    \fancyhead[R]{\thepage} % Coloca o número da página no canto superior direito de todas as páginas
+    \fancyfoot{}
+    \renewcommand{\headrulewidth}{0pt} % Elimina a linha horizontal no cabeçalho
+    \renewcommand{\footrulewidth}{0pt} % Elimina a linha horizontal no rodapé
+}
+
+% OBSERVAÇÕES:
+% # Nas páginas cujo título precise ser definido como um capítulo não numerado usando o comando \chapter*{},
+%   é automaticamente usado o estilo plain. Usar \thispagestyle{capitulos} e \pagestyle{capitulos} depois do \chapter*{}
+% # As páginas cujo título precise ser definido como um capítulo não numerado usando o comando \chapter*{},
+%   não são incluídas automaticamente no sumário. A maioria não precisa, mas os apêndices e anexos sim. Para isso, usar o comando
+%   \addcontentsline{toc}{chapter}{mesmo nome do chapter*} logo após o \chapter*{}
+% # Nas páginas sem título e que não podem ser numeradas (boa parte dos pretextuais), é necessário usar \thispagestyle{empty}
+%   para que não entre a página do estilo fancy
+% # Nos capítulos numerados deve-se usar \thispagestyle{capitulos} para forçar a numeração na primeira página. Deve-se usar
+%   depois do \chapter. Em seguida, deve-se usar \pagestyle{capitulos} para que as demais páginas também sigam o mesmo estilo.
+
+% Lista de siglas
+\usepackage{acronym}
+% Verificar o pacote \usepackage{glossaries}
+
+% Diretório/pasta padrão para figuras
+\graphicspath{{figuras/}} % Todas as figuras ficam na pasta figuras, no mesmo nivel do TCC.tex
+% Qualquer outra subpasta deve ser OU incluida no argumento do \graphicspath{{pasta1}{pasta2}...}
+% OU a subpasta deve ser incluida dentro do comando \includegraphics{pasta2/nome.png}
+
+% Configurações específicas para matemática
+\usepackage{steinmetz}            % Pacote para escrever fasores usando \phase{}
+\DeclareMathOperator{\sen}{sen}   % Cria operador para seno
+\DeclareMathOperator{\senh}{senh} % Cria operador para seno hiperbólico
+
+% Pacote para listagem de códigos e configurações das linguagens
+\usepackage{listings}
+\usepackage{listingsutf8}
+\lstset{inputencoding=utf8/latin1, numberbychapter=false}
+
+\renewcommand\lstlistingname{Código}
+\renewcommand\lstlistlistingname{Código}
+%\captionsetup[lstlisting]{numberbychapter=false}
+%\DeclareCaptionStyle{listing} [justification=raggedright,indention=0pt, labelfont=bf]{}
+%\captionsetup[lstlisting]{style=listing, labelsep=none}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+
+\lstdefinestyle{pythonstyle}{
+	language=Python,
+	basicstyle=\footnotesize\ttfamily,
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{blue},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	inputencoding=utf8/latin1,
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+	{ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+\lstdefinestyle{VHDL}{ % Configuração para o pacote listings (código VHDL)
+	language=VHDL,
+	extendedchars=true,
+	basicstyle=\footnotesize\ttfamily,
+	keywordstyle=\color{blue}\bfseries,
+	commentstyle=\color{green!50!black},
+	stringstyle=\color{red},
+	showstringspaces=false,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=2,
+	backgroundcolor=\color{black!5},
+	inputencoding=utf8/latin1,
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+	{ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+\lstdefinestyle{C}{
+	language=C++,
+	backgroundcolor=\color{white},
+	frame=single,    % Adds a single line frame around the listing
+	rulecolor=\color{black}, % Sets the color of the frame   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\linespread{1}\footnotesize\ttfamily,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=t,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	morekeywords={*,uint8_t,uint16_t,uint32_t,int8_t,int16_t,int32_t,HIGH,LOW,INPUT,OUTPUT,INPUT_PULLUP,true,false,void,volatile,boolean,byte,word}, % Palavras-chave do Arduino
+	inputencoding=utf8/latin1,
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+	{ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+\definecolor{instrcolor}{rgb}{0,0,0.8}
+\definecolor{regcolor}{rgb}{0.8,0.1,0.1}
+\definecolor{commentcolor}{rgb}{0.1,0.5,0.1}
+
+\lstdefinelanguage{AVR-asm}{
+	keywords={ldi, lds, sts, in, out, sbi, cbi, sbic, sbis, mov, movw, add, adc, sub, sbc, and, or, eor, com, neg, inc, dec, rjmp, jmp, call, ret, reti, breq, brne, brsh, brlo, cpi, cpse, push, pop},
+	keywordstyle=\color{instrcolor}\bfseries,
+	morekeywords=[2]{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,X,Y,Z,SP,SREG,DDRB,PORTB,PINB},
+	keywordstyle=[2]\color{regcolor},
+	morecomment=[l]{;},
+	commentstyle=\color{commentcolor}\itshape,
+	sensitive=false, % Assembly não costuma ser case-sensitive
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+	{ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+\lstdefinestyle{asm}{
+	language=AVR-asm,
+	backgroundcolor=\color{backcolour},
+	basicstyle=\footnotesize\ttfamily,
+	numbers=left,
+	numberstyle=\tiny\color{codegray},
+	numbersep=5pt,
+	breaklines=true,
+	extendedchars=true,
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+	{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+	{à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+	{À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+	{ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+	{â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+	{Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+	{ç}{{\c{c}}}1 {Ç}{{\c{C}}}1
+}
+
+% Para usar uma fonte similar à Times New Roman (New TX)
+\usepackage{newtxtext, newtxmath}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A FAZER:
+% # Detectar automaticamente se a banca é composta por 3 ou 4 membros na folha de aprovação 
+% # Fazer com que a dedicatória, agradecimentos e epigrafe sejam apenas um documento de texto que seja incluido na página,
+%   para evitar que mexa na formatação
+% # Criar um documento de instrução -- txt mesmo e/ou dentro do documento compilado
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% CONFIGURAÇÕES PARA TESTE DE DIAGRAMAÇÃO DO DOCUMENTO APENAS, NÃO DEVEM SER USADAS NO DOCUMENTO FINAL
+% Permite visualizar os limites da página, cabeçalho, rodapé, etc. Usado apenas para testar o layout.
+% Na versão final do TCC, manter a próxima linha comentada:
+% \usepackage{showframe}
+
+% Outro pacote para ajudar na visualização de bordas, sendo necessário usar outro comando.
+% \usepackage{adjustbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CHANGELOG:
+% 2022-XX-XX: Início do modelo sem usar templates
+% ... não registrei nada! ¯\_(ツ)_/¯
+% 2022-12-06: v0.1
+%   * Incluidos prefixos "Figura..." e "Tabela..." nas suas respectivas listas. Antes aparecia apenas o número da
+%     figura/tabela, a descrição dela e a página;
+%   * Removido um ponto final extra que tinha no comando \source{}
+% 2022-12-08: v0.2
+%   * Incluido padronização de pasta/diretório para armazenar as figuras
+% 2022-12-10: v0.3
+%   * Modificadas as configurações de justificação sem hifenização pois estava gerando textos ultrapassando os limites
+%     da margem (overfull)
+%   * Modificado o nome do capítulo de referências bibliográficas para, apenas, "Referências", seguindo a norma
+%     NBR 14724:2011
+%   * Adicionado o pacote quoting para fazer citações diretas, com mais de três linhas, de acordo com a norma
+%     ABNT NBR 10520:2002 item 5.3
+%   * Modificada a maneira como o espaçamento era feito no documento, agora usando o pacote setspace. O comando anterior
+%     está comentado, caso precise voltar.
+%   * Adicionada configuração para espaçamento de uma linha vazia entre referências (NBR 6023:2018 item 6.3)
+% 2022-12-11: v0.301
+%   * Alterado o espaçamento antes e depois dos "pontinhos" de enchimento nas listas de figuras/tabelas. Em um caso específico,
+%     que a legenda ficava ligeiramente menor que o tamanho da linha, mas não o suficiente para o número ficar na mesma linha, 
+%     não havia o preenchimento de pontinhos na segunda linha, fazendo com que o número da página ficasse na próxima linha, 
+%     mas à esquerda. Era \enspace, virou ~.
+% 2025-10-27: 0.5
+%   * Adicionado pacote listings para fazer formatação de código fonte
+%   * Adicionadas configurações do listings para VHDL, C++, Python, ASM
+% 2025-11-26: 0.6
+%   * Adicionado exemplo de listing com legenda e fonte.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

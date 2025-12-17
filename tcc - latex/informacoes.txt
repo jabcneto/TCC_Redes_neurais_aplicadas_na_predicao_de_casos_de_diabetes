@@ -1,0 +1,17 @@
+\DefineUniversidade{Universidade Católica de Petrópolis}
+\DefineShort{UCP}
+\DefineDepartamento{Centro de Engenharia e Computação}
+\DefineCurso{Engenharia De Computação}
+\DefineLocal{Petrópolis}
+\DefineAno{2025}
+\DefineAutor{João Antonio Barcelos Coutinho Neto}
+\DefineTitulo{Redes neurais aplicadas na predição de casos de diabetes}
+\DefineOrientador{Prof. Fábio Lopes Licht, D.Sc.}
+\DefineCoordenador{Prof. Fábio Lopes Licht, D.Sc.}
+\DefineBancaB{Prof. Felipe de Oliveira Baldner, M.Sc.}
+\DefineBancaBInst{Universidade Católica de Petrópolis}
+\DefineBancaA{Prof. Bruno Clemente Guingo, D.Sc.}
+\DefineBancaAInst{Universidade Católica de Petrópolis}
+\DefineBancaC{Alguém Eu Acho, Eng.}
+\DefineBancaCInst{Alguma Universidade ou Faculdade}
+\DefineTrabalho{Trabalho de Conclusão de Curso}

@@ -23,6 +23,7 @@ from tuning_pipelines import (
 from consolidate_tuning import consolidate_tuning
 
 from training import treinar_modelo_keras_pt, summarize_history_csv
+from training_time_tracker import log_all_training_times
 from config import DEFAULT_FINAL_TRAINING_EPOCHS, DEFAULT_BATCH_SIZE, RESULTS_DIR
 from bayesian_tuning import load_hps_from_results as load_mlp_hps_from_results, create_mlp_from_hps
 from cnn_tuning import load_cnn_hps_from_trial_json, create_cnn_from_hps
@@ -446,3 +447,6 @@ if __name__ == "__main__":
         run_mlp_bayesian_flag=getattr(args, 'bayesian_mlp', False),
         run_cnn_bayesian_flag=getattr(args, 'bayesian_cnn', False)
     )
+    
+    # Exibir e salvar resumo final de tempos de treinamento
+    log_all_training_times()

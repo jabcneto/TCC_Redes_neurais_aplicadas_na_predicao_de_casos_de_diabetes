@@ -1,0 +1,1596 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{Abraham2005}{incollection}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=0306322013a0992a88ec6613080076f2}{%
+           family={ABRAHAM},
+           familyi={A\bibinitperiod},
+           given={Ajith},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=d0d4f2f1c1c45cc6f6e28ddbb0147e04}{%
+           family={Sydenham},
+           familyi={S\bibinitperiod},
+           given={Peter\bibnamedelima H.},
+           giveni={P\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=04a6134797dc379d8c4b7deb8d13569b}{%
+           family={Thorn},
+           familyi={T\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {London}%
+      }
+      \list{publisher}{1}{%
+        {John Wiley \& Sons}%
+      }
+      \strng{namehash}{0306322013a0992a88ec6613080076f2}
+      \strng{fullhash}{0306322013a0992a88ec6613080076f2}
+      \strng{fullhashraw}{0306322013a0992a88ec6613080076f2}
+      \strng{bibnamehash}{0306322013a0992a88ec6613080076f2}
+      \strng{authorbibnamehash}{0306322013a0992a88ec6613080076f2}
+      \strng{authornamehash}{0306322013a0992a88ec6613080076f2}
+      \strng{authorfullhash}{0306322013a0992a88ec6613080076f2}
+      \strng{authorfullhashraw}{0306322013a0992a88ec6613080076f2}
+      \strng{editorbibnamehash}{a667d245fd53faeda58818314aa1f6db}
+      \strng{editornamehash}{a667d245fd53faeda58818314aa1f6db}
+      \strng{editorfullhash}{a667d245fd53faeda58818314aa1f6db}
+      \strng{editorfullhashraw}{a667d245fd53faeda58818314aa1f6db}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Handbook of Measuring System Design}
+      \field{title}{Artificial Neural Networks}
+      \field{year}{2005}
+      \field{pages}{901\bibrangedash 908}
+      \range{pages}{8}
+    \endentry
+    \entry{AlZubaidi2021}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=3b8206ff6419e5b7b9943128ea0dfdf5}{%
+           family={ALZUBAIDI},
+           familyi={A\bibinitperiod},
+           given={Laith},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=84e423b66be3548be05c8ccae4016954}{%
+           family={ZHANG},
+           familyi={Z\bibinitperiod},
+           given={Jinglan},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ad73ee9a33dd506a56b76dd443145c2}{%
+           family={KHALID},
+           familyi={K\bibinitperiod},
+           given={Faysal},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ef285544b66d2ae72d6b004d258dd44b}{%
+           family={YI},
+           familyi={Y\bibinitperiod},
+           given={Daoyi},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7652a7dfd589ba8fb1449d14002950cf}{%
+           family={GAO},
+           familyi={G\bibinitperiod},
+           given={Jie},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4875044022105da51aa7f4b55ea5e50d}
+      \strng{fullhash}{fa61074f129d015f95af96d9eb5352b5}
+      \strng{fullhashraw}{fa61074f129d015f95af96d9eb5352b5}
+      \strng{bibnamehash}{4875044022105da51aa7f4b55ea5e50d}
+      \strng{authorbibnamehash}{4875044022105da51aa7f4b55ea5e50d}
+      \strng{authornamehash}{4875044022105da51aa7f4b55ea5e50d}
+      \strng{authorfullhash}{fa61074f129d015f95af96d9eb5352b5}
+      \strng{authorfullhashraw}{fa61074f129d015f95af96d9eb5352b5}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Big Data}
+      \field{number}{1}
+      \field{title}{Review of deep learning: Concepts, {CNN} architectures, challenges, applications, future directions}
+      \field{volume}{8}
+      \field{year}{2021}
+      \field{pages}{1\bibrangedash 74}
+      \range{pages}{74}
+    \endentry
+    \entry{doi:10.1177/02537176211046525}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=27be2569d1f2eaad3e431db48797e633}{%
+           family={Andrade},
+           familyi={A\bibinitperiod},
+           given={Chittaranjan},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{fullhash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{fullhashraw}{27be2569d1f2eaad3e431db48797e633}
+      \strng{bibnamehash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{authorbibnamehash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{authornamehash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{authorfullhash}{27be2569d1f2eaad3e431db48797e633}
+      \strng{authorfullhashraw}{27be2569d1f2eaad3e431db48797e633}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Patients may be assessed using a battery of tests where different tests yield scores in different units, where different tests have different minimum and maximum scores, and where higher or lower scores mean different things in different tests. Therefore, a composite test score cannot be obtained by simple addition or averaging of scores in the individual tests. However, if performances in individual tests are converted to Z scores, the Z scores can be added or averaged to yield a composite score that can be interpreted or processed using conventional statistical methods. This article explains in simple ways how Z scores are calculated, what the properties of Z scores are, how Z scores can be interpreted, and how Z scores can be converted into other standard scores.}
+      \field{journaltitle}{Indian Journal of Psychological Medicine}
+      \field{note}{PMID: 35210687}
+      \field{number}{6}
+      \field{title}{Z Scores, Standard Scores, and Composite Test Scores Explained}
+      \field{volume}{43}
+      \field{year}{2021}
+      \field{pages}{555\bibrangedash 557}
+      \range{pages}{3}
+      \verb{doi}
+      \verb 10.1177/02537176211046525
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.1177/02537176211046525
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1177/02537176211046525
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1177/02537176211046525
+      \endverb
+    \endentry
+    \entry{Araujo2021}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=959600faf0d98bf2abac70e044624f22}{%
+           family={ARAÚJO},
+           familyi={A\bibinitperiod},
+           given={Lucas\bibnamedelimb Fauro\bibnamedelima de},
+           giveni={L\bibinitperiod\bibinitdelim F\bibinitperiod\bibinitdelim d\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Universidade Federal do Amapá ({UNIFAP})}%
+      }
+      \list{location}{1}{%
+        {Macapá}%
+      }
+      \strng{namehash}{959600faf0d98bf2abac70e044624f22}
+      \strng{fullhash}{959600faf0d98bf2abac70e044624f22}
+      \strng{fullhashraw}{959600faf0d98bf2abac70e044624f22}
+      \strng{bibnamehash}{959600faf0d98bf2abac70e044624f22}
+      \strng{authorbibnamehash}{959600faf0d98bf2abac70e044624f22}
+      \strng{authornamehash}{959600faf0d98bf2abac70e044624f22}
+      \strng{authorfullhash}{959600faf0d98bf2abac70e044624f22}
+      \strng{authorfullhashraw}{959600faf0d98bf2abac70e044624f22}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Uma abordagem baseada em redes neurais artificiais para diagnóstico de diabetes}
+      \field{type}{Trabalho de Conclusão de Curso}
+      \field{year}{2021}
+    \endentry
+    \entry{Basso2014}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=0fe4a72edd1f4cfa50ea2bcde0e5644f}{%
+           family={BASSO},
+           familyi={B\bibinitperiod},
+           given={Maik},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e07431ab485b4bfece4a85403dbe0658}{%
+           family={GOMES},
+           familyi={G\bibinitperiod},
+           given={G.},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e21ba4c6211a315d76b5ac3afa1ac6e5}{%
+           family={CENCI},
+           familyi={C\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7d3bacb2e34cec831bc9beed4f774e7a}{%
+           family={TRENTIN},
+           familyi={T\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=89a6f9f65bc66cc762ba67280bf45275}{%
+           family={MARX},
+           familyi={M\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{16626a7711fffb94f1034206f6554181}
+      \strng{fullhash}{d44b88dc80d45f0890cde9131cca1cc0}
+      \strng{fullhashraw}{d44b88dc80d45f0890cde9131cca1cc0}
+      \strng{bibnamehash}{16626a7711fffb94f1034206f6554181}
+      \strng{authorbibnamehash}{16626a7711fffb94f1034206f6554181}
+      \strng{authornamehash}{16626a7711fffb94f1034206f6554181}
+      \strng{authorfullhash}{d44b88dc80d45f0890cde9131cca1cc0}
+      \strng{authorfullhashraw}{d44b88dc80d45f0890cde9131cca1cc0}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Anais do {EATI} - Encontro Anual de Tecnologia da Informação}
+      \field{note}{In: ENCONTRO ANUAL DE TECNOLOGIA DA INFORMAÇÃO, {[2014]}, {UFSM}}
+      \field{title}{Sistema Inteligente para Apoio ao Diagnóstico de Diabetes Empregando Redes Neurais}
+      \field{year}{2014}
+      \field{pages}{56\bibrangedash 63}
+      \range{pages}{8}
+    \endentry
+    \entry{Bishop2006}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=35526d2c024283dadc0579bf79385937}{%
+           family={BISHOP},
+           familyi={B\bibinitperiod},
+           given={Christopher\bibnamedelima M.},
+           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{35526d2c024283dadc0579bf79385937}
+      \strng{fullhash}{35526d2c024283dadc0579bf79385937}
+      \strng{fullhashraw}{35526d2c024283dadc0579bf79385937}
+      \strng{bibnamehash}{35526d2c024283dadc0579bf79385937}
+      \strng{authorbibnamehash}{35526d2c024283dadc0579bf79385937}
+      \strng{authornamehash}{35526d2c024283dadc0579bf79385937}
+      \strng{authorfullhash}{35526d2c024283dadc0579bf79385937}
+      \strng{authorfullhashraw}{35526d2c024283dadc0579bf79385937}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Pattern Recognition and Machine Learning}
+      \field{year}{2006}
+    \endentry
+    \entry{BRASIL2022}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=0216cb0d20fc838196b8d633f7813d3b}{%
+           family={{BRASIL}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{fullhash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{fullhashraw}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{bibnamehash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{authorbibnamehash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{authornamehash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{authorfullhash}{0216cb0d20fc838196b8d633f7813d3b}
+      \strng{authorfullhashraw}{0216cb0d20fc838196b8d633f7813d3b}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Ministério da Saúde. Disponível em: \url{https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes}}
+      \field{note}{Acesso em: [Data de Acesso]. Usado para a classificação dos tipos de diabetes.}
+      \field{title}{Diabetes ({Diabetes Mellitus})}
+      \field{year}{2022}
+    \endentry
+    \entry{Burkov2020}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=29bab41c45dd051d84d6cf6a4dc30758}{%
+           family={BURKOV},
+           familyi={B\bibinitperiod},
+           given={Andriy},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {True Positive Inc.}%
+      }
+      \strng{namehash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{fullhash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{fullhashraw}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{bibnamehash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{authorbibnamehash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{authornamehash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{authorfullhash}{29bab41c45dd051d84d6cf6a4dc30758}
+      \strng{authorfullhashraw}{29bab41c45dd051d84d6cf6a4dc30758}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Machine Learning Engineering}
+      \field{year}{2020}
+    \endentry
+    \entry{Busnardo2024}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=2a018208fc941683a8b85e398a64a461}{%
+           family={Busnardo},
+           familyi={B\bibinitperiod},
+           given={Natasha\bibnamedelima Girardi},
+           giveni={N\bibinitperiod\bibinitdelim G\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Instituto Federal Catarinense, Campus Rio do Sul}%
+      }
+      \list{location}{1}{%
+        {Rio do Sul}%
+      }
+      \strng{namehash}{2a018208fc941683a8b85e398a64a461}
+      \strng{fullhash}{2a018208fc941683a8b85e398a64a461}
+      \strng{fullhashraw}{2a018208fc941683a8b85e398a64a461}
+      \strng{bibnamehash}{2a018208fc941683a8b85e398a64a461}
+      \strng{authorbibnamehash}{2a018208fc941683a8b85e398a64a461}
+      \strng{authornamehash}{2a018208fc941683a8b85e398a64a461}
+      \strng{authorfullhash}{2a018208fc941683a8b85e398a64a461}
+      \strng{authorfullhashraw}{2a018208fc941683a8b85e398a64a461}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Detecção de fake news utilizando Redes Neurais Convolucionais}
+      \field{type}{Trabalho de Conclusão de Curso (Ciência da Computação)}
+      \field{year}{2024}
+    \endentry
+    \entry{Chapelle2006}{book}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a42bc9b7c59608d5ebe5d192b8ba0abc}{%
+           family={CHAPELLE},
+           familyi={C\bibinitperiod},
+           given={Olivier},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ad97ff68de7a25694ba6deff2837cd2b}{%
+           family={SCHOLKOPF},
+           familyi={S\bibinitperiod},
+           given={Bernhard},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fe69ad42080d151a74d9a42f3fa2149d}{%
+           family={ZIEN},
+           familyi={Z\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {{MIT} Press}%
+      }
+      \strng{namehash}{dc223a7f696b3f47207057cde2770171}
+      \strng{fullhash}{dc223a7f696b3f47207057cde2770171}
+      \strng{fullhashraw}{dc223a7f696b3f47207057cde2770171}
+      \strng{bibnamehash}{dc223a7f696b3f47207057cde2770171}
+      \strng{authorbibnamehash}{dc223a7f696b3f47207057cde2770171}
+      \strng{authornamehash}{dc223a7f696b3f47207057cde2770171}
+      \strng{authorfullhash}{dc223a7f696b3f47207057cde2770171}
+      \strng{authorfullhashraw}{dc223a7f696b3f47207057cde2770171}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Semi-Supervised Learning}
+      \field{year}{2006}
+    \endentry
+    \entry{Deo2015}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=0460e58779abc7a272245559d2c7d839}{%
+           family={DEO},
+           familyi={D\bibinitperiod},
+           given={Rahul\bibnamedelima C.},
+           giveni={R\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{0460e58779abc7a272245559d2c7d839}
+      \strng{fullhash}{0460e58779abc7a272245559d2c7d839}
+      \strng{fullhashraw}{0460e58779abc7a272245559d2c7d839}
+      \strng{bibnamehash}{0460e58779abc7a272245559d2c7d839}
+      \strng{authorbibnamehash}{0460e58779abc7a272245559d2c7d839}
+      \strng{authornamehash}{0460e58779abc7a272245559d2c7d839}
+      \strng{authorfullhash}{0460e58779abc7a272245559d2c7d839}
+      \strng{authorfullhashraw}{0460e58779abc7a272245559d2c7d839}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Circulation}
+      \field{number}{20}
+      \field{title}{Machine learning in medicine}
+      \field{volume}{132}
+      \field{year}{2015}
+      \field{pages}{1920\bibrangedash 1930}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1161/CIRCULATIONAHA.115.001593
+      \endverb
+    \endentry
+    \entry{rs11243040}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=cf90c9f06c7d22272d5931339d249b7c}{%
+           family={Douzas},
+           familyi={D\bibinitperiod},
+           given={Georgios},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6246c8302b8357267ba9b548f9174c2b}{%
+           family={Bacao},
+           familyi={B\bibinitperiod},
+           given={Fernando},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=414d6228eba7bacb31da6e6bb423d848}{%
+           family={Fonseca},
+           familyi={F\bibinitperiod},
+           given={Joao},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f577373d839ea0530be6948f609132bb}{%
+           family={Khudinyan},
+           familyi={K\bibinitperiod},
+           given={Manvel},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8891bea19ad45ebc426ee96239ffb202}
+      \strng{fullhash}{974b9a61b26b4bfae1c5c6f3ebaa0af3}
+      \strng{fullhashraw}{974b9a61b26b4bfae1c5c6f3ebaa0af3}
+      \strng{bibnamehash}{8891bea19ad45ebc426ee96239ffb202}
+      \strng{authorbibnamehash}{8891bea19ad45ebc426ee96239ffb202}
+      \strng{authornamehash}{8891bea19ad45ebc426ee96239ffb202}
+      \strng{authorfullhash}{974b9a61b26b4bfae1c5c6f3ebaa0af3}
+      \strng{authorfullhashraw}{974b9a61b26b4bfae1c5c6f3ebaa0af3}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The automatic production of land use/land cover maps continues to be a challenging problem, with important impacts on the ability to promote sustainability and good resource management. The ability to build robust automatic classifiers and produce accurate maps can have a significant impact on the way we manage and optimize natural resources. The difficulty in achieving these results comes from many different factors, such as data quality and uncertainty. In this paper, we address the imbalanced learning problem, a common and difficult conundrum in remote sensing that affects the quality of classification results, by proposing Geometric-SMOTE, a novel oversampling method, as a tool for addressing the imbalanced learning problem in remote sensing. Geometric-SMOTE is a sophisticated oversampling algorithm which increases the quality of the instances generated in previous methods, such as the synthetic minority oversampling technique. The performance of Geometric- SMOTE, in the LUCAS (Land Use/Cover Area Frame Survey) dataset, is compared to other oversamplers using a variety of classifiers. The results show that Geometric-SMOTE significantly outperforms all the other oversamplers and improves the robustness of the classifiers. These results indicate that, when using imbalanced datasets, remote sensing researchers should consider the use of these new generation oversamplers to increase the quality of the classification results.}
+      \field{issn}{2072-4292}
+      \field{journaltitle}{Remote Sensing}
+      \field{number}{24}
+      \field{title}{Imbalanced Learning in Land Cover Classification: Improving Minority Classes’ Prediction Accuracy Using the Geometric SMOTE Algorithm}
+      \field{volume}{11}
+      \field{year}{2019}
+      \verb{doi}
+      \verb 10.3390/rs11243040
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/2072-4292/11/24/3040
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/2072-4292/11/24/3040
+      \endverb
+    \endentry
+    \entry{Feitosa2024}{book}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a3a4477057a3e771f85708009a86927b}{%
+           family={FEITOSA},
+           familyi={F\bibinitperiod},
+           given={Rafael\bibnamedelimb Divino\bibnamedelima Ferreira},
+           giveni={R\bibinitperiod\bibinitdelim D\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2ac9d7bb078003f33629f263aa2af19b}{%
+           family={SOUZA},
+           familyi={S\bibinitperiod},
+           given={Danilo\bibnamedelimb Turkievicz\bibnamedelima de},
+           giveni={D\bibinitperiod\bibinitdelim T\bibinitperiod\bibinitdelim d\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4d44db5f61030f9ef860c5a38ccf4578}{%
+           family={SOUZA},
+           familyi={S\bibinitperiod},
+           given={Rafael\bibnamedelima Teixeira},
+           giveni={R\bibinitperiod\bibinitdelim T\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Cegraf {UFG}}%
+      }
+      \strng{namehash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{fullhash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{fullhashraw}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{bibnamehash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{authorbibnamehash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{authornamehash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{authorfullhash}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \strng{authorfullhashraw}{4b58c4c36a9370cfcf7046dc9f48c0e0}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Introdução a Machine Learning e redes neurais}
+      \field{year}{2024}
+    \endentry
+    \entry{Freitas2024}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=0b1c9e2b3236936e1631262a11fac865}{%
+           family={FREITAS},
+           familyi={F\bibinitperiod},
+           given={N.\bibnamedelimi C.\bibnamedelimi A.\bibnamedelimi de},
+           giveni={N\bibinitperiod\bibinitdelim C\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim d\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Novatec}%
+      }
+      \strng{namehash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{fullhash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{fullhashraw}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{bibnamehash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{authorbibnamehash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{authornamehash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{authorfullhash}{0b1c9e2b3236936e1631262a11fac865}
+      \strng{authorfullhashraw}{0b1c9e2b3236936e1631262a11fac865}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{1}
+      \field{title}{Machine learning: técnicas e cases}
+      \field{year}{2024}
+    \endentry
+    \entry{Goodfellow2016}{book}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=c5068a6ab2ce78e2e4d26052bab525d4}{%
+           family={GOODFELLOW},
+           familyi={G\bibinitperiod},
+           given={Ian},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=36b53d4268575b58c0e7611e8aa2cdbb}{%
+           family={BENGIO},
+           familyi={B\bibinitperiod},
+           given={Yoshua},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3de045cad0a85c0bcd333edc4ac738c9}{%
+           family={COURVILLE},
+           familyi={C\bibinitperiod},
+           given={Aaron},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {{MIT} Press}%
+      }
+      \strng{namehash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{fullhash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{fullhashraw}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{bibnamehash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{authorbibnamehash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{authornamehash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{authorfullhash}{ea61153d5cd0db383c8a49dde8c52797}
+      \strng{authorfullhashraw}{ea61153d5cd0db383c8a49dde8c52797}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Deep Learning}
+      \field{year}{2016}
+    \endentry
+    \entry{Han2012}{book}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=56de5cf3be4430d32cba3ae551661f2d}{%
+           family={HAN},
+           familyi={H\bibinitperiod},
+           given={Jiawei},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=85b2846f07599b0708899472b82096eb}{%
+           family={KAMBER},
+           familyi={K\bibinitperiod},
+           given={Micheline},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6b293597e3ff0c0050f9391b40e566e0}{%
+           family={PEI},
+           familyi={P\bibinitperiod},
+           given={Jian},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Morgan Kaufmann}%
+      }
+      \strng{namehash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{fullhash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{fullhashraw}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{bibnamehash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{authorbibnamehash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{authornamehash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{authorfullhash}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \strng{authorfullhashraw}{c1f4e7eefc391e0849ac372e1efc0f9b}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{title}{Data Mining: Concepts and Techniques}
+      \field{year}{2012}
+    \endentry
+    \entry{Hastie2009}{book}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=4f8110d9c5d19fb4b2d79f97c11510fc}{%
+           family={HASTIE},
+           familyi={H\bibinitperiod},
+           given={Trevor},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f18b5e183b2dc1b5d93b982d50eff646}{%
+           family={TIBSHIRANI},
+           familyi={T\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=21087ce4fb031f0bde7f91b9e6bd1900}{%
+           family={FRIEDMAN},
+           familyi={F\bibinitperiod},
+           given={Jerome},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{fullhash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{fullhashraw}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{bibnamehash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{authorbibnamehash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{authornamehash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{authorfullhash}{f12a9f0b893d525093d06fe7d67f430b}
+      \strng{authorfullhashraw}{f12a9f0b893d525093d06fe7d67f430b}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{2}
+      \field{title}{The Elements of Statistical Learning: Data Mining, Inference, and Prediction}
+      \field{year}{2009}
+    \endentry
+    \entry{Haykin2009}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=c3f49084b37197de6e687ee498076a4b}{%
+           family={HAYKIN},
+           familyi={H\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Upper Saddle River, NJ}%
+      }
+      \list{publisher}{1}{%
+        {Pearson Education}%
+      }
+      \strng{namehash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{fullhash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{fullhashraw}{c3f49084b37197de6e687ee498076a4b}
+      \strng{bibnamehash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{authorbibnamehash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{authornamehash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{authorfullhash}{c3f49084b37197de6e687ee498076a4b}
+      \strng{authorfullhashraw}{c3f49084b37197de6e687ee498076a4b}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{title}{Neural Networks and Learning Machines}
+      \field{year}{2009}
+    \endentry
+    \entry{Iammustafa2022}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=e64fb42dfa8df70f7bcc255a94d20e53}{%
+           family={{IAMMUSTAFA}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{fullhash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{fullhashraw}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{bibnamehash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{authorbibnamehash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{authornamehash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{authorfullhash}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \strng{authorfullhashraw}{e64fb42dfa8df70f7bcc255a94d20e53}
+      \field{sortinit}{I}
+      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Kaggle. Disponível em: \url{https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset/data}}
+      \field{title}{Diabetes prediction dataset}
+      \field{year}{2022}
+    \endentry
+    \entry{IDF2021}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=f68d7efaad2efd0f8c0c965a34fbe5e1}{%
+           family={{IDF}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IDF}%
+      }
+      \strng{namehash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{fullhash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{fullhashraw}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{bibnamehash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{authorbibnamehash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{authornamehash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{authorfullhash}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \strng{authorfullhashraw}{f68d7efaad2efd0f8c0c965a34fbe5e1}
+      \field{sortinit}{I}
+      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{10}
+      \field{howpublished}{Disponível em: \url{https://profissional.diabetes.org.br/wp-content/uploads/2022/02/IDF_Atlas_10th_Edition_2021-.pdf}}
+      \field{title}{{IDF} Diabetes Atlas}
+      \field{year}{2021}
+    \endentry
+    \entry{Islam2019}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=7f063a012ff853251b8a7513c3968916}{%
+           family={ISLAM},
+           familyi={I\bibinitperiod},
+           given={Safial},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cad10e5f6fb02135397c282dde17eb77}{%
+           family={ISLAM},
+           familyi={I\bibinitperiod},
+           given={Md.\bibnamedelimi Milon},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{fullhash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{fullhashraw}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{bibnamehash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{authorbibnamehash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{authornamehash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{authorfullhash}{ea4bb10f9927ebbe88094716ee744ded}
+      \strng{authorfullhashraw}{ea4bb10f9927ebbe88094716ee744ded}
+      \field{sortinit}{I}
+      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Information Engineering and Electronic Business}
+      \field{number}{2}
+      \field{title}{Diabetes Prediction: A Deep Learning Approach}
+      \field{volume}{11}
+      \field{year}{2019}
+      \field{pages}{21\bibrangedash 27}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.5815/ijieeb.2019.02.03
+      \endverb
+    \endentry
+    \entry{Jetbrains2025}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=5e789c60bedf45540eacf2738959c7d2}{%
+           family={{JETBRAINS}},
+           familyi={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{fullhash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{fullhashraw}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{bibnamehash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{authorbibnamehash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{authornamehash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{authorfullhash}{5e789c60bedf45540eacf2738959c7d2}
+      \strng{authorfullhashraw}{5e789c60bedf45540eacf2738959c7d2}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://www.jetbrains.com/pycharm/}}
+      \field{title}{{PyCharm}: the {Python} {IDE} for Professional Developers}
+      \field{year}{{[2025]}}
+    \endentry
+    \entry{Kavakiotis2017}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=0536ad797cac20f127880a47acac84d2}{%
+           family={KAVAKIOTIS},
+           familyi={K\bibinitperiod},
+           given={Ioannis},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e3664d19c1a46e49af7a3afe0c46e733}{%
+           family={TABOURIS},
+           familyi={T\bibinitperiod},
+           given={Andreas},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e95038df1724e0f8c7df5c748c5c296d}{%
+           family={MAGLOGIANNIS},
+           familyi={M\bibinitperiod},
+           given={Ilias},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ecec328636dd63e4f1d6879b706ab143}{%
+           family={PAPADOPOULOS},
+           familyi={P\bibinitperiod},
+           given={Dionysios},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=754a1119a7e26b73cf1df362b447e9bd}{%
+           family={VLACHOS},
+           familyi={V\bibinitperiod},
+           given={Ioannis},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{41dd328b99f93fea93b88120a500e940}
+      \strng{fullhash}{fccfbd467a84d0ed9e0b722e17813fed}
+      \strng{fullhashraw}{fccfbd467a84d0ed9e0b722e17813fed}
+      \strng{bibnamehash}{41dd328b99f93fea93b88120a500e940}
+      \strng{authorbibnamehash}{41dd328b99f93fea93b88120a500e940}
+      \strng{authornamehash}{41dd328b99f93fea93b88120a500e940}
+      \strng{authorfullhash}{fccfbd467a84d0ed9e0b722e17813fed}
+      \strng{authorfullhashraw}{fccfbd467a84d0ed9e0b722e17813fed}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://www.csbj.org/article/S2001-0370(16)30073-3/fulltext}}
+      \field{journaltitle}{Computational and Structural Biotechnology Journal}
+      \field{title}{Machine Learning and Data Mining Methods in Diabetes Research}
+      \field{volume}{15}
+      \field{year}{2017}
+      \field{pages}{104\bibrangedash 116}
+      \range{pages}{13}
+    \endentry
+    \entry{Kovaleski2018}{report}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=47771e809125cee3f3bdc254de4d06a1}{%
+           family={KOVALESKI},
+           familyi={K\bibinitperiod},
+           given={Patrícia\bibnamedelimb de\bibnamedelima Andrade},
+           giveni={P\bibinitperiod\bibinitdelim d\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c0689eb94df1f6d39145af4857f07212}{%
+           family={RIBEIRO},
+           familyi={R\bibinitperiod},
+           given={B.\bibnamedelimi N.\bibnamedelimi A.},
+           giveni={B\bibinitperiod\bibinitdelim N\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=821b43ed6dc7dc6e54e1dd20d25aee9d}{%
+           family={GAMA},
+           familyi={G\bibinitperiod},
+           given={T.\bibnamedelimi M.},
+           giveni={T\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bcee9e1f67d802f8c7a10ef0d6ff2832}{%
+           family={FONSECA},
+           familyi={F\bibinitperiod},
+           given={L.\bibnamedelimi C.},
+           giveni={L\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Universidade Federal do Rio de Janeiro ({UFRJ})}%
+      }
+      \strng{namehash}{45393d31a3c37e16ea6a3992cfa7b7a7}
+      \strng{fullhash}{7dcdb35419253dcc524c647a138680e7}
+      \strng{fullhashraw}{7dcdb35419253dcc524c647a138680e7}
+      \strng{bibnamehash}{45393d31a3c37e16ea6a3992cfa7b7a7}
+      \strng{authorbibnamehash}{45393d31a3c37e16ea6a3992cfa7b7a7}
+      \strng{authornamehash}{45393d31a3c37e16ea6a3992cfa7b7a7}
+      \strng{authorfullhash}{7dcdb35419253dcc524c647a138680e7}
+      \strng{authorfullhashraw}{7dcdb35419253dcc524c647a138680e7}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Implementação De Redes Neurais Profundas Para Reconhecimento De Ações Vídeos}
+      \field{type}{Trabalho de Conclusão de Curso}
+      \field{year}{2018}
+    \endentry
+    \entry{LeCun2015}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=59300b0762db01e42394650c3ae5f8ca}{%
+           family={LECUN},
+           familyi={L\bibinitperiod},
+           given={Yann},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=36b53d4268575b58c0e7611e8aa2cdbb}{%
+           family={BENGIO},
+           familyi={B\bibinitperiod},
+           given={Yoshua},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ee8895bdaf24f5ed05eb8331f86e02c6}{%
+           family={HINTON},
+           familyi={H\bibinitperiod},
+           given={Geoffrey},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{fullhash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{fullhashraw}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{bibnamehash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{authorbibnamehash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{authornamehash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{authorfullhash}{b29fd4ba77951568aaf001fc016f150e}
+      \strng{authorfullhashraw}{b29fd4ba77951568aaf001fc016f150e}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{title}{Deep learning}
+      \field{volume}{521}
+      \field{year}{2015}
+      \field{pages}{436\bibrangedash 444}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1038/nature14539
+      \endverb
+    \endentry
+    \entry{McKinney2010}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a59fa9924acadf36adbfbf6b6569ad8b}{%
+           family={MCKINNEY},
+           familyi={M\bibinitperiod},
+           given={Wes},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{fullhash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{fullhashraw}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{bibnamehash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{authorbibnamehash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{authornamehash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{authorfullhash}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \strng{authorfullhashraw}{a59fa9924acadf36adbfbf6b6569ad8b}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 9th Python in Science Conference}
+      \field{title}{Data Structures for Statistical Computing in {Python}}
+      \field{volume}{445}
+      \field{year}{2010}
+      \field{pages}{56\bibrangedash 61}
+      \range{pages}{6}
+    \endentry
+    \entry{Miotto2018}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=f4a4afdff2421360bdd2f28c4f6297e5}{%
+           family={MIOTTO},
+           familyi={M\bibinitperiod},
+           given={Riccardo},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a810a9e1a0e31ef7a2b8494428f33d25}{%
+           family={WANG},
+           familyi={W\bibinitperiod},
+           given={Fei},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=72ec3445696e5c495480b3df71a518d0}{%
+           family={MONGA},
+           familyi={M\bibinitperiod},
+           given={Shoshana\bibnamedelima R.},
+           giveni={S\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ee7313bc652529558896e057364c9940}{%
+           family={JIANG},
+           familyi={J\bibinitperiod},
+           given={Xiang},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1fc07a9869f018878b1bc22843719244}{%
+           family={CHEN},
+           familyi={C\bibinitperiod},
+           given={Yueh-Hsuan},
+           giveni={Y\bibinithyphendelim H\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{10db9397256253a4adbbd8b640acaae6}
+      \strng{fullhash}{8965501f9579d707ecd0263ac3d1cc1e}
+      \strng{fullhashraw}{8965501f9579d707ecd0263ac3d1cc1e}
+      \strng{bibnamehash}{10db9397256253a4adbbd8b640acaae6}
+      \strng{authorbibnamehash}{10db9397256253a4adbbd8b640acaae6}
+      \strng{authornamehash}{10db9397256253a4adbbd8b640acaae6}
+      \strng{authorfullhash}{8965501f9579d707ecd0263ac3d1cc1e}
+      \strng{authorfullhashraw}{8965501f9579d707ecd0263ac3d1cc1e}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://academic.oup.com/bib/article/19/6/1236/3800524}}
+      \field{journaltitle}{Briefings in Bioinformatics}
+      \field{number}{6}
+      \field{title}{Deep learning for healthcare: review, opportunities and challenges}
+      \field{volume}{19}
+      \field{year}{2018}
+      \field{pages}{1236\bibrangedash 1246}
+      \range{pages}{11}
+    \endentry
+    \entry{Mitchell1997}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=10f4554f54eb03f99d0b82aaacab6f8f}{%
+           family={MITCHELL},
+           familyi={M\bibinitperiod},
+           given={Tom\bibnamedelima M.},
+           giveni={T\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {McGraw Hill}%
+      }
+      \strng{namehash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{fullhash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{fullhashraw}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{bibnamehash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{authorbibnamehash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{authornamehash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{authorfullhash}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \strng{authorfullhashraw}{10f4554f54eb03f99d0b82aaacab6f8f}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Machine Learning}
+      \field{year}{1997}
+    \endentry
+    \entry{Pedregosa2011}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=4eda15f97719a12a216e71f9f80f6acd}{%
+           family={PEDREGOSA},
+           familyi={P\bibinitperiod},
+           given={Fabien},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4eb8bda80c8b4a5843d3220d6367f048}{%
+           family={VAROQUAUX},
+           familyi={V\bibinitperiod},
+           given={Gaël},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=eddd911699de46fbf44436a574aa50c9}{%
+           family={GRAMFORT},
+           familyi={G\bibinitperiod},
+           given={Alexandre},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5844f70c9e55c993780c18d3ae5ac6ea}{%
+           family={MICHEL},
+           familyi={M\bibinitperiod},
+           given={Vincent},
+           giveni={V\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=848026adbb9a95eb4a6b28a73d976426}{%
+           family={THIRION},
+           familyi={T\bibinitperiod},
+           given={Bertrand},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0856e511f5547aa0c845469244919a18}{%
+           family={GRISEL},
+           familyi={G\bibinitperiod},
+           given={Olivier},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ac54b92da4758652910aac7cc8175849}
+      \strng{fullhash}{ac037518fb3edfd8c5b5a8baf1483313}
+      \strng{fullhashraw}{ac037518fb3edfd8c5b5a8baf1483313}
+      \strng{bibnamehash}{ac54b92da4758652910aac7cc8175849}
+      \strng{authorbibnamehash}{ac54b92da4758652910aac7cc8175849}
+      \strng{authornamehash}{ac54b92da4758652910aac7cc8175849}
+      \strng{authorfullhash}{ac037518fb3edfd8c5b5a8baf1483313}
+      \strng{authorfullhashraw}{ac037518fb3edfd8c5b5a8baf1483313}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{J. Mach. Learn. Res.}
+      \field{title}{{Scikit-learn}: machine learning in python}
+      \field{volume}{12}
+      \field{year}{2011}
+      \field{pages}{2825}
+      \range{pages}{1}
+    \endentry
+    \entry{Pighini2025}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=b21112b0be7a632ab3ba65c3ec1eb16a}{%
+           family={PIGHINI},
+           familyi={P\bibinitperiod},
+           given={Henrique\bibnamedelima Dantas},
+           giveni={H\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Universidade Federal de Ouro Preto}%
+      }
+      \strng{namehash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{fullhash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{fullhashraw}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{bibnamehash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{authorbibnamehash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{authornamehash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{authorfullhash}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \strng{authorfullhashraw}{b21112b0be7a632ab3ba65c3ec1eb16a}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://monografias.ufop.br/bitstream/35400000/7681/3/MONOGRAFIA_EstudoSobreM\%C3\%A9tricas.pdf}}
+      \field{title}{Um estudo sobre métricas para a avaliação de atributos}
+      \field{type}{Monografia}
+      \field{year}{2025}
+    \endentry
+    \entry{Prado2001}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a16c320289b489cd44948ae75a58a2a9}{%
+           family={PRADO},
+           familyi={P\bibinitperiod},
+           given={Hércules\bibnamedelimb Antonio\bibnamedelima do},
+           giveni={H\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim d\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {{PPGC} da {UFRGS}}%
+      }
+      \strng{namehash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{fullhash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{fullhashraw}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{bibnamehash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{authorbibnamehash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{authornamehash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{authorfullhash}{a16c320289b489cd44948ae75a58a2a9}
+      \strng{authorfullhashraw}{a16c320289b489cd44948ae75a58a2a9}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{bookpagination}{sheet}
+      \field{title}{Orpheo: Uma Estrutura de Trabalho para Integração dos Paradigmas de Aprendizado Supervisionado e Não-Supervisionado}
+      \field{type}{phdthesis}
+      \field{year}{2001}
+    \endentry
+    \entry{Pylinton2021}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=e6287e3305f28e559bc0f62a7113d646}{%
+           family={PYLINTON},
+           familyi={P\bibinitperiod},
+           given={Luciano},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{fullhash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{fullhashraw}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{bibnamehash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{authorbibnamehash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{authornamehash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{authorfullhash}{e6287e3305f28e559bc0f62a7113d646}
+      \strng{authorfullhashraw}{e6287e3305f28e559bc0f62a7113d646}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Revista Brasileira de Computação Aplicada}
+      \field{number}{2}
+      \field{title}{Análise de {IDEs} para desenvolvimento em {Python}: {PyCharm}, {VSCode} e {Spyder}}
+      \field{volume}{13}
+      \field{year}{2021}
+      \field{pages}{23\bibrangedash 35}
+      \range{pages}{13}
+    \endentry
+    \entry{Rocha2021}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=187d9daa231244d8fc2f9a0c153b838f}{%
+           family={ROCHA},
+           familyi={R\bibinitperiod},
+           given={Danilo\bibnamedelimb Aparecido\bibnamedelima Seganfredo},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Novatec}%
+      }
+      \strng{namehash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{fullhash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{fullhashraw}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{bibnamehash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{authorbibnamehash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{authornamehash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{authorfullhash}{187d9daa231244d8fc2f9a0c153b838f}
+      \strng{authorfullhashraw}{187d9daa231244d8fc2f9a0c153b838f}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{title}{Python para desenvolvedores}
+      \field{year}{2021}
+    \endentry
+    \entry{Santos2005}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=31db2e974cea06edba0d643b47801aa1}{%
+           family={SANTOS},
+           familyi={S\bibinitperiod},
+           given={A.\bibnamedelimi M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=1}}%
+      }
+      \strng{namehash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{fullhash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{fullhashraw}{31db2e974cea06edba0d643b47801aa1}
+      \strng{bibnamehash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{authorbibnamehash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{authornamehash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{authorfullhash}{31db2e974cea06edba0d643b47801aa1}
+      \strng{authorfullhashraw}{31db2e974cea06edba0d643b47801aa1}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Revista Brasileira de Epidemiologia}
+      \field{number}{2}
+      \field{title}{Usando Redes Neurais Artificiais e Regressão Logística na Predição da Hepatite A}
+      \field{volume}{8}
+      \field{year}{2005}
+      \field{pages}{117\bibrangedash 126}
+      \range{pages}{10}
+    \endentry
+    \entry{Santos2024}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=1,uniquepart=given,hash=2a802fd08430b9e4498eb39a0dbd8a2c}{%
+           family={SANTOS},
+           familyi={S\bibinitperiod},
+           given={Dionara\bibnamedelimb Pereira\bibnamedelima dos},
+           giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod\bibinitdelim d\bibinitperiod},
+           givenun=1}}%
+      }
+      \list{institution}{1}{%
+        {Universidade Federal do Amazonas ({UFAM})}%
+      }
+      \strng{namehash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{fullhash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{fullhashraw}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{bibnamehash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{authorbibnamehash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{authornamehash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{authorfullhash}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \strng{authorfullhashraw}{2a802fd08430b9e4498eb39a0dbd8a2c}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Tecnologia aplicada à saúde: uso de inteligência artificial na predição de diabetes para adultos}
+      \field{type}{Trabalho de Conclusão de Curso}
+      \field{year}{2024}
+    \endentry
+    \entry{SBD2025}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=6024317e5bdddf62aa295395cbde54ab}{%
+           family={{SBD}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{fullhash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{fullhashraw}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{bibnamehash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{authorbibnamehash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{authornamehash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{authorfullhash}{6024317e5bdddf62aa295395cbde54ab}
+      \strng{authorfullhashraw}{6024317e5bdddf62aa295395cbde54ab}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://diabetes.org.br/wp-content/uploads/2025/02/Dados-Epidemiologicos-SBD_comT1Dindex_2024_pdf.pdf}}
+      \field{title}{Dados Epidemiológicos do diabetes mellitus no {Brasil}}
+      \field{year}{2025}
+    \endentry
+    \entry{Sisodia2018}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=f34142ce765276626c7cc0c13495ebcd}{%
+           family={SISODIA},
+           familyi={S\bibinitperiod},
+           given={Devansh},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6ad171d58c5586c3fe459490b1704292}{%
+           family={SISODIA},
+           familyi={S\bibinitperiod},
+           given={Deepti\bibnamedelima S.},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{53c7d87871fed831d0b925fe96811988}
+      \strng{fullhash}{53c7d87871fed831d0b925fe96811988}
+      \strng{fullhashraw}{53c7d87871fed831d0b925fe96811988}
+      \strng{bibnamehash}{53c7d87871fed831d0b925fe96811988}
+      \strng{authorbibnamehash}{53c7d87871fed831d0b925fe96811988}
+      \strng{authornamehash}{53c7d87871fed831d0b925fe96811988}
+      \strng{authorfullhash}{53c7d87871fed831d0b925fe96811988}
+      \strng{authorfullhashraw}{53c7d87871fed831d0b925fe96811988}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://www.sciencedirect.com/science/article/pii/S1877050918308548?via\%3Dihub}}
+      \field{journaltitle}{Procedia Computer Science}
+      \field{title}{Prediction of diabetes using classification algorithms}
+      \field{volume}{132}
+      \field{year}{2018}
+      \field{pages}{1578\bibrangedash 1585}
+      \range{pages}{8}
+    \endentry
+    \entry{Sporl2011}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a9a5abb0aaa4e1db7483bc88fc9a45d1}{%
+           family={Spörl},
+           familyi={S\bibinitperiod},
+           given={Christiane},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ae82133c298945179c97d684cf53ca1f}{%
+           family={Castro},
+           familyi={C\bibinitperiod},
+           given={Emiliano},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f761c5ba69160edb2b20145654f7c88}{%
+           family={Luchiari},
+           familyi={L\bibinitperiod},
+           given={Ailton},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{fullhash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{fullhashraw}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{bibnamehash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{authorbibnamehash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{authornamehash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{authorfullhash}{907f4bc7bdea77308a5f86f37bb64646}
+      \strng{authorfullhashraw}{907f4bc7bdea77308a5f86f37bb64646}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Geography Department, University of Sao Paulo}
+      \field{month}{01}
+      \field{title}{Aplicação de redes neurais artificiais na construção de modelos de fragilidade ambiental}
+      \field{year}{2011}
+      \field{pages}{113\bibrangedash 135}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.7154/RDG.2011.0021.0006
+      \endverb
+    \endentry
+    \entry{Strauss2022}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=f20c7790183c11acb2b0d440c1ba6591}{%
+           family={STRAUSS},
+           familyi={S\bibinitperiod},
+           given={Eduardo},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=22b30b1b0cb10c60051e40ca1636e950}{%
+           family={JÚNIOR},
+           familyi={J\bibinitperiod},
+           given={Manoel\bibnamedelimb Villas\bibnamedelima Boas},
+           giveni={M\bibinitperiod\bibinitdelim V\bibinitperiod\bibinitdelim B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a932140121f37083cd63fccc533fe159}{%
+           family={FERREIRA},
+           familyi={F\bibinitperiod},
+           given={Wagner\bibnamedelimb Luiz\bibnamedelima Lobo},
+           giveni={W\bibinitperiod\bibinitdelim L\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{859863dee5675c291906222f7b75248e}
+      \strng{fullhash}{859863dee5675c291906222f7b75248e}
+      \strng{fullhashraw}{859863dee5675c291906222f7b75248e}
+      \strng{bibnamehash}{859863dee5675c291906222f7b75248e}
+      \strng{authorbibnamehash}{859863dee5675c291906222f7b75248e}
+      \strng{authornamehash}{859863dee5675c291906222f7b75248e}
+      \strng{authorfullhash}{859863dee5675c291906222f7b75248e}
+      \strng{authorfullhashraw}{859863dee5675c291906222f7b75248e}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{http://www.itlab.poli.ufrj.br/index.php/biblioteca/11-monografias-mb3b/22-2023?download=83:a-importancia-de-utilizar-as-metricas-adequadas-de-avaliacao-de-performance-de-modelos-preditivos-de-machine-learning-de-acordo-com-o-problema-a-ser-analisado}}
+      \field{journaltitle}{Projectus}
+      \field{number}{4}
+      \field{title}{A importância de utilizar métricas adequadas de avaliação de performance em modelos preditivos de machine learning}
+      \field{volume}{7}
+      \field{year}{2022}
+      \field{pages}{1\bibrangedash 13}
+      \range{pages}{13}
+    \endentry
+    \entry{Trask2019}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=7600a3aaffcbdd88440351fed0ea4d78}{%
+           family={TRASK},
+           familyi={T\bibinitperiod},
+           given={Andrew\bibnamedelima W.},
+           giveni={A\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Manning Publications}%
+      }
+      \strng{namehash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{fullhash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{fullhashraw}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{bibnamehash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{authorbibnamehash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{authornamehash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{authorfullhash}{7600a3aaffcbdd88440351fed0ea4d78}
+      \strng{authorfullhashraw}{7600a3aaffcbdd88440351fed0ea4d78}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Grokking Deep Learning}
+      \field{year}{2019}
+    \endentry
+    \entry{WHO2016}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=9ed1e9f759b27c20c0ee8a56113c84e3}{%
+           family={{WHO}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {WHO}%
+      }
+      \strng{namehash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{fullhash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{fullhashraw}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{bibnamehash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{authorbibnamehash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{authornamehash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{authorfullhash}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \strng{authorfullhashraw}{9ed1e9f759b27c20c0ee8a56113c84e3}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Disponível em: \url{https://www.who.int/publications/i/item/9789241565257}}
+      \field{title}{Global report on diabetes}
+      \field{year}{2016}
+    \endentry
+    \entry{WHO2021}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=425f15a5251efbd2a4185034bc37d96b}{%
+           family={{WORLD HEALTH ORGANIZATION ({WHO})}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{fullhash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{fullhashraw}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{bibnamehash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{authorbibnamehash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{authornamehash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{authorfullhash}{425f15a5251efbd2a4185034bc37d96b}
+      \strng{authorfullhashraw}{425f15a5251efbd2a4185034bc37d96b}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Genebra: {WHO}. Disponível em: \url{https://www.who.int/news-room/fact-sheets/detail/diabetes}}
+      \field{title}{Diabetes}
+      \field{year}{2021}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

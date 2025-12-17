@@ -1,7 +1,4 @@
 import os
-
-
-
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 logging.getLogger('absl').setLevel(logging.ERROR)
@@ -12,6 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from config import RESULTS_DIR, LOGGER
+from training_time_tracker import register_training_time
 
 
 def criar_callbacks_pt(nome_modelo, paciencia=25, monitor='val_pr_auc'):
@@ -126,10 +124,23 @@ def treinar_modelo_keras_pt(model, x_train, y_train, x_val, y_val, nome_modelo, 
     if class_weight is not None:
         fit_kwargs["class_weight"] = class_weight
 
+    start_time = time.time()
     history = model.fit(**fit_kwargs)
+    elapsed_time = time.time() - start_time
+    
     os.makedirs(os.path.join(RESULTS_DIR, "modelos"), exist_ok=True)
     model.save(os.path.join(RESULTS_DIR, "modelos", f"{nome_modelo}_final.keras"))
     _save_history_summary(history, nome_modelo)
+    
+    # Registrar tempo no tracker global
+    register_training_time(nome_modelo, elapsed_time)
+    
+    # Log de tempo de treinamento
+    model_name = nome_modelo.upper().replace('_', ' ')
+    LOGGER.info(f"\n{'='*60}")
+    LOGGER.info(f"⏱️  TEMPO DE TREINAMENTO - {model_name}: {elapsed_time:.2f} segundos ({elapsed_time/60:.2f} minutos)")
+    LOGGER.info(f"{'='*60}\n")
+    
     return model, history
 
 
@@ -145,12 +156,14 @@ def treinar_modelos_classicos_pt(models, x_train, y_train):
         LOGGER.warning(f"Falha ao calcular class/sample weights: {e}")
         sample_weight = None
 
+    training_times = {}
     for name, model in tqdm(models.items(), desc="Treinando modelos clássicos"):
         if hasattr(model, 'verbose'):
             model.verbose = 0
         if hasattr(model, 'verbosity'):
             model.verbosity = 0
 
+        start_time = time.time()
         if sample_weight is not None:
             try:
                 model.fit(x_train, y_train, sample_weight=sample_weight)
@@ -158,6 +171,11 @@ def treinar_modelos_classicos_pt(models, x_train, y_train):
                 model.fit(x_train, y_train)
         else:
             model.fit(x_train, y_train)
+        elapsed_time = time.time() - start_time
+        training_times[name] = elapsed_time
+        
+        # Registrar tempo no tracker global
+        register_training_time(name, elapsed_time)
 
         os.makedirs(os.path.join(RESULTS_DIR, "modelos"), exist_ok=True)
         with open(os.path.join(RESULTS_DIR, "modelos", f"{name.replace(' ', '_').lower()}.pkl"), 'wb') as f:
@@ -167,6 +185,14 @@ def treinar_modelos_classicos_pt(models, x_train, y_train):
         trained_models[name] = model
 
     LOGGER.info("Treinamento dos modelos clássicos concluído.")
+    
+    # Log de tempos de treinamento
+    LOGGER.info(f"\n{'='*60}")
+    LOGGER.info("⏱️  TEMPOS DE TREINAMENTO - MODELOS CLÁSSICOS:")
+    for name, elapsed_time in training_times.items():
+        LOGGER.info(f"   {name}: {elapsed_time:.2f} segundos ({elapsed_time/60:.2f} minutos)")
+    LOGGER.info(f"{'='*60}\n")
+    
     return trained_models
 
 
